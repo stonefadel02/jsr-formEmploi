@@ -1,4 +1,5 @@
-// models/Candidate.js
+// models/Candidat.js
+import mongoose from 'mongoose';
 import { connectCandidatsDb } from '../lib/mongodb';
 
 const candidatSchema = new mongoose.Schema({
@@ -13,12 +14,14 @@ const candidatSchema = new mongoose.Schema({
     location: { type: String, required: true },
     desiredPosition: { type: String, required: true },
   },
+  passwordHash: { type: String, required: true },
   cvUrl: { type: String, required: true },
   videoUrl: { type: String, required: true },
-  status: { type: String, enum: ['En attente', 'Validé', 'Refusé'], default: 'En attente' },
-  createdAt: { type: Date, default: Date.now },
-  updatedAt: { type: Date, default: Date.now },
+  status: { type: String, enum: ['En attente', 'Validé', 'Refusé'], default: 'En attente', index: true },
+}, {
+  timestamps: true // crée et met à jour automatiquement createdAt / updatedAt
 });
 
 const candidatsDb = await connectCandidatsDb();
 export default candidatsDb.models.Candidat || candidatsDb.model('Candidat', candidatSchema);
+
