@@ -1,14 +1,24 @@
-import mongoose from 'mongoose';
+// models/Candidate.js
+import { connectCandidatsDb } from '../lib/mongodb';
 
-const CandidateSchema = new mongoose.Schema({
-  firstName: { type: String, required: true },
-  lastName: { type: String, required: true },
-  email: { type: String, required: true, unique: true },
-  alternanceType: { type: String, required: true }, // Type de recherche d'alternance
-  video: { type: String }, // URL ou chemin de la vidéo
-  cv: { type: String }, // URL ou chemin du CV
-  status: { type: String, default: 'En attente' }, // "En attente", "Validé", "Refusé"
+const candidatSchema = new mongoose.Schema({
+  personalInfo: {
+    firstName: { type: String, required: true },
+    lastName: { type: String, required: true },
+    email: { type: String, required: true, unique: true },
+    phone: { type: String },
+  },
+  alternanceSearch: {
+    sector: { type: String, required: true },
+    location: { type: String, required: true },
+    desiredPosition: { type: String, required: true },
+  },
+  cvUrl: { type: String, required: true },
+  videoUrl: { type: String, required: true },
+  status: { type: String, enum: ['En attente', 'Validé', 'Refusé'], default: 'En attente' },
   createdAt: { type: Date, default: Date.now },
+  updatedAt: { type: Date, default: Date.now },
 });
 
-export default mongoose.models.Candidate || mongoose.model('Candidate', CandidateSchema);
+const candidatsDb = await connectCandidatsDb();
+export default candidatsDb.models.Candidat || candidatsDb.model('Candidat', candidatSchema);
