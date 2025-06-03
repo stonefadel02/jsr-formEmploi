@@ -35,7 +35,6 @@ export default function Register() {
       });
 
       const data = await response.json();
-      console.log("Réponse API :", data, "Statut :", response.status);
 
       if (!response.ok) {
         throw new Error(data.message || "Erreur lors de la connexion");

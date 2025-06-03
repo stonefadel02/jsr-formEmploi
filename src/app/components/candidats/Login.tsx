@@ -3,12 +3,13 @@
 import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import Navbar from "../navbar/page";
+import Navbar from "../Navbar";
 
-export default function Register() {
+export default function Login() {
   const [formData, setFormData] = useState({
     email: "",
     password: "",
+    role: "candidat",
   });
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
@@ -25,7 +26,7 @@ export default function Register() {
     setSuccess("");
 
     try {
-      const response = await fetch("http://localhost:3000/api/candidats/register", {
+      const response = await fetch("http://localhost:8000/api/login", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -35,7 +36,6 @@ export default function Register() {
       });
 
       const data = await response.json();
-      console.log("Réponse API :", data, "Statut :", response.status);
 
       if (!response.ok) {
         throw new Error(data.message || "Erreur lors de la connexion");
@@ -44,7 +44,7 @@ export default function Register() {
       setSuccess("Connexion réussie !");
       localStorage.setItem("token", data.token);
       // Rediriger vers une page après connexion (exemple)
-      // window.location.href = "/dashboard";
+      window.location.href = "/dashboard";
     } catch (err: unknown) {
       if (err instanceof Error) {
         setError(err.message);
@@ -55,11 +55,12 @@ export default function Register() {
   };
 
   return (
-    <><Navbar /><div className="min-h-screen bg-[#F6F6F6] flex items-center justify-center p-4">
+    
+     <><Navbar /><div className="min-h-screen bg-[#F6F6F6] flex items-center justify-center p-4">
       <div className="mt-32" >
         <div className="bg-white p-10 rounded-[15px] shadow-md w-full max-w-lg">
-          <h2 className="text-[25px] font-semibold  text-left text-black mb-6">
-            Créer un compte avec votre email
+          <h2 className="text-[25px] font-bold  text-left text-black mb-6">
+            Connexion par email
           </h2>
           {error && (
             <p className="text-red-600 text-center mb-4 bg-red-100 p-2 rounded">
@@ -71,7 +72,7 @@ export default function Register() {
               {success}
             </p>
           )}
-          <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+          <form onSubmit={handleSubmit} className="space-y-6">
             <div>
               <input
                 type="email"
@@ -80,7 +81,7 @@ export default function Register() {
                 value={formData.email}
                 onChange={handleChange}
                 placeholder="example@gmail.com"
-                className="mt-1 block w-full px-4 py-3 border text-gray-600 border-[#C4C4C4] rounded-[15px] placeholder-[#D9D9D9] focus:ring-purple-900 focus:border-purple-900"
+                className="mt-1 block w-full px-4 py-3 border text-gray-700 border-[#C4C4C4] rounded-[15px] placeholder-[#D9D9D9] focus:ring-purple-900 focus:border-purple-900"
                 required />
             </div>
             <div className="">
@@ -88,19 +89,19 @@ export default function Register() {
               <input
                 type="password"
                 name="password"
-                placeholder="5 Symbole minimum"
+                placeholder="Mot de passe"
                 id="password"
                 value={formData.password}
                 onChange={handleChange}
-                className="mt-2 block w-full px-4 py-3  border border-[#C4C4C4] text-gray-700 rounded-[15px] placeholder-[#D9D9D9] focus:ring-purple-900 focus:border-purple-900"
+                className="mt-2 block w-full px-4 py-3 border border-[#C4C4C4] text-gray-700 rounded-[15px] placeholder-[#D9D9D9] focus:ring-purple-900 focus:border-purple-900"
                 required />
             </div>
 
             <button
               type="submit"
-              className="w-full font-extrabold bg-[#7A20DA] cursor-pointer text-white py-3 px-4 rounded-lg hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 transition duration-200"
+              className="w-full bg-[#7A20DA] cursor-pointer  text-white py-3 px-4 rounded-lg hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 transition duration-200"
             >
-              Créer un compte
+              Continuez
             </button>
 
             <div className="flex items-center gap-5 justify-between ">
@@ -110,7 +111,7 @@ export default function Register() {
             </div>
           </form>
           <div className="mt-4 text-center">
-            <button className="w-full bg-white border cursor-pointer border-[#C4C4C4] text-gray-700 py-3 px-4 rounded-lg hover:bg-gray-50 flex items-center justify-center gap-4">
+            <button className="w-full bg-white border cursor-pointer border-gray-300 text-gray-700 py-3 px-4 rounded-lg hover:bg-gray-50 flex items-center justify-center space-x-2">
               <Image
                 src="/Google.svg"
                 alt="Google logo"
@@ -134,9 +135,9 @@ export default function Register() {
           </p>
         </div>
         <p className="mt-4 text-[#616161] text-[16px] text-center">
-          Deja un compte sur JSR ?{' '}
-          <Link href="/components/login" className="text-[#7A20DA] hover:underline">
-            Se connecter
+          Pas de compte sur JSR ?{' '}
+          <Link href="/components/register" className="text-[#7A20DA] hover:underline">
+            Créez un compte
           </Link>
         </p>
       </div>
