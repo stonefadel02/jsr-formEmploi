@@ -1,15 +1,10 @@
 // models/Employer.js
 import mongoose from 'mongoose';
-import { connectEmployersDb } from '../lib/mongodb';
 
 const employerSchema = new mongoose.Schema({
   companyName: { type: String, required: true },
   email: { type: String, required: true, unique: true },
-  passwordHash: { type: String, required: true },
-  phone: { type: String },
-  website: { type: String },
-  sector: { type: String },
-  description: { type: String },
+  password: { type: String, required: true },
   
   status: { 
     type: String, 
@@ -25,13 +20,6 @@ const employerSchema = new mongoose.Schema({
     index: true
   },
 
-  offers: [
-    {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'Offer' // à créer plus tard
-    }
-  ],
-
   subscription: {
     plan: { type: String, enum: ['Gratuit', 'Standard', 'Premium'], default: 'Gratuit' },
     startDate: { type: Date, default: Date.now },
@@ -42,11 +30,4 @@ const employerSchema = new mongoose.Schema({
 
 employerSchema.index({ status: 1, role: 1 });
 
-async function getEmployerModel() {
-  console.log('Connecting to Employers Database for Employer model...');
-  const employersDb = await connectEmployersDb();
-  console.log('Employer model connected to Employers Database');
-  return employersDb.models.Employer || employersDb.model('Employer', employerSchema);
-}
-
-export default getEmployerModel();
+export default mongoose.models.Employer || mongoose.model('Employer', employerSchema);
