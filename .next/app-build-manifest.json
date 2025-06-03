@@ -6,10 +6,30 @@
       "static/css/app/layout.css",
       "static/chunks/app/layout.js"
     ],
-    "/components/login/page": [
+    "/page": [
       "static/chunks/webpack.js",
       "static/chunks/main-app.js",
-      "static/chunks/app/components/login/page.js"
+      "static/chunks/app/page.js"
+    ],
+    "/api/candidats/login/route": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/api/candidats/login/route.js"
+    ],
+    "/api/candidats/register/route": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/api/candidats/register/route.js"
+    ],
+    "/api/employeurs/register/route": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/api/employeurs/register/route.js"
+    ],
+    "/api/employeurs/login/route": [
+      "static/chunks/webpack.js",
+      "static/chunks/main-app.js",
+      "static/chunks/app/api/employeurs/login/route.js"
     ]
   }
 }
