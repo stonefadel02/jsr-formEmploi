@@ -1,1 +1,7 @@
-{}
+{
+  "/components/Employer/Login_employeur": "app/components/Employer/Login_employeur.js",
+  "/_not-found/page": "app/_not-found/page.js",
+  "/pages/acceuil/page": "app/pages/acceuil/page.js",
+  "/components/register/page": "app/components/register/page.js",
+  "/components/login/page": "app/components/login/page.js"
+}
