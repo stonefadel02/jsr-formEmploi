@@ -4,6 +4,8 @@ import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import Navbar from "../navbar/page";
+import { signIn } from "next-auth/react";
+
 
 export default function Register() {
   const [formData, setFormData] = useState({
@@ -109,7 +111,10 @@ export default function Register() {
             </div>
           </form>
           <div className="mt-4 text-center">
-            <button className="w-full bg-white border cursor-pointer border-[#C4C4C4] text-gray-700 py-3 px-4 rounded-lg hover:bg-gray-50 flex items-center justify-center gap-4">
+            <button 
+            type="button"
+            onClick={() => signIn("google")}
+             className="w-full bg-white border cursor-pointer border-[#C4C4C4] text-gray-700 py-3 px-4 rounded-lg hover:bg-gray-50 flex items-center justify-center gap-4">
               <Image
                 src="/Google.svg"
                 alt="Google logo"
