@@ -16,21 +16,25 @@ if (!global.mongoose) {
 
 async function connectCandidatsDb() {
   if (cached.candidatsConn) {
+    console.log('Using cached connection for Candidates Database');
     return cached.candidatsConn;
   }
 
   const opts = { bufferCommands: false };
   cached.candidatsConn = await mongoose.createConnection(MONGODB_CANDIDATS_URI, opts);
+  console.log('Connected to Candidates Database');
   return cached.candidatsConn;
 }
 
 async function connectEmployersDb() {
   if (cached.employersConn) {
+    console.log('Using cached connection for Employers Database');
     return cached.employersConn;
   }
 
   const opts = { bufferCommands: false };
   cached.employersConn = await mongoose.createConnection(MONGODB_EMPLOYERS_URI, opts);
+  console.log('Connected to Employers Database');
   return cached.employersConn;
 }
 
