@@ -1,4 +1,4 @@
 {
-  "/favicon.ico/route": "app/favicon.ico/route.js",
-  "/components/login/page": "app/components/login/page.js"
+  "/api/employeurs/login/route": "app/api/employeurs/login/route.js",
+  "/page": "app/page.js"
 }

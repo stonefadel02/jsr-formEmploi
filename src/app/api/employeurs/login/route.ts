@@ -1,28 +1,40 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { connectEmployersDb } from '@/lib/mongodb';
-import Employer from '@/models/Employer';
+import EmployerPromise from '@/models/Employer';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
+import { ApiResponse } from '@/lib/types';
 
-export async function POST(req: NextRequest) {
+interface LoginResponse {
+  message: string;
+  token: string;
+  employer: {
+    id: string;
+    companyName: string;
+    email: string;
+  };
+}
+
+export async function POST(req: NextRequest): Promise<NextResponse<ApiResponse<LoginResponse>>> {
   try {
     const body = await req.json();
     const { email, password } = body;
 
     if (!email || !password) {
-      return NextResponse.json({ message: 'Email et mot de passe requis.' }, { status: 400 });
+      return NextResponse.json({ success: false, message: 'Email et mot de passe requis.' }, { status: 400 });
     }
 
     await connectEmployersDb();
+    const Employer = await EmployerPromise; // Résoudre la Promise
 
     const employer = await Employer.findOne({ email });
     if (!employer) {
-      return NextResponse.json({ message: 'Email invalide.' }, { status: 401 });
+      return NextResponse.json({ success: false, message: 'Email invalide.' }, { status: 401 });
     }
 
     const isValidPassword = await bcrypt.compare(password, employer.password);
     if (!isValidPassword) {
-      return NextResponse.json({ message: 'Mot de passe invalide.' }, { status: 401 });
+      return NextResponse.json({ success: false, message: 'Mot de passe invalide.' }, { status: 401 });
     }
 
     const token = jwt.sign(
@@ -32,17 +44,19 @@ export async function POST(req: NextRequest) {
     );
 
     return NextResponse.json({
-      message: 'Connexion réussie',
-      token,
-      employer: {
-        id: employer._id,
-        firstName: employer.firstName,
-        lastName: employer.lastName,
-        email: employer.email,
+      success: true,
+      data: {
+        message: 'Connexion réussie',
+        token,
+        employer: {
+          id: employer._id.toString(),
+          companyName: employer.companyName,
+          email: employer.email,
+        },
       },
     }, { status: 200 });
   } catch (error) {
     console.error('Erreur connexion :', error instanceof Error ? error.message : error);
-    return NextResponse.json({ message: 'Erreur serveur' }, { status: 500 });
+    return NextResponse.json({ success: false, message: 'Erreur serveur' }, { status: 500 });
   }
 }
