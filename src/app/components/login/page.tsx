@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import Navbar from "../navbar/page";
+import { signIn } from "next-auth/react";
 
 export default function Login() {
   const [formData, setFormData] = useState({
@@ -55,8 +56,8 @@ export default function Login() {
   };
 
   return (
-    
-     <><Navbar /><div className="min-h-screen bg-[#F6F6F6] flex items-center justify-center p-4">
+
+    <><Navbar /><div className="min-h-screen bg-[#F6F6F6] flex items-center justify-center p-4">
       <div className="mt-32" >
         <div className="bg-white p-10 rounded-[15px] shadow-md w-full max-w-lg">
           <h2 className="text-[25px] font-bold  text-left text-black mb-6">
@@ -111,7 +112,10 @@ export default function Login() {
             </div>
           </form>
           <div className="mt-4 text-center">
-            <button className="w-full bg-white border cursor-pointer border-gray-300 text-gray-700 py-3 px-4 rounded-lg hover:bg-gray-50 flex items-center justify-center gap-4">
+            <button
+              type="button"
+              onClick={() => signIn("google")}
+              className="w-full bg-white border cursor-pointer border-gray-300 text-gray-700 py-3 px-4 rounded-lg hover:bg-gray-50 flex items-center justify-center gap-4">
               <Image
                 src="/Google.svg"
                 alt="Google logo"
