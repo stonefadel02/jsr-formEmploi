@@ -1,3 +1,4 @@
 {
-  "/pages/acceuil/page": "app/pages/acceuil/page.js"
+  "/favicon.ico/route": "app/favicon.ico/route.js",
+  "/components/login/page": "app/components/login/page.js"
 }

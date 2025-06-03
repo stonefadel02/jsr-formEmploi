@@ -5,11 +5,10 @@ import Link from "next/link";
 import Image from "next/image";
 import Navbar from "../navbar/page";
 
-export default function Login() {
+export default function Register() {
   const [formData, setFormData] = useState({
     email: "",
     password: "",
-    role: "candidat",
   });
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
@@ -26,7 +25,7 @@ export default function Login() {
     setSuccess("");
 
     try {
-      const response = await fetch("http://localhost:8000/api/login", {
+      const response = await fetch("http://localhost:3000/api/candidats/register", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -36,6 +35,7 @@ export default function Login() {
       });
 
       const data = await response.json();
+      console.log("Réponse API :", data, "Statut :", response.status);
 
       if (!response.ok) {
         throw new Error(data.message || "Erreur lors de la connexion");
@@ -44,7 +44,7 @@ export default function Login() {
       setSuccess("Connexion réussie !");
       localStorage.setItem("token", data.token);
       // Rediriger vers une page après connexion (exemple)
-      window.location.href = "/dashboard";
+      // window.location.href = "/dashboard";
     } catch (err: unknown) {
       if (err instanceof Error) {
         setError(err.message);
@@ -58,7 +58,7 @@ export default function Login() {
     <><Navbar /><div className="min-h-screen bg-[#F6F6F6] flex items-center justify-center p-4">
       <div className="mt-32" >
         <div className="bg-white p-10 rounded-[15px] shadow-md w-full max-w-lg">
-          <h2 className="text-[25px] font-bold  text-left text-black mb-6">
+          <h2 className="text-[25px] font-semibold  text-left text-black mb-6">
             Créer un compte avec votre email
           </h2>
           {error && (
@@ -71,7 +71,7 @@ export default function Login() {
               {success}
             </p>
           )}
-          <form onSubmit={handleSubmit} className="space-y-6">
+          <form onSubmit={handleSubmit} className="flex flex-col gap-4">
             <div>
               <input
                 type="email"
@@ -80,7 +80,7 @@ export default function Login() {
                 value={formData.email}
                 onChange={handleChange}
                 placeholder="example@gmail.com"
-                className="mt-1 block w-full px-4 py-3 border text-gray-700 border-[#C4C4C4] rounded-[15px] placeholder-[#D9D9D9] focus:ring-purple-900 focus:border-purple-900"
+                className="mt-1 block w-full px-4 py-3 border text-gray-600 border-[#C4C4C4] rounded-[15px] placeholder-[#D9D9D9] focus:ring-purple-900 focus:border-purple-900"
                 required />
             </div>
             <div className="">
@@ -98,7 +98,7 @@ export default function Login() {
 
             <button
               type="submit"
-              className="w-full bg-[#7A20DA] cursor-pointer text-white py-3 px-4 rounded-lg hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 transition duration-200"
+              className="w-full font-extrabold bg-[#7A20DA] cursor-pointer text-white py-3 px-4 rounded-lg hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 transition duration-200"
             >
               Créer un compte
             </button>
@@ -110,7 +110,7 @@ export default function Login() {
             </div>
           </form>
           <div className="mt-4 text-center">
-            <button className="w-full bg-white border cursor-pointer border-gray-300 text-gray-700 py-3 px-4 rounded-lg hover:bg-gray-50 flex items-center justify-center space-x-2">
+            <button className="w-full bg-white border cursor-pointer border-[#C4C4C4] text-gray-700 py-3 px-4 rounded-lg hover:bg-gray-50 flex items-center justify-center gap-4">
               <Image
                 src="/Google.svg"
                 alt="Google logo"
