@@ -1,5 +1,6 @@
-import { connectEmployersDb } from '../lib/mongodb';
+// models/Employer.js
 import mongoose from 'mongoose';
+import { connectEmployersDb } from '../lib/mongodb';
 
 const employerSchema = new mongoose.Schema({
   companyName: { type: String, required: true },
@@ -38,5 +39,14 @@ const employerSchema = new mongoose.Schema({
     isActive: { type: Boolean, default: false }
   }
 }, { timestamps: true });
+
 employerSchema.index({ status: 1, role: 1 });
 
+async function getEmployerModel() {
+  console.log('Connecting to Employers Database for Employer model...');
+  const employersDb = await connectEmployersDb();
+  console.log('Employer model connected to Employers Database');
+  return employersDb.models.Employer || employersDb.model('Employer', employerSchema);
+}
+
+export default getEmployerModel();

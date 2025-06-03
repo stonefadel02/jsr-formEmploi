@@ -1,1 +1,3 @@
-{}
+{
+  "/pages/acceuil/page": "app/pages/acceuil/page.js"
+}
