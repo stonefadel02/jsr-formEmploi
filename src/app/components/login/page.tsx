@@ -9,7 +9,6 @@ export default function Login() {
   const [formData, setFormData] = useState({
     email: "",
     password: "",
-    role: "candidat",
   });
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
@@ -26,7 +25,7 @@ export default function Login() {
     setSuccess("");
 
     try {
-      const response = await fetch("http://localhost:8000/api/login", {
+      const response = await fetch("http://localhost:3000/api/candidats/login", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -36,6 +35,7 @@ export default function Login() {
       });
 
       const data = await response.json();
+      console.log("Réponse API :", data, "Statut :", response.status);
 
       if (!response.ok) {
         throw new Error(data.message || "Erreur lors de la connexion");
@@ -44,7 +44,7 @@ export default function Login() {
       setSuccess("Connexion réussie !");
       localStorage.setItem("token", data.token);
       // Rediriger vers une page après connexion (exemple)
-      window.location.href = "/dashboard";
+      // window.location.href = "/dashboard";
     } catch (err: unknown) {
       if (err instanceof Error) {
         setError(err.message);
@@ -72,7 +72,7 @@ export default function Login() {
               {success}
             </p>
           )}
-          <form onSubmit={handleSubmit} className="space-y-6">
+          <form onSubmit={handleSubmit} className="flex flex-col gap-4">
             <div>
               <input
                 type="email"
@@ -111,7 +111,7 @@ export default function Login() {
             </div>
           </form>
           <div className="mt-4 text-center">
-            <button className="w-full bg-white border cursor-pointer border-gray-300 text-gray-700 py-3 px-4 rounded-lg hover:bg-gray-50 flex items-center justify-center space-x-2">
+            <button className="w-full bg-white border cursor-pointer border-gray-300 text-gray-700 py-3 px-4 rounded-lg hover:bg-gray-50 flex items-center justify-center gap-4">
               <Image
                 src="/Google.svg"
                 alt="Google logo"

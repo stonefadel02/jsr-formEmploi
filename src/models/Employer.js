@@ -4,11 +4,7 @@ import mongoose from 'mongoose';
 const employerSchema = new mongoose.Schema({
   companyName: { type: String, required: true },
   email: { type: String, required: true, unique: true },
-  passwordHash: { type: String, required: true },
-  phone: { type: String },
-  website: { type: String },
-  sector: { type: String },
-  description: { type: String },
+  password: { type: String, required: true },
   
   status: { 
     type: String, 
@@ -24,13 +20,6 @@ const employerSchema = new mongoose.Schema({
     index: true
   },
 
-  offers: [
-    {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'Offer' // à créer plus tard
-    }
-  ],
-
   subscription: {
     plan: { type: String, enum: ['Gratuit', 'Standard', 'Premium'], default: 'Gratuit' },
     startDate: { type: Date, default: Date.now },
@@ -40,3 +29,4 @@ const employerSchema = new mongoose.Schema({
 }, { timestamps: true });
 employerSchema.index({ status: 1, role: 1 });
 
+export default mongoose.models.Employer || mongoose.model('Employer', employerSchema);
