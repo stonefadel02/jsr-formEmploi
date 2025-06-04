@@ -4,7 +4,6 @@ import CandidatPromise from '../../../../models/Candidats';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { ApiResponse } from '@/lib/types';
-import { ApiResponse } from '@/lib/types';
 
 
 interface RegisterResponse {
