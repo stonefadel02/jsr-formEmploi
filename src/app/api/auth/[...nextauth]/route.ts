@@ -1,10 +1,9 @@
-///home/devgbss/IPCM/jsr-formEmploi/src/app/api/[...nextauth]/route.ts
+// app/api/auth/[...nextauth]/route.ts
 import NextAuth, { NextAuthOptions } from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
-import { MongoDBAdapter } from "@next-auth/mongodb-adapter";
-import clientPromise from "@/lib/mongo";
-import { connectCandidatsDb } from '@/lib/mongodb';
-import Candidate from "@/models/Candidate";
+import CandidatModelPromise from "@/models/Candidats";
+
+import { ICandidat } from "@/lib/types";
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -15,23 +14,24 @@ export const authOptions: NextAuthOptions = {
   ],
   secret: process.env.NEXTAUTH_SECRET,
   session: {
-    strategy: "jwt", // tu peux aussi utiliser "database" si tu préfères stocker les sessions dans Mongo
+    strategy: "jwt",
   },
   pages: {
-    signIn: "/components/register", // optionnel : ta propre page de login
+    signIn: "/components/register",
   },
   callbacks: {
     async signIn({ user }) {
-      await connectCandidatsDb();
-      const existing = await Candidate.findOne({ email: user.email });
+      const CandidateModel = await CandidatModelPromise;
+
+      const existing = await CandidateModel.findOne({ email: user.email });
 
       if (!existing) {
-        await Candidate.create({
-          email: user.email,
+        const newCandidate: Partial<ICandidat> = {
+          email: user.email || '',
           authProvider: 'google',
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        });
+        };
+
+        await CandidateModel.create(newCandidate);
       }
 
       return true;
@@ -47,15 +47,13 @@ export const authOptions: NextAuthOptions = {
 
     async session({ session, token }) {
       if (token) {
-        session.user.email = token.email;
-        session.user.name = token.name;
+        session.user.email = token.email as string;
+        session.user.name = token.name as string;
       }
       return session;
     },
   },
-
-
 };
 
 const handler = NextAuth(authOptions);
-export { handler as GET, handler as POST }; // Requis avec app router (si tu utilises `/app` au lieu de `/pages`)
+export { handler as GET, handler as POST };
