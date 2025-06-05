@@ -11,6 +11,7 @@ declare global {
   var _mongoClientPromise: Promise<MongoClient> | undefined;
 }
 
+
 // En développement, conserve une instance globale
 if (process.env.NODE_ENV !== "production") {
   if (!global._mongoClientPromise) {
