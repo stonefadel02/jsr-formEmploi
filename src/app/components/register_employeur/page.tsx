@@ -4,15 +4,17 @@ import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import Navbar from "../navbar/page";
+import { useRouter } from "next/navigation";
 
 export default function Login() {
   const [formData, setFormData] = useState({
+    companyName: "",
     email: "",
     password: "",
-    role: "candidat",
   });
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const router = useRouter();
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
@@ -26,7 +28,7 @@ export default function Login() {
     setSuccess("");
 
     try {
-      const response = await fetch("http://localhost:8000/api/login", {
+      const response = await fetch("http://localhost:3000/api/employeurs/register", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -44,7 +46,7 @@ export default function Login() {
       setSuccess("Connexion réussie !");
       localStorage.setItem("token", data.token);
       // Rediriger vers une page après connexion (exemple)
-      window.location.href = "/dashboard";
+      // window.location.href = "/dashboard";
     } catch (err: unknown) {
       if (err instanceof Error) {
         setError(err.message);
@@ -83,11 +85,11 @@ export default function Login() {
                 </label>
                 <input
                   type="text"
-                  name="text"
+                  name="companyName"
                   id="text"
-                  value={formData.email}
+                  value={formData.companyName}
                   onChange={handleChange}
-                  placeholder="example@gmail.com"
+                  placeholder=""
                   className="mt-1 block w-full px-4 py-3 border text-gray-700 border-[#C4C4C4] rounded-[15px] placeholder-[#D9D9D9] focus:ring-purple-900 focus:border-purple-900"
                   required
                 />
@@ -156,7 +158,10 @@ export default function Login() {
               </div>
             </form>
             <div className="mt-4 text-center">
-              <button className="w-full bg-white border cursor-pointer border-gray-300 text-gray-700 py-3 px-4 rounded-lg hover:bg-gray-50 flex items-center justify-center space-x-2">
+              <button
+              type="button"
+              onClick={() => router.push("/auth/redirect?userType=employeur")}
+               className="w-full bg-white border cursor-pointer border-gray-300 text-gray-700 py-3 px-4 rounded-lg hover:bg-gray-50 flex items-center justify-center space-x-2">
                 <Image
                   src="/Google.svg"
                   alt="Google logo"

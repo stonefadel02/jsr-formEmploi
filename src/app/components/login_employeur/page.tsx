@@ -4,12 +4,12 @@ import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import Navbar from "../navbar/page";
+import { signIn } from "next-auth/react";
 
 export default function Login() {
   const [formData, setFormData] = useState({
     email: "",
     password: "",
-    role: "candidat",
   });
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
@@ -26,7 +26,7 @@ export default function Login() {
     setSuccess("");
 
     try {
-      const response = await fetch("http://localhost:8000/api/login", {
+      const response = await fetch("http://localhost:3000/api/candidats/login", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -36,15 +36,16 @@ export default function Login() {
       });
 
       const data = await response.json();
+      console.log("Réponse API :", data, "Statut :", response.status);
 
       if (!response.ok) {
         throw new Error(data.message || "Erreur lors de la connexion");
       }
 
       setSuccess("Connexion réussie !");
-      localStorage.setItem("token", data.token);
+      localStorage.setItem("Etoken", data.token);
       // Rediriger vers une page après connexion (exemple)
-      window.location.href = "/dashboard";
+      // window.location.href = "/dashboard";
     } catch (err: unknown) {
       if (err instanceof Error) {
         setError(err.message);
@@ -55,12 +56,12 @@ export default function Login() {
   };
 
   return (
-    
-     <><Navbar /><div className="min-h-screen bg-[#F6F6F6] flex items-center justify-center p-4">
+
+    <><Navbar /><div className="min-h-screen bg-[#F6F6F6] flex items-center justify-center p-4">
       <div className="mt-32" >
         <div className="bg-white p-10 rounded-[15px] shadow-md w-full max-w-lg">
           <h2 className="text-[25px] font-bold  text-left text-black mb-6">
-          Connexion Employeur
+            Connexion employeur
           </h2>
           {error && (
             <p className="text-red-600 text-center mb-4 bg-red-100 p-2 rounded">
@@ -72,7 +73,7 @@ export default function Login() {
               {success}
             </p>
           )}
-          <form onSubmit={handleSubmit} className="space-y-6">
+          <form onSubmit={handleSubmit} className="flex flex-col gap-4">
             <div>
               <input
                 type="email"
@@ -85,6 +86,7 @@ export default function Login() {
                 required />
             </div>
             <div className="">
+              <label className="text-black mt-4 font-bold text-[18px]" htmlFor="">Mot de passe</label>
               <input
                 type="password"
                 name="password"
@@ -110,7 +112,10 @@ export default function Login() {
             </div>
           </form>
           <div className="mt-4 text-center">
-            <button className="w-full bg-white border cursor-pointer border-gray-300 text-gray-700 py-3 px-4 rounded-lg hover:bg-gray-50 flex items-center justify-center space-x-2">
+            <button
+              type="button"
+              onClick={() => signIn("google")}
+              className="w-full bg-white border cursor-pointer border-gray-300 text-gray-700 py-3 px-4 rounded-lg hover:bg-gray-50 flex items-center justify-center gap-4">
               <Image
                 src="/Google.svg"
                 alt="Google logo"
@@ -133,7 +138,7 @@ export default function Login() {
             .
           </p>
         </div>
-        <p className="mt-10 text-[#616161] text-[16px] text-center">
+        <p className="mt-4 text-[#616161] text-[16px] text-center">
           Pas de compte sur JSR ?{' '}
           <Link href="/components/register" className="text-[#7A20DA] hover:underline">
             Créez un compte

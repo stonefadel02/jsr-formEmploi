@@ -1,6 +1,12 @@
 // lib/types.ts
 import { Types } from 'mongoose';
 import { NextRequest } from 'next/server';
+import { User } from "next-auth";
+
+export interface MyUser extends User {
+  userType?: string;
+}
+
 
 export interface IPersonalInfo {
   firstName?: string;
