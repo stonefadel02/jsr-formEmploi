@@ -1,37 +1,35 @@
-import  { Schema, Model } from 'mongoose';
-import { ICandidat, IPersonalInfo, IAlternanceSearch } from '@/lib/types';
-import { connectCandidatsDb } from '@/lib/mongodb';
+import { Schema, Model } from 'mongoose';
+import { connectCandidatsDb } from '../lib/mongodb';
+import { ICandidat } from '@/lib/types';
 
-// Définir les schémas
-const personalInfoSchema: Schema<IPersonalInfo> = new Schema({
-  firstName: { type: String },
-  lastName: { type: String },
-  email: { type: String, required: true, unique: true },
-  phone: { type: String },
-  password: { type: String, required: true },
-});
-
-const alternanceSearchSchema: Schema<IAlternanceSearch> = new Schema({
-  sector: { type: String },
-  location: { type: String },
-  level: { type: String },
-  contracttype: { type: String },
-});
-
-const candidatSchema: Schema<ICandidat> = new Schema({
-  personalInfo: { type: personalInfoSchema, required: true },
-  alternanceSearch: { type: alternanceSearchSchema, default: {} },
-  cvUrl: { type: String },
-  videoUrl: { type: String },
-  status: { 
-    type: String, 
-    enum: ['En attente', 'Validé', 'Refusé'], 
-    default: 'En attente',
-    index: true 
+// Schéma Mongoose
+const candidateSchema = new Schema<ICandidat>(
+  {
+    firstName: { type: String },
+    lastName: { type: String },
+    email: { type: String, required: true, unique: true },
+    password: {
+      type: String,
+      required: function (this: ICandidat) {
+        return this.authProvider === 'local';
+      },
+    },
+    authProvider: { type: String, default: 'local' },
+    phone: { type: String },
+    alternanceSearch: {
+      sector: { type: String },
+      location: { type: String },
+      level: { type: String },
+      contracttype: { type: String },
+    },
+    cvUrl: { type: String },
+    videoUrl: { type: String },
+    // status: { type: String, enum: ['En attente', 'Validé', 'Refusé'], default: 'En attente', index: true },
   },
-}, {
-  timestamps: true,
-});
+  {
+    timestamps: true,
+  }
+);
 
 // Fonction pour obtenir le modèle
 const getCandidatModel = async (): Promise<Model<ICandidat>> => {
@@ -43,7 +41,7 @@ const getCandidatModel = async (): Promise<Model<ICandidat>> => {
   }
 
   // Sinon, définir le modèle
-  return db.model<ICandidat>('Candidat', candidatSchema);
+  return db.model<ICandidat>('Candidat', candidateSchema);
 };
 
 // Exporter une instance unique du modèle

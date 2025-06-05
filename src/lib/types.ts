@@ -1,6 +1,12 @@
 // lib/types.ts
 import { Types } from 'mongoose';
 import { NextRequest } from 'next/server';
+import { User } from "next-auth";
+
+export interface MyUser extends User {
+  userType?: string;
+}
+
 
 export interface IPersonalInfo {
   firstName?: string;
@@ -17,15 +23,24 @@ export interface IAlternanceSearch {
   contracttype?: string;
 }
 
-export interface ICandidat {
+export interface ICandidat extends Document {
   _id: Types.ObjectId;
-  personalInfo: IPersonalInfo;
-  alternanceSearch: IAlternanceSearch;
+  firstName?: string;
+  lastName?: string;
+  email: string;
+  password?: string;
+  authProvider: string;
+  phone?: string;
+  alternanceSearch?: {
+    sector?: string;
+    location?: string;
+    level?: string;
+    contracttype?: string;
+  };
   cvUrl?: string;
   videoUrl?: string;
-  status: 'En attente' | 'Validé' | 'Refusé';
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
 export interface ISubscription {
@@ -40,6 +55,7 @@ export interface IEmployer {
   companyName: string;
   email: string;
   password: string;
+  authProvider: string;
   status: 'En attente' | 'Validé' | 'Suspendu' | 'Refusé';
   role: 'employeur' | 'admin';
   subscription: ISubscription;

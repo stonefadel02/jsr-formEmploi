@@ -4,8 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import Navbar from "../navbar/page";
-import { signIn } from "next-auth/react";
-
+import { useRouter } from "next/navigation";
 
 export default function Register() {
   const [formData, setFormData] = useState({
@@ -14,6 +13,7 @@ export default function Register() {
   });
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const router = useRouter();  
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
@@ -43,7 +43,7 @@ export default function Register() {
       }
 
       setSuccess("Connexion réussie !");
-      localStorage.setItem("token", data.token);
+      localStorage.setItem("Ctoken", data.token);
       // Rediriger vers une page après connexion (exemple)
       // window.location.href = "/dashboard";
     } catch (err: unknown) {
@@ -113,7 +113,7 @@ export default function Register() {
           <div className="mt-4 text-center">
             <button 
             type="button"
-            onClick={() => signIn("google")}
+            onClick={() => router.push("/auth/redirect?userType=candidat")}
              className="w-full bg-white border cursor-pointer border-[#C4C4C4] text-gray-700 py-3 px-4 rounded-lg hover:bg-gray-50 flex items-center justify-center gap-4">
               <Image
                 src="/Google.svg"

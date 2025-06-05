@@ -1,112 +1,324 @@
 'use client';
 
-import Footer from "@/app/components/footer/page";
-import Navbar from "@/app/components/navbar/page";
+import { useState, useEffect } from 'react';
+import axios from 'axios';
+import { useRouter } from 'next/navigation';
+import Footer from '@/app/components/footer/page';
+import Navbar from '@/app/components/navbar/page';
+
+// Interface pour les données des candidats
+interface Candidat {
+  _id: string;
+  personalInfo: {
+    firstName: string;
+    lastName: string;
+    email: string;
+  };
+  alternanceSearch: {
+    sector: string;
+    location: string;
+    level: string;
+    contracttype: string;
+  };
+  createdAt: string;
+}
+
+interface ApiResponse {
+  success: boolean;
+  data: {
+    candidats: Candidat[];
+    total: number;
+  };
+  message?: string;
+}
+
+// Interface pour les options des filtres
+interface FilterOptions {
+  sectors: string[];
+  locations: string[];
+  levels: string[];
+  contractTypes: string[];
+}
+
+interface FilterApiResponse {
+  success: boolean;
+  data: FilterOptions;
+  message?: string;
+}
 
 export default function ProfileEmployeur() {
+  const router = useRouter();
+  const [candidats, setCandidats] = useState<Candidat[]>([]);
+  const [total, setTotal] = useState<number>(0);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+
+  // État pour les options des filtres
+  const [filterOptions, setFilterOptions] = useState<FilterOptions>({
+    sectors: [],
+    locations: [],
+    levels: [],
+    contractTypes: [],
+  });
+
+  // États pour les filtres et la pagination
+  const [filters, setFilters] = useState({
+    keyword: '',
+    sector: '',
+    location: '',
+    level: '',
+    contracttype: '', // Ajout du filtre contracttype
+    sortBy: 'date' as 'date' | 'relevance' | 'location',
+    page: 1,
+    limit: 10,
+  });
+
+  // Récupérer les options des filtres
+  const fetchFilterOptions = async () => {
+    try {
+      const response = await axios.get<FilterApiResponse>('/api/candidats/filters');
+      if (response.data.success) {
+        setFilterOptions(response.data.data);
+      } else {
+        console.error('Erreur récupération options filtres:', response.data.message);
+      }
+    } catch (err) {
+      console.error('Erreur fetchFilterOptions:', err);
+    }
+  };
+
+  // Récupérer les candidats via l'API
+  const fetchCandidats = async () => {
+    setLoading(true);
+    setError(null);
+
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        setError('Veuillez vous connecter.');
+        return;
+      }
+
+      const response = await axios.get<ApiResponse>('/api/candidats/allCandidats', {
+        headers: { Authorization: `Bearer ${token}` },
+        params: {
+          keyword: filters.keyword || undefined,
+          sector: filters.sector || undefined,
+          location: filters.location || undefined,
+          level: filters.level || undefined,
+          contracttype: filters.contracttype || undefined, // Ajout du paramètre
+          sortBy: filters.sortBy,
+          page: filters.page,
+          limit: filters.limit,
+        },
+      });
+
+      if (response.data.success) {
+        setCandidats(response.data.data.candidats);
+        setTotal(response.data.data.total);
+      } else {
+        setError(response.data.message || 'Erreur lors de la récupération des candidats.');
+      }
+    } catch (err) {
+      setError('Erreur serveur. Veuillez réessayer plus tard.');
+      console.error('Erreur fetchCandidats:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Appeler les APIs au chargement
+  useEffect(() => {
+    fetchFilterOptions(); // Récupérer les options des filtres
+    fetchCandidats(); // Récupérer les candidats
+  }, []);
+
+  // Appeler fetchCandidats à chaque changement de filtres
+  useEffect(() => {
+    fetchCandidats();
+  }, [filters]);
+
+  // Gérer les changements des filtres
+  const handleFilterChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const { name, value } = e.target;
+    setFilters((prev) => ({
+      ...prev,
+      [name]: value,
+      page: 1,
+    }));
+  };
+
+  // Gérer le changement de page
+  const handlePageChange = (newPage: number) => {
+    setFilters((prev) => ({
+      ...prev,
+      page: newPage,
+    }));
+  };
+
+  // Anonymiser le nom
+  const anonymizeName = (firstName: string) => {
+    return `C-${firstName.charAt(0)}--------`;
+  };
+
+  // Formater la date
+  const formatDate = (date: string) => {
+    return new Date(date).toLocaleDateString('fr-FR', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+    });
+  };
+
+  // Rediriger vers le profil du candidat
+  const viewProfile = (candidatId: string) => {
+    router.push(`/candidat/${candidatId}`);
+  };
+
+  if (error) {
+    return (
+      <>
+        <Navbar />
+        <div className="min-h-screen flex items-center justify-center px-4 sm:px-6 lg:px-8 py-12">
+          <div className="text-red-500">{error}</div>
+        </div>
+        <Footer />
+      </>
+    );
+  }
+
   return (
     <>
       <Navbar />
       <div className="min-h-screen flex mt-10 items-center justify-center px-4 sm:px-6 lg:px-8 py-12">
         <div className="w-full max-w-7xl">
+          {/* Section de recherche */}
+          <div className="bg-white rounded-[20px] mt-10 border border-[#C4C4C4] shadow-md p-6 mb-6">
+            <input
+              type="text"
+              name="keyword"
+              value={filters.keyword}
+              onChange={handleFilterChange}
+              placeholder="Recherche par mots-clés..................."
+              className="w-full border border-gray-300 rounded-[5px] px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#7A20DA]"
+            />
+          </div>
+
+          {/* Filtres et Tri */}
+          <div className="bg-white rounded-[20px] border border-[#C4C4C4] shadow-md p-6 mb-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+              <select
+                name="sector"
+                value={filters.sector}
+                onChange={handleFilterChange}
+                className="border border-gray-300 rounded-[5px] px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#7A20DA]"
+              >
+                <option value="">Secteur</option>
+                {filterOptions.sectors.map((sector) => (
+                  <option key={sector} value={sector}>{sector}</option>
+                ))}
+              </select>
+              <select
+                name="location"
+                value={filters.location}
+                onChange={handleFilterChange}
+                className="border border-gray-300 rounded-[5px] px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#7A20DA]"
+              >
+                <option value="">Localisation</option>
+                {filterOptions.locations.map((location) => (
+                  <option key={location} value={location}>{location}</option>
+                ))}
+              </select>
+              <select
+                name="level"
+                value={filters.level}
+                onChange={handleFilterChange}
+                className="border border-gray-300 rounded-[5px] px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#7A20DA]"
+              >
+                <option value="">Niveau d`étude</option>
+                {filterOptions.levels.map((level) => (
+                  <option key={level} value={level}>{level}</option>
+                ))}
+              </select>
+              <select
+                name="contracttype"
+                value={filters.contracttype}
+                onChange={handleFilterChange}
+                className="border border-gray-300 rounded-[5px] px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#7A20DA]"
+              >
+                <option value="">Type de contrat</option>
+                {filterOptions.contractTypes.map((contractType) => (
+                  <option key={contractType} value={contractType}>{contractType}</option>
+                ))}
+              </select>
+              <select
+                name="sortBy"
+                value={filters.sortBy}
+                onChange={handleFilterChange}
+                className="border border-gray-300 rounded-[5px] px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#7A20DA]"
+              >
+                <option value="date">Trier par date</option>
+                <option value="relevance">Trier par pertinence</option>
+                <option value="location">Trier par localisation</option>
+              </select>
+            </div>
+          </div>
+
           {/* Table des candidats */}
           <div className="bg-white rounded-[20px] px-10 border border-[#C4C4C4] shadow-md overflow-x-auto">
-            <table className="w-full ">
-              <thead className="">
+            <table className="w-full">
+              <thead>
                 <tr>
                   <th className="px-6 py-6 text-sm font-semibold text-left text-[#202020]">Nom (anonymisé)</th>
                   <th className="px-6 py-3 text-sm font-semibold text-start text-[#202020]">Secteur</th>
                   <th className="px-6 py-3 text-sm font-semibold text-start text-[#202020]">Localisation</th>
                   <th className="px-6 py-3 text-sm font-semibold text-start text-[#202020]">Niveau d`étude</th>
                   <th className="px-6 py-3 text-sm font-semibold text-start text-[#202020]">Date de soumission</th>
-                  <th className="px-6 py-3 text-sm font-semibold  text-end text-[#202020]">Actions</th>
+                  <th className="px-6 py-3 text-sm font-semibold text-end text-[#202020]">Actions</th>
                 </tr>
               </thead>
-              <tbody className="" >
-                <tr className="border-t  border-[#C4C4C4]">
-                  <td className="px-6 py-4 text-[#4C4C4C]">C- --------</td>
-                  <td className="px-6 text-start py-4 text-[#4C4C4C]">Informatique</td>
-                  <td className="px-6 text-start py-4 text-[#4C4C4C]">Paris</td>
-                  <td className="px-6 text-start py-4 text-[#4C4C4C]">Bac +3</td>
-                  <td className="px-6 text-start py-4  text-[#4C4C4C]">01/05/2025</td>
-                  <td className="px-6 text-end py-4">
-                    <button className="bg-[#7A20DA] text-white px-4 py-2 rounded-[5px] hover:bg-[#6A1AB8] transition duration-200">
-                      Voir le profil
-                    </button>
-                  </td>
-                </tr>
-                {/* <tr className="border-t border-[#ECECEC]">
-                  <td className="px-6 py-4 text-[#4C4C4C]">C- --------</td>
-                  <td className="px-6 py-4 text-[#4C4C4C]">Commerce</td>
-                  <td className="px-6 py-4 text-[#4C4C4C]">Lyon</td>
-                  <td className="px-6 py-4 text-[#4C4C4C]">Bac +2</td>
-                  <td className="px-6 py-4 text-[#4C4C4C]">21/04/2025</td>
-                  <td className="px-6 py-4">
-                    <button className="bg-[#7A20DA] text-white px-4 py-2 rounded-[10px] hover:bg-[#6A1AB8] transition duration-200">
-                      Voir le profil
-                    </button>
-                  </td>
-                </tr> */}
-                {/* <tr className="border-t border-[#ECECEC]  ">
-                  <td className="px-6 py-4 text-[#4C4C4C]">C- --------</td>
-                  <td className="px-6 py-4 text-[#4C4C4C]">Marketing</td>
-                  <td className="px-6 py-4 text-[#4C4C4C]">Marseille</td>
-                  <td className="px-6 py-4 text-[#4C4C4C]">Bac</td>
-                  <td className="px-6 py-4 text-[#4C4C4C]">15/04/2025</td>
-                  <td className="px-6 py-4">
-                    <button className="bg-[#7A20DA] text-white px-4 py-2 rounded-[10px] hover:bg-[#6A1AB8] transition duration-200">
-                      Voir le profil
-                    </button>
-                  </td>
-                </tr> */}
-                {/* <tr className="border-t border-[#ECECEC] px-4 ">
-                  <td className="px-6 py-4 text-[#4C4C4C]">C- --------</td>
-                  <td className="px-6 py-4 text-[#4C4C4C]">Informatique</td>
-                  <td className="px-6 py-4 text-[#4C4C4C]">Nantes</td>
-                  <td className="px-6 py-4 text-[#4C4C4C]">Bac +3</td>
-                  <td className="px-6 py-4 text-[#4C4C4C]">11/04/2025</td>
-                  <td className="px-6 py-4">
-                    <button className="bg-[#7A20DA] text-white px-4 py-2 rounded-[10px] hover:bg-[#6A1AB8] transition duration-200">
-                      Voir le profil
-                    </button>
-                  </td>
-                </tr> */}
-                {/* <tr className="border-t border-[#ECECEC] ">
-                  <td className="px-6 py-4 text-[#4C4C4C]">C- --------</td>
-                  <td className="px-6 py-4 text-[#4C4C4C]">Commerce</td>
-                  <td className="px-6 py-4 text-[#4C4C4C]">Paris</td>
-                  <td className="px-6 py-4 text-[#4C4C4C]">Bac +2</td>
-                  <td className="px-6 py-4 text-[#4C4C4C]">05/04/2025</td>
-                  <td className="px-6 py-4">
-                    <button className="bg-[#7A20DA] text-white px-4 py-2 rounded-[10px] hover:bg-[#6A1AB8] transition duration-200">
-                      Voir le profil
-                    </button>
-                  </td>
-                </tr> */}
-                {/* <tr className="border-t border-[#ECECEC]">
-                  <td className="px-6 py-4 text-[#4C4C4C]">C- --------</td>
-                  <td className="px-6 py-4 text-[#4C4C4C]">Informatique</td>
-                  <td className="px-6 py-4 text-[#4C4C4C]">Bordeaux</td>
-                  <td className="px-6 py-4 text-[#4C4C4C]">Bac +3</td>
-                  <td className="px-6 py-4 text-[#4C4C4C]">25/03/2025</td>
-                  <td className="px-6 py-4">
-                    <button className="bg-[#7A20DA] text-white px-4 py-2 rounded-[10px] hover:bg-[#6A1AB8] transition duration-200">
-                      Voir le profil
-                    </button>
-                  </td>
-                </tr> */}
-                {/* <tr className="border-t border-[#ECECEC]">
-                  <td className="px-6 py-4 text-[#4C4C4C]">C- --------</td>
-                  <td className="px-6 py-4 text-[#4C4C4C]">Commerce</td>
-                  <td className="px-6 py-4 text-[#4C4C4C]">Lyon</td>
-                  <td className="px-6 py-4 text-[#4C4C4C]">Bac +5</td>
-                  <td className="px-6 py-4 text-[#4C4C4C]">20/03/2025</td>
-                  <td className="px-6 py-4">
-                    <button className="bg-[#7A20DA] text-white px-4 py-2 rounded-[10px] hover:bg-[#6A1AB8] transition duration-200">
-                      Voir le profil
-                    </button>
-                  </td>
-                </tr> */}
+              <tbody>
+                {loading ? (
+                  <tr>
+                    <td colSpan={6} className="px-6 py-4 text-center text-[#4C4C4C]">
+                      Chargement...
+                    </td>
+                  </tr>
+                ) : candidats.length === 0 ? (
+                  <tr>
+                    <td colSpan={6} className="px-6 py-4 text-center text-[#4C4C4C]">
+                      Aucun candidat trouvé.
+                    </td>
+                  </tr>
+                ) : (
+                  candidats.map((candidat) => (
+                    <tr key={candidat._id} className="border-t border-[#C4C4C4]">
+                      <td className="px-6 py-4 text-[#4C4C4C]">
+                        {anonymizeName(candidat.personalInfo.firstName)}
+                      </td>
+                      <td className="px-6 text-start py-4 text-[#4C4C4C]">
+                        {candidat.alternanceSearch.sector || 'N/A'}
+                      </td>
+                      <td className="px-6 text-start py-4 text-[#4C4C4C]">
+                        {candidat.alternanceSearch.location || 'N/A'}
+                      </td>
+                      <td className="px-6 text-start py-4 text-[#4C4C4C]">
+                        {candidat.alternanceSearch.level || 'N/A'}
+                      </td>
+                      <td className="px-6 text-start py-4 text-[#4C4C4C]">
+                        {formatDate(candidat.createdAt)}
+                      </td>
+                      <td className="px-6 text-end py-4">
+                        <button
+                          onClick={() => viewProfile(candidat._id)}
+                          className="bg-[#7A20DA] text-white px-4 py-2 rounded-[5px] hover:bg-[#6A1AB8] transition duration-200"
+                        >
+                          Voir le profil
+                        </button>
+                      </td>
+                    </tr>
+                  ))
+                )}
               </tbody>
             </table>
           </div>
@@ -114,12 +326,19 @@ export default function ProfileEmployeur() {
           {/* Pagination */}
           <div className="flex justify-center mt-6">
             <nav className="flex space-x-2">
-              <button className="px-3 py-1 text-sm font-medium text-white bg-[#7A20DA] rounded hover:bg-[#6A1AB8] transition duration-200">
-                1
-              </button>
-              <button className="px-3 py-1 text-sm font-medium text-gray-700 bg-gray-200 rounded hover:bg-gray-300 transition duration-200">
-                2
-              </button>
+              {Array.from({ length: Math.ceil(total / filters.limit) }, (_, i) => i + 1).map((pageNum) => (
+                <button
+                  key={pageNum}
+                  onClick={() => handlePageChange(pageNum)}
+                  className={`px-3 py-1 text-sm font-medium rounded transition duration-200 ${
+                    filters.page === pageNum
+                      ? 'text-white bg-[#7A20DA] hover:bg-[#6A1AB8]'
+                      : 'text-gray-700 bg-gray-200 hover:bg-gray-300'
+                  }`}
+                >
+                  {pageNum}
+                </button>
+              ))}
             </nav>
           </div>
         </div>

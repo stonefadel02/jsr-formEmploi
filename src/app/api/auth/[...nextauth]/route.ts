@@ -1,10 +1,22 @@
-///home/devgbss/IPCM/jsr-formEmploi/src/app/api/[...nextauth]/route.ts
-import NextAuth, { NextAuthOptions } from "next-auth";
+import NextAuth, { NextAuthOptions, Session } from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
-import { MongoDBAdapter } from "@next-auth/mongodb-adapter";
-import clientPromise from "@/lib/mongo";
-import { connectCandidatsDb } from '@/lib/mongodb';
-import Candidate from "@/models/Candidate";
+
+import CandidatModelPromise from "@/models/Candidats";
+import EmployeurModelPromise from "@/models/Employer";
+
+import { MyUser } from "@/lib/types";
+
+declare module "next-auth" {
+  interface Session {
+    user: {
+      id: string;
+      name?: string | null;
+      email?: string | null;
+      image?: string | null;
+      userType?: string; // Add userType property
+    };
+  }
+}
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -15,47 +27,68 @@ export const authOptions: NextAuthOptions = {
   ],
   secret: process.env.NEXTAUTH_SECRET,
   session: {
-    strategy: "jwt", // tu peux aussi utiliser "database" si tu préfères stocker les sessions dans Mongo
+    strategy: "jwt",
   },
   pages: {
-    signIn: "/components/register", // optionnel : ta propre page de login
+    signIn: "/auth/redirect",
   },
   callbacks: {
-    async signIn({ user }) {
-      await connectCandidatsDb();
-      const existing = await Candidate.findOne({ email: user.email });
+    async signIn({ user, profile, account }) {
+      const email = user.email ?? "";
+      const userType = account?.state === "employeur" ? "employeur" : "candidat";
+      
+      if (userType === "employeur") {
+        const EmployerModel = await EmployeurModelPromise;
 
-      if (!existing) {
-        await Candidate.create({
-          email: user.email,
-          authProvider: 'google',
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        });
+        const existing = await EmployerModel.findOne({ email });
+
+        if (!existing) {
+          // Récupérer le nom de l'entreprise depuis Google (ici on prend user.name)
+          const companyName = user.name ?? profile?.name ?? "Entreprise inconnue";
+
+          await EmployerModel.create({
+            companyName,
+            email,
+            authProvider: "google",
+          });
+        }
+      } else {
+        const CandidatModel = await CandidatModelPromise;
+        const existing = await CandidatModel.findOne({ email });
+
+        if (!existing) {
+          await CandidatModel.create({
+            email,
+            authProvider: "google",
+          });
+        }
       }
-
+      const typedUser = user as MyUser;
+      typedUser.userType = userType;
       return true;
-    },
-
+    }
+    ,
     async jwt({ token, user }) {
       if (user) {
-        token.email = user.email;
-        token.name = user.name;
+        const typedUser = user as MyUser; // <-- cast pour accéder à userType
+        token.email = typedUser.email;
+        token.name = typedUser.name;
+        token.userType = typedUser.userType;
       }
       return token;
     },
 
     async session({ session, token }) {
       if (token) {
-        session.user.email = token.email;
-        session.user.name = token.name;
+        session.user.email = token.email as string;
+        session.user.name = token.name as string;
+        session.user.userType = token.userType as string; // OK ici
       }
       return session;
     },
+
   },
-
-
 };
 
 const handler = NextAuth(authOptions);
-export { handler as GET, handler as POST }; // Requis avec app router (si tu utilises `/app` au lieu de `/pages`)
+export { handler as GET, handler as POST };
