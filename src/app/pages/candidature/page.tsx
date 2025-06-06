@@ -114,7 +114,7 @@ export default function Candidature() {
       const result = await res.json();
 
       if (res.ok) {
-        alert("Candidature mise à jour avec succès !");
+        window.location.href = "/pages/profil_candidat"; // Redirection après succès
       } else {
         alert(`Erreur: ${result.error}`);
       }
