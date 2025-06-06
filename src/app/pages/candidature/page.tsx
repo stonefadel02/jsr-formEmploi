@@ -346,7 +346,7 @@ export default function Candidature() {
                       />
                     </label>
                   </div>
-                  <p className="text-[#616161] text-[14px] mt-2">
+                  <p className="text-[#616161] text-center text-[14px] mt-2">
                     Les types de fichiers pris en charge sont uniquement
                     MP4/WebM (Taille max. : 1 MB)
                   </p>
