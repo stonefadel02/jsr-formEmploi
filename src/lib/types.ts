@@ -30,6 +30,7 @@ export interface ICandidat extends Document {
   email: string;
   password?: string;
   authProvider: string;
+  emailpro: String;
   phone?: string;
   alternanceSearch?: {
     sector?: string;
