@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import Navbar from "../navbar/page";
+import Navbar from "@/app/components/Navbar";
 import { useRouter } from "next/navigation";
 
 export default function Login() {

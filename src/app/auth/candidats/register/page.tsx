@@ -3,16 +3,17 @@
 import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import Navbar from "../navbar/page";
-import { signIn } from "next-auth/react";
+import Navbar from "@/app/components/Navbar";
+import { useRouter } from "next/navigation";
 
-export default function Login() {
+export default function Register() {
   const [formData, setFormData] = useState({
     email: "",
     password: "",
   });
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const router = useRouter();  
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
@@ -26,7 +27,7 @@ export default function Login() {
     setSuccess("");
 
     try {
-      const response = await fetch("http://localhost:3000/api/candidats/login", {
+      const response = await fetch("http://localhost:3000/api/candidats/register", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -36,14 +37,13 @@ export default function Login() {
       });
 
       const data = await response.json();
-      console.log("Réponse API :", data, "Statut :", response.status);
 
       if (!response.ok) {
         throw new Error(data.message || "Erreur lors de la connexion");
       }
 
       setSuccess("Connexion réussie !");
-      localStorage.setItem("Etoken", data.token);
+      localStorage.setItem("Ctoken", data.token);
       // Rediriger vers une page après connexion (exemple)
       // window.location.href = "/dashboard";
     } catch (err: unknown) {
@@ -56,12 +56,11 @@ export default function Login() {
   };
 
   return (
-
     <><Navbar /><div className="min-h-screen bg-[#F6F6F6] flex items-center justify-center p-4">
       <div className="mt-32" >
         <div className="bg-white p-10 rounded-[15px] shadow-md w-full max-w-lg">
-          <h2 className="text-[25px] font-bold  text-left text-black mb-6">
-            Connexion employeur
+          <h2 className="text-[25px] font-semibold  text-left text-black mb-6">
+            Créer un compte avec votre email
           </h2>
           {error && (
             <p className="text-red-600 text-center mb-4 bg-red-100 p-2 rounded">
@@ -82,7 +81,7 @@ export default function Login() {
                 value={formData.email}
                 onChange={handleChange}
                 placeholder="example@gmail.com"
-                className="mt-1 block w-full px-4 py-3 border text-gray-700 border-[#C4C4C4] rounded-[15px] placeholder-[#D9D9D9] focus:ring-purple-900 focus:border-purple-900"
+                className="mt-1 block w-full px-4 py-3 border text-gray-600 border-[#C4C4C4] rounded-[15px] placeholder-[#D9D9D9] focus:ring-purple-900 focus:border-purple-900"
                 required />
             </div>
             <div className="">
@@ -90,19 +89,19 @@ export default function Login() {
               <input
                 type="password"
                 name="password"
-                placeholder="Mot de passe"
+                placeholder="5 Symbole minimum"
                 id="password"
                 value={formData.password}
                 onChange={handleChange}
-                className="mt-2 block w-full px-4 py-3 border border-[#C4C4C4] text-gray-700 rounded-[15px] placeholder-[#D9D9D9] focus:ring-purple-900 focus:border-purple-900"
+                className="mt-2 block w-full px-4 py-3  border border-[#C4C4C4] text-gray-700 rounded-[15px] placeholder-[#D9D9D9] focus:ring-purple-900 focus:border-purple-900"
                 required />
             </div>
 
             <button
               type="submit"
-              className="w-full bg-[#7A20DA] cursor-pointer  text-white py-3 px-4 rounded-lg hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 transition duration-200"
+              className="w-full font-extrabold bg-[#7A20DA] cursor-pointer text-white py-3 px-4 rounded-lg hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 transition duration-200"
             >
-              Continuez
+              Créer un compte
             </button>
 
             <div className="flex items-center gap-5 justify-between ">
@@ -112,10 +111,10 @@ export default function Login() {
             </div>
           </form>
           <div className="mt-4 text-center">
-            <button
-              type="button"
-              onClick={() => signIn("google")}
-              className="w-full bg-white border cursor-pointer border-gray-300 text-gray-700 py-3 px-4 rounded-lg hover:bg-gray-50 flex items-center justify-center gap-4">
+            <button 
+            type="button"
+            onClick={() => router.push("/auth/redirect?userType=candidat")}
+             className="w-full bg-white border cursor-pointer border-[#C4C4C4] text-gray-700 py-3 px-4 rounded-lg hover:bg-gray-50 flex items-center justify-center gap-4">
               <Image
                 src="/Google.svg"
                 alt="Google logo"
@@ -139,9 +138,9 @@ export default function Login() {
           </p>
         </div>
         <p className="mt-4 text-[#616161] text-[16px] text-center">
-          Pas de compte sur JSR ?{' '}
-          <Link href="/components/register" className="text-[#7A20DA] hover:underline">
-            Créez un compte
+          Deja un compte sur JSR ?{' '}
+          <Link href="/components/login" className="text-[#7A20DA] hover:underline">
+            Se connecter
           </Link>
         </p>
       </div>

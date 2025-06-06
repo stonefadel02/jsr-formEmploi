@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import Navbar from "../navbar/page";
+import Navbar from "@/app/components/Navbar";
 import { signIn } from "next-auth/react";
 
 export default function Login() {
@@ -43,7 +43,7 @@ export default function Login() {
       }
 
       setSuccess("Connexion réussie !");
-      localStorage.setItem("token", data.token);
+      localStorage.setItem("Etoken", data.token);
       // Rediriger vers une page après connexion (exemple)
       // window.location.href = "/dashboard";
     } catch (err: unknown) {
@@ -61,7 +61,7 @@ export default function Login() {
       <div className="mt-32" >
         <div className="bg-white p-10 rounded-[15px] shadow-md w-full max-w-lg">
           <h2 className="text-[25px] font-bold  text-left text-black mb-6">
-            Connexion par email
+            Connexion employeur
           </h2>
           {error && (
             <p className="text-red-600 text-center mb-4 bg-red-100 p-2 rounded">
