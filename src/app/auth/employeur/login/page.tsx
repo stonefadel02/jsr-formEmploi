@@ -140,7 +140,7 @@ export default function Login() {
         </div>
         <p className="mt-4 text-[#616161] text-[16px] text-center">
           Pas de compte sur JSR ?{' '}
-          <Link href="/components/register" className="text-[#7A20DA] hover:underline">
+          <Link href="/auth/employeur/register" className="text-[#7A20DA] hover:underline">
             Créez un compte
           </Link>
         </p>

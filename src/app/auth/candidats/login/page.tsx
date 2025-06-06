@@ -45,7 +45,7 @@ export default function Login() {
       setSuccess("Connexion réussie !");
       localStorage.setItem("token", data.token);
       // Rediriger vers une page après connexion (exemple)
-      // window.location.href = "/dashboard";
+      window.location.href = "/pages/profil_candidat";
     } catch (err: unknown) {
       if (err instanceof Error) {
         setError(err.message);
@@ -140,7 +140,7 @@ export default function Login() {
         </div>
         <p className="mt-4 text-[#616161] text-[16px] text-center">
           Pas de compte sur JSR ?{' '}
-          <Link href="/components/register" className="text-[#7A20DA] hover:underline">
+          <Link href="/auth/candidats/register" className="text-[#7A20DA] hover:underline">
             Créez un compte
           </Link>
         </p>

@@ -139,7 +139,7 @@ export default function Register() {
         </div>
         <p className="mt-4 text-[#616161] text-[16px] text-center">
           Deja un compte sur JSR ?{' '}
-          <Link href="/components/login" className="text-[#7A20DA] hover:underline">
+          <Link href="/auth/candidats/login" className="text-[#7A20DA] hover:underline">
             Se connecter
           </Link>
         </p>

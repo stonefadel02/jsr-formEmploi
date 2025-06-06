@@ -189,7 +189,7 @@ export default function Login() {
           <p className="mt-10 text-[#616161] text-[16px] text-center">
             Déjà un compte sur JSR ?{" "}
             <Link
-              href="/components/login"
+              href="/auth/employeur/login"
               className="text-[#7A20DA] hover:underline"
             >
               Se connecter

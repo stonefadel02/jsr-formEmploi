@@ -2,10 +2,58 @@
 
 import Footer from "@/app/components/footer/page";
 import Navbar from "@/app/components/navbar/page";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { ICandidat } from "@/lib/types";
 
 export default function Profile() {
   const [activeTab, setActiveTab] = useState<"profile" | "tracking">("profile");
+  // const [candidatures, setCandidatures] = useState([]);
+  interface Profile {
+    firstName: string;
+    lastName: string;
+    email: string;
+    phone: string;
+  }
+  
+  const [profile, setProfile] = useState<ICandidat | null>(null);
+
+  // useEffect(() => {
+  //   const fetchCandidatures = async () => {
+  //     try {
+  //       const res = await fetch("/api/candidatures");
+  //       const data = await res.json();
+  //       setCandidatures(data);
+  //     } catch (err) {
+  //       console.error("Erreur lors du chargement :", err);
+  //     }
+  //   };
+
+  //   fetchCandidatures();
+  // }, []);
+
+  useEffect(() => {
+    const fetchInformations = async () => {
+      if (!localStorage.getItem('token')) {
+        console.error("Token non trouvé dans le localStorage");
+        return;
+      }
+      try {
+        const res = await fetch('/api/candidats/profile', {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`,
+            'Content-Type': 'application/json'
+          }
+        })
+        const data = await res.json();
+        setProfile(data.candidat);
+      } catch (err) {
+        console.error("Erreur lors du chargement :", err);
+      }
+    };
+
+    fetchInformations();
+  }, []);
 
   return (
     <>
@@ -47,7 +95,7 @@ export default function Profile() {
                     mD
                   </div>
                   <div>
-                    <h2 className="text-2xl sm:text-[30px] font-bold">Bonjour, mathéo</h2>
+                    <h2 className="text-2xl sm:text-[30px] font-bold">Bonjour, {profile?.firstName}</h2>
                     <h2 className="text-lg sm:text-xl font-sans">Villescres</h2>
                   </div>
                 </div>
@@ -60,7 +108,7 @@ export default function Profile() {
                     fill="none"
                     xmlns="http://www.w3.org/2000/svg"
                   >
-                    <g clip-path="url(#clip0_63_2714)">
+                    <g clipPath="url(#clip0_63_2714)">
                       <path
                         d="M46.5905 7.44979L40.5438 1.35719C40.1132 0.924994 39.6011 0.582506 39.0373 0.349543C38.4734 0.11658 37.8689 -0.00221968 37.2589 2.47574e-06C36.6489 -0.0023045 36.0446 0.116393 35.4809 0.349223C34.9172 0.582053 34.4052 0.924387 33.9747 1.35641L4.29448 31.0296C4.14808 31.1767 4.04322 31.3599 3.99055 31.5606L0.0923061 46.5402C0.0474052 46.7126 0.0426373 46.8931 0.078334 47.0676C0.114031 47.2422 0.18925 47.4062 0.298235 47.5472C0.40722 47.6882 0.547051 47.8023 0.707009 47.8808C0.866967 47.9593 1.04279 48.0001 1.22096 48C1.32281 48.0003 1.42424 47.9869 1.52256 47.9603L16.4113 43.9712C16.6093 43.9184 16.7899 43.8141 16.9344 43.6688L46.5874 14.0166C47.4558 13.1447 47.9437 11.9645 47.9445 10.734C47.9452 9.50343 47.4587 8.32266 46.5913 7.44979H46.5905ZM30.0594 8.56369L33.89 12.3943L10.597 35.6873L6.76401 31.8544L30.0594 8.56369ZM5.60114 44.4523L3.57001 42.4212L5.73095 34.1187L13.8539 42.2409L5.60114 44.4523ZM16.1058 41.1962L12.2456 37.336L35.5387 14.043L39.3988 17.9031L16.1058 41.1962ZM44.9348 12.3671L41.0483 16.2537L31.7096 6.91421L35.6203 3.00432C35.8345 2.78991 36.089 2.62004 36.3691 2.5045C36.6493 2.38896 36.9496 2.33006 37.2526 2.33117C37.5555 2.32967 37.8558 2.38818 38.1359 2.50331C38.4161 2.61845 38.6707 2.78794 38.885 3.00199L44.9325 9.09459C45.364 9.52973 45.606 10.1177 45.606 10.7304C45.606 11.3432 45.364 11.9312 44.9325 12.3663L44.9348 12.3671Z"
                         fill="#0C2C67"
@@ -177,7 +225,7 @@ export default function Profile() {
                         fill="none"
                         xmlns="http://www.w3.org/2000/svg"
                       >
-                        <g clip-path="url(#clip0_63_2714)">
+                        <g clipPath="url(#clip0_63_2714)">
                           <path
                             d="M46.5905 7.44979L40.5438 1.35719C40.1132 0.924994 39.6011 0.582506 39.0373 0.349543C38.4734 0.11658 37.8689 -0.00221968 37.2589 2.47574e-06C36.6489 -0.0023045 36.0446 0.116393 35.4809 0.349223C34.9172 0.582053 34.4052 0.924387 33.9747 1.35641L4.29448 31.0296C4.14808 31.1767 4.04322 31.3599 3.99055 31.5606L0.0923061 46.5402C0.0474052 46.7126 0.0426373 46.8931 0.078334 47.0676C0.114031 47.2422 0.18925 47.4062 0.298235 47.5472C0.40722 47.6882 0.547051 47.8023 0.707009 47.8808C0.866967 47.9593 1.04279 48.0001 1.22096 48C1.32281 48.0003 1.42424 47.9869 1.52256 47.9603L16.4113 43.9712C16.6093 43.9184 16.7899 43.8141 16.9344 43.6688L46.5874 14.0166C47.4558 13.1447 47.9437 11.9645 47.9445 10.734C47.9452 9.50343 47.4587 8.32266 46.5913 7.44979H46.5905ZM30.0594 8.56369L33.89 12.3943L10.597 35.6873L6.76401 31.8544L30.0594 8.56369ZM5.60114 44.4523L3.57001 42.4212L5.73095 34.1187L13.8539 42.2409L5.60114 44.4523ZM16.1058 41.1962L12.2456 37.336L35.5387 14.043L39.3988 17.9031L16.1058 41.1962ZM44.9348 12.3671L41.0483 16.2537L31.7096 6.91421L35.6203 3.00432C35.8345 2.78991 36.089 2.62004 36.3691 2.5045C36.6493 2.38896 36.9496 2.33006 37.2526 2.33117C37.5555 2.32967 37.8558 2.38818 38.1359 2.50331C38.4161 2.61845 38.6707 2.78794 38.885 3.00199L44.9325 9.09459C45.364 9.52973 45.606 10.1177 45.606 10.7304C45.606 11.3432 45.364 11.9312 44.9325 12.3663L44.9348 12.3671Z"
                             fill="#0C2C67"
@@ -192,9 +240,9 @@ export default function Profile() {
                     </button>
                   </div>
                   <div>
-                    <p className="text-gray-700">Mathéo DUPONT</p>
-                    <p className="text-gray-700">mathéo.dupont@gmail.com</p>
-                    <p className="text-gray-700">+33 08 35 42 46</p>
+                    <p className="text-gray-700">{profile?.firstName} {profile?.lastName}</p>
+                    <p className="text-gray-700">{profile?.email}</p>
+                    <p className="text-gray-700">{profile?.phone}</p>
                   </div>
                 </div>
                 <div className="border border-[#C4C4C4] p-4 rounded-lg">
@@ -209,7 +257,7 @@ export default function Profile() {
                         fill="none"
                         xmlns="http://www.w3.org/2000/svg"
                       >
-                        <g clip-path="url(#clip0_63_2714)">
+                        <g clipPath="url(#clip0_63_2714)">
                           <path
                             d="M46.5905 7.44979L40.5438 1.35719C40.1132 0.924994 39.6011 0.582506 39.0373 0.349543C38.4734 0.11658 37.8689 -0.00221968 37.2589 2.47574e-06C36.6489 -0.0023045 36.0446 0.116393 35.4809 0.349223C34.9172 0.582053 34.4052 0.924387 33.9747 1.35641L4.29448 31.0296C4.14808 31.1767 4.04322 31.3599 3.99055 31.5606L0.0923061 46.5402C0.0474052 46.7126 0.0426373 46.8931 0.078334 47.0676C0.114031 47.2422 0.18925 47.4062 0.298235 47.5472C0.40722 47.6882 0.547051 47.8023 0.707009 47.8808C0.866967 47.9593 1.04279 48.0001 1.22096 48C1.32281 48.0003 1.42424 47.9869 1.52256 47.9603L16.4113 43.9712C16.6093 43.9184 16.7899 43.8141 16.9344 43.6688L46.5874 14.0166C47.4558 13.1447 47.9437 11.9645 47.9445 10.734C47.9452 9.50343 47.4587 8.32266 46.5913 7.44979H46.5905ZM30.0594 8.56369L33.89 12.3943L10.597 35.6873L6.76401 31.8544L30.0594 8.56369ZM5.60114 44.4523L3.57001 42.4212L5.73095 34.1187L13.8539 42.2409L5.60114 44.4523ZM16.1058 41.1962L12.2456 37.336L35.5387 14.043L39.3988 17.9031L16.1058 41.1962ZM44.9348 12.3671L41.0483 16.2537L31.7096 6.91421L35.6203 3.00432C35.8345 2.78991 36.089 2.62004 36.3691 2.5045C36.6493 2.38896 36.9496 2.33006 37.2526 2.33117C37.5555 2.32967 37.8558 2.38818 38.1359 2.50331C38.4161 2.61845 38.6707 2.78794 38.885 3.00199L44.9325 9.09459C45.364 9.52973 45.606 10.1177 45.606 10.7304C45.606 11.3432 45.364 11.9312 44.9325 12.3663L44.9348 12.3671Z"
                             fill="#0C2C67"
@@ -224,8 +272,8 @@ export default function Profile() {
                     </button>
                   </div>
                   <div>
-                    <p className="text-gray-700">94 Villescres, av XXXXXXXX</p>
-                    <p className="text-gray-700">France</p>
+                    <p className="text-gray-700">{profile?.alternanceSearch?.sector}</p>
+                    <p className="text-gray-700">{profile?.alternanceSearch?.location}</p>
                   </div>
                 </div>
               </div>
