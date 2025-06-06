@@ -10,8 +10,8 @@ export default function Candidature() {
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
-    email: "",
     phone: "",
+    emailpro: "",
     adresse: "",
     sector: "",
     location: "",
@@ -32,13 +32,36 @@ export default function Candidature() {
     type: "cv" | "video"
   ) => {
     const file = e.target.files?.[0];
-    if (file) {
-      setFormData((prev) => ({
-        ...prev,
-        [type === "cv" ? "cvFile" : "videoFile"]: file,
-      }));
+    if (!file) return;
+
+    const maxSize = 5 * 1024 * 1024; // 5 Mo
+
+    // Vérifie la taille
+    if (file.size > maxSize) {
+      alert("Le fichier dépasse la taille maximale autorisée de 5 Mo.");
+      return;
     }
+
+    // Vérifie le type
+    const allowedTypes = type === "cv"
+      ? ["application/pdf"]
+      : ["video/mp4", "video/quicktime", "video/x-matroska"];
+
+    if (!allowedTypes.includes(file.type)) {
+      alert(
+        type === "cv"
+          ? "Veuillez sélectionner un fichier PDF pour le CV."
+          : "Veuillez sélectionner un fichier vidéo valide (mp4, mov, mkv)."
+      );
+      return;
+    }
+
+    setFormData((prev) => ({
+      ...prev,
+      [type === "cv" ? "cvFile" : "videoFile"]: file,
+    }));
   };
+
 
   const handleNext = (e: React.FormEvent) => {
     e.preventDefault();
@@ -49,12 +72,58 @@ export default function Candidature() {
     setStep(step - 1); // Revenir à l'étape précédente
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Logique de soumission finale (par exemple, console.log pour l'instant)
-    console.log("Données du formulaire soumises :", formData);
-    alert("Candidature soumise avec succès !");
+
+    const data = new FormData();
+
+    // Champs simples
+    data.append("firstName", formData.firstName);
+    data.append("lastName", formData.lastName);
+    data.append("emailpro", formData.emailpro); // correspondance avec ton API
+    data.append("phone", formData.phone);
+
+    // Exemple d’objet alternanceSearch (à adapter selon ton UI étape 2+)
+    const alternanceSearch = {
+      location: formData.location,
+      contracttype: formData.contracttype,
+      sector: formData.sector,
+      level: formData.level,
+    };
+    data.append("alternanceSearch", JSON.stringify(alternanceSearch));
+
+    // Fichiers
+    if (formData.cvFile) {
+      data.append("cv", formData.cvFile);
+    }
+
+    if (formData.videoFile) {
+      data.append("video", formData.videoFile);
+    }
+
+    try {
+      const token = localStorage.getItem("token"); // Retrieve token from localStorage or another source
+      const res = await fetch("/api/candidats/candidature", {
+        method: "PUT",
+        body: data,
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      const result = await res.json();
+
+      if (res.ok) {
+        alert("Candidature mise à jour avec succès !");
+      } else {
+        alert(`Erreur: ${result.error}`);
+      }
+    } catch (error) {
+      console.error("Erreur lors de la soumission :", error);
+      alert("Une erreur est survenue.");
+    }
   };
+
 
   return (
     <>
@@ -118,9 +187,9 @@ export default function Candidature() {
                     </label>
                     <input
                       type="email"
-                      name="email"
+                      name="emailpro"
                       id="email"
-                      value={formData.email}
+                      value={formData.emailpro}
                       onChange={handleChange}
                       placeholder="example@gmail.com"
                       className="mt-2 block w-full px-4 py-3 border text-gray-700 border-[#C4C4C4] rounded-[15px] placeholder-[#D9D9D9] focus:ring-purple-900 focus:border-purple-900"
@@ -366,9 +435,8 @@ export default function Candidature() {
                 )} */}
                 <button
                   type="submit"
-                  className={`${
-                    step === 1 && step > 1 ? "w-1/2" : "w-full"
-                  } bg-[#7A20DA] text-white font-bold py-3 px-4 rounded-lg hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 transition duration-200`}
+                  className={`${step === 1 && step > 1 ? "w-1/2" : "w-full"
+                    } bg-[#7A20DA] text-white font-bold py-3 px-4 rounded-lg hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 transition duration-200`}
                 >
                   {step === 4 ? "Soumettre" : "Continuez"}
                 </button>

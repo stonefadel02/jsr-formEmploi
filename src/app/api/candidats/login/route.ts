@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { connectCandidatsDb } from '@/lib/mongodb';
 import CandidatModelPromise from '@/models/Candidats';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';

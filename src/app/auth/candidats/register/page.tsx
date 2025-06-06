@@ -27,7 +27,7 @@ export default function Register() {
     setSuccess("");
 
     try {
-      const response = await fetch("http://localhost:3000/api/candidats/register", {
+      const response = await fetch("/api/candidats/register", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -42,10 +42,10 @@ export default function Register() {
         throw new Error(data.message || "Erreur lors de la connexion");
       }
 
-      setSuccess("Connexion réussie !");
-      localStorage.setItem("Ctoken", data.token);
+      setSuccess("Inscription réussie !");
+      localStorage.setItem("token", data.token);
       // Rediriger vers une page après connexion (exemple)
-      // window.location.href = "/dashboard";
+      window.location.href = "/pages/candidature";
     } catch (err: unknown) {
       if (err instanceof Error) {
         setError(err.message);
