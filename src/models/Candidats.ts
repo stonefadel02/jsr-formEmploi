@@ -14,6 +14,11 @@ const candidateSchema = new Schema<ICandidat>(
         return this.authProvider === 'local';
       },
     },
+    role: {
+      type: String,
+      default: 'candidat',
+      index: true,
+    },
     authProvider: { type: String, default: 'local' },
     emailpro: { type: String, unique: true },
     phone: { type: String },

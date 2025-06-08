@@ -5,6 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import Navbar from "@/app/components/Navbar";
 import { useRouter } from "next/navigation";
+import Cookies from "js-cookie";
 
 export default function Login() {
   const [formData, setFormData] = useState({
@@ -43,8 +44,12 @@ export default function Login() {
         throw new Error(data.message || "Erreur lors de la connexion");
       }
 
-      setSuccess("Connexion réussie !");
-      localStorage.setItem("token", data.token);
+      setSuccess("Inscription réussie !");
+      Cookies.set("token", data.token, {
+        expires: 7, // jours
+        secure: process.env.NODE_ENV === "production", // important en prod
+        sameSite: "Lax",
+      });
       // Rediriger vers une page après connexion (exemple)
       // window.location.href = "/dashboard";
     } catch (err: unknown) {

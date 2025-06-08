@@ -1,7 +1,7 @@
 "use client";
 
-import Footer from "@/app/components/footer/page";
-import Navbar from "@/app/components/navbar/page";
+import Footer from "@/app/components/Footer";
+import Navbar from "@/app/components/Navbar";
 import Image from "next/image";
 import Link from "next/link";
 

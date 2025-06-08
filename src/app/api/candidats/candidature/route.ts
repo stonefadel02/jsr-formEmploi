@@ -22,8 +22,7 @@ export async function PUT(req: NextRequest) {
     if (session?.user?.email) {
       email = session.user.email;
     } else {
-      const authHeader = req.headers.get("authorization");
-      const token = authHeader?.split(" ")[1];
+      const token = req.cookies.get('token')?.value;
       if (!token) {
         return NextResponse.json({ error: "Token manquant" }, { status: 401 });
       }

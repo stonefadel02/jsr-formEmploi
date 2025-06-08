@@ -1,7 +1,7 @@
 'use client';
 
-import Navbar from "@/app/components/navbar/page";
-import Footer from "@/app/components/footer/page";
+import Navbar from "@/app/components/Navbar";
+import Footer from "@/app/components/Footer";
 import Image from "next/image";
 
 export default function CandidateProfile() {

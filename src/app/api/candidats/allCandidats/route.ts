@@ -33,7 +33,7 @@ interface MatchQuery {
 
 export async function GET(req: NextRequest): Promise<NextResponse<ApiResponse<{ candidats: ICandidat[]; total: number }>>> {
   try {
-    const token = req.headers.get('authorization')?.split(' ')[1];
+    const token = req.cookies.get('token')?.value;
     if (!token) {
       return NextResponse.json({ success: false, message: 'Authentication required' }, { status: 401 });
     }
