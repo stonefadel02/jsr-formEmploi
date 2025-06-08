@@ -26,7 +26,7 @@ export default function Login() {
     setSuccess("");
 
     try {
-      const response = await fetch("http://localhost:3000/api/candidats/login", {
+      const response = await fetch("http://localhost:3000/api/employeurs/login", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

@@ -1,22 +1,90 @@
-'use client';
+"use client";
 
+import { useState, useEffect } from "react";
+import { useParams } from "next/navigation";
 import Navbar from "@/app/components/navbar/page";
 import Footer from "@/app/components/footer/page";
 import Image from "next/image";
+import axios from "axios";
 
 export default function CandidateProfile() {
+  const { id } = useParams(); // Récupérer l'ID du candidat depuis l'URL
+  const [candidat, setCandidat] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchCandidat = async () => {
+      try {
+        const token = localStorage.getItem("Etoken"); // Token de l'employeur
+        if (!token) {
+          console.log("Aucun token trouvé");
+          setError("Aucun token trouvé. Veuillez vous connecter.");
+          setLoading(false);
+          return;
+        }
+
+        const response = await axios.get(
+          `http://localhost:3000/api/candidats/${id}`,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
+        console.log("Réponse API:", response.data); // Ajout pour débogage
+        if (response.data.success && response.data.data) {
+          setCandidat(response.data.data);
+        } else {
+          setError(response.data.message || "Candidat introuvable.");
+        }
+      } catch (error) {
+        console.error("Erreur chargement profil :", error);
+        setError("Erreur serveur. Veuillez réessayer plus tard.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (id) {
+      fetchCandidat();
+    }
+  }, [id]);
+
+  if (loading) {
+    return (
+      <>
+        <Navbar />
+        <div className="min-h-screen bg-[#F6F6F6] flex items-center justify-center p-4 sm:p-6 lg:p-8">
+          <p className="text-[#4C4C4C]">Chargement...</p>
+        </div>
+        <Footer />
+      </>
+    );
+  }
+
+  if (error || !candidat) {
+    return (
+      <>
+        <Navbar />
+        <div className="min-h-screen bg-[#F6F6F6] flex items-center justify-center p-4 sm:p-6 lg:p-8">
+          <p className="text-[#4C4C4C]">{error || "Candidat introuvable."}</p>
+        </div>
+        <Footer />
+      </>
+    );
+  }
+
   return (
     <>
       <Navbar />
       <div className="min-h-screen bg-[#F6F6F6] flex items-center justify-center p-4 sm:p-6 lg:p-8">
         <div className="max-w-7xl w-full mt-10 sm:mt-20 md:mt-32 mb-10">
           <div className="grid grid-cols-1 md:grid-cols-[400px_1fr] gap-6 sm:gap-8 lg:gap-12">
-            {/* Section gauche : Photo et Vidéo */}
+            {/* Section gauche : Photo, CV et Vidéo */}
             <div className="h-1/2 max-w-[400px] flex flex-col items-center bg-white rounded-[20px] p-10 space-y-6">
               {/* Photo de profil */}
               <div className="w-20 h-20 sm:w-28 sm:h-28 overflow-hidden rounded-full bg-gray-200">
                 <Image
-                  src="/profile-placeholder.png" // Remplace par l'URL de la photo réelle
+                  src="/profile-placeholder.png"
                   alt="Photo de profil"
                   width={100}
                   height={100}
@@ -25,55 +93,68 @@ export default function CandidateProfile() {
               </div>
               {/* Nom et prénom */}
               <h2 className="text-lg sm:text-xl font-semibold text-gray-800">
-                Coordonnées Informatique
+                {candidat.firstName} {candidat.lastName}
               </h2>
+              {/* CV (PDF) */}
+              <div className="w-full h-48 sm:h-64 rounded-[15px] relative overflow-hidden">
+                {candidat.cvUrl ? (
+                  <iframe
+                    src={`${candidat.cvUrl}#toolbar=0&navpanes=0&scrollbar=0`}
+                    title="CV"
+                    className="w-full h-full"
+                    style={{ border: "none" }}
+                  />
+                ) : (
+                  <div className="w-full h-full bg-gray-200 flex items-center justify-center text-[#616161]">
+                    Aucun CV disponible
+                  </div>
+                )}
+              </div>
               {/* Vidéo */}
-              <div className="w-full h-48 sm:h-64 bg-gray-200 rounded-[15px] relative overflow-hidden">
-                <Image
-                  src="/video-placeholder.png" // Remplace par l'URL de la miniature vidéo
-                  alt="Vidéo de présentation"
-                  width={300}
-                  height={200}
-                  className="w-full h-full object-cover"
-                />
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <svg
-                    className="w-12 h-12 sm:w-16 sm:h-16 text-white"
-                    fill="currentColor"
-                    viewBox="0 0 24 24"
-                    xmlns="http://www.w3.org/2000/svg"
+              <div className="w-full h-48 sm:h-64 rounded-[15px] relative overflow-hidden">
+                {candidat.videoUrl ? (
+                  <video
+                    controls
+                    className="w-full h-full object-cover"
+                    src={candidat.videoUrl}
                   >
-                    <path d="M8 5v14l11-7z" />
-                  </svg>
-                </div>
+                    Votre navigateur ne prend pas en charge la vidéo.
+                  </video>
+                ) : (
+                  <div className="w-full h-full bg-gray-200 flex items-center justify-center text-[#616161]">
+                    Aucune vidéo disponible
+                  </div>
+                )}
               </div>
             </div>
             {/* Section droite : Informations */}
             <div className="bg-white p-10 rounded-[15px] space-y-6">
-              {/* Compétences */}
+              {/* Informations personnelles */}
               <div>
                 <div className="space-y-1 pb-10">
                   <div className="grid grid-cols-[150px_1fr] gap-4 items-center">
                     <h3 className="text-[#4E4E4E] text-[18px]">Coordonnées</h3>
-                    <p className="text-[#4C4C4C] py-2">Informatique</p>
-                  </div>
-                  <div className="grid grid-cols-[150px_1fr] gap-4 items-center">
-                    <h3 className="text-[#4E4E4E] text-[18px]">Localisation</h3>
-                    <p className="text-[#4C4C4C] py-2">Paris, France</p>
-                  </div>
-                  <div className="grid grid-cols-[150px_1fr] gap-4 items-center">
-                    <h3 className="text-[#4E4E4E] text-[18px]">
-                      Niveau d’étude
-                    </h3>
                     <p className="text-[#4C4C4C] py-2">
-                      Bac +5 (Master en Informatique)
+                      {candidat.alternanceSearch.sector || "Non spécifié"}
                     </p>
                   </div>
                   <div className="grid grid-cols-[150px_1fr] gap-4 items-center">
-                    <h3 className="text-[#4E4E4E] text-[18px]">
-                      Type de contrat
-                    </h3>
-                    <p className="text-[#4C4C4C] py-2">Apprentissage</p>
+                    <h3 className="text-[#4E4E4E] text-[18px]">Localisation</h3>
+                    <p className="text-[#4C4C4C] py-2">
+                      {candidat.alternanceSearch.location || "Non spécifié"}
+                    </p>
+                  </div>
+                  <div className="grid grid-cols-[150px_1fr] gap-4 items-center">
+                    <h3 className="text-[#4E4E4E] text-[18px]">Niveau d’étude</h3>
+                    <p className="text-[#4C4C4C] py-2">
+                      {candidat.alternanceSearch.level || "Non spécifié"}
+                    </p>
+                  </div>
+                  <div className="grid grid-cols-[150px_1fr] gap-4 items-center">
+                    <h3 className="text-[#4E4E4E] text-[18px]">Type de contrat</h3>
+                    <p className="text-[#4C4C4C] py-2">
+                      {candidat.alternanceSearch.contracttype || "Non spécifié"}
+                    </p>
                   </div>
                 </div>
                 <h3 className="text-[#202020] text-[24px] sm:text-xl font-bold mb-2">
@@ -132,10 +213,10 @@ export default function CandidateProfile() {
                       Email :
                     </strong>
                     <a
-                      href="mailto:candidat@example.com"
+                      href={`mailto:${candidat.email}`}
                       className="text-[#008CFF] underline text-sm sm:text-base"
                     >
-                      candidat@example.com
+                      {candidat.email || "Non spécifié"}
                     </a>
                   </div>
                   <div className="flex items-center">
@@ -147,12 +228,6 @@ export default function CandidateProfile() {
                     </button>
                   </div>
                 </div>
-              </div>
-              {/* Bouton Télécharger CV */}
-              <div className="text-left">
-                <button className="w-full sm:w-auto bg-[#7A20DA] text-white py-2 px-10 mb-16 rounded-[5px] hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 transition duration-200">
-                  Télécharger le CV (PDF)
-                </button>
               </div>
             </div>
           </div>

@@ -24,7 +24,7 @@ const candidateSchema = new Schema<ICandidat>(
     },
     cvUrl: { type: String },
     videoUrl: { type: String },
-    // status: { type: String, enum: ['En attente', 'Validé', 'Refusé'], default: 'En attente', index: true },
+    status: { type: String, enum: ['En attente', 'Validé', 'Refusé'], default: 'En attente', index: true },
   },
   {
     timestamps: true,
