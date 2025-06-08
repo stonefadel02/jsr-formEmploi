@@ -1,4 +1,4 @@
-import { MongoClient } from "mongodb";
+import { MongoClient } from "./mongodb";
 
 const uri = process.env.MONGODB_CANDIDATS_URI;
 if (!uri) throw new Error("Please define MONGODB_CANDIDATS_URI in .env.local");
