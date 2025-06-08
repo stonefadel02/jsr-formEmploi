@@ -41,6 +41,7 @@ export interface ICandidat extends Document {
   };
   cvUrl?: string;
   videoUrl?: string;
+  status?: 'En attente' | 'Validé' | 'Refusé';
   createdAt?: Date;
   updatedAt?: Date;
 }
