@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Cookies from "js-cookie";
 import Link from "next/link";
 import Image from "next/image";
 import Navbar from "@/app/components/Navbar";
@@ -43,7 +44,11 @@ export default function Register() {
       }
 
       setSuccess("Inscription réussie !");
-      localStorage.setItem("token", data.token);
+      Cookies.set("token", data.token, {
+        expires: 7, // jours
+        secure: process.env.NODE_ENV === "production", // important en prod
+        sameSite: "Lax",
+      });
       // Rediriger vers une page après connexion (exemple)
       window.location.href = "/pages/candidature";
     } catch (err: unknown) {
@@ -139,7 +144,7 @@ export default function Register() {
         </div>
         <p className="mt-4 text-[#616161] text-[16px] text-center">
           Deja un compte sur JSR ?{' '}
-          <Link href="/auth/candidats/login" className="text-[#7A20DA] hover:underline">
+          <Link href="/auth/login" className="text-[#7A20DA] hover:underline">
             Se connecter
           </Link>
         </p>

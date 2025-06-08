@@ -29,6 +29,7 @@ export interface ICandidat extends Document {
   lastName?: string;
   email: string;
   password?: string;
+  role: 'candidat';
   authProvider: string;
   emailpro: String;
   phone?: string;

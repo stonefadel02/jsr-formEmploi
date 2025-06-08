@@ -1,20 +1,23 @@
 'use client';
 
-import Footer from "@/app/components/footer/page";
-import Navbar from "@/app/components/navbar/page";
+import Footer from "@/app/components/Footer";
+import Navbar from "@/app/components/Navbar";
 import { useEffect, useState } from "react";
 import { ICandidat } from "@/lib/types";
+import Cookies from "js-cookie";
+import { useRouter } from "next/navigation";
 
 export default function Profile() {
   const [activeTab, setActiveTab] = useState<"profile" | "tracking">("profile");
   // const [candidatures, setCandidatures] = useState([]);
+  const router = useRouter()
   interface Profile {
     firstName: string;
     lastName: string;
     email: string;
     phone: string;
   }
-  
+
   const [profile, setProfile] = useState<ICandidat | null>(null);
 
   // useEffect(() => {
@@ -33,15 +36,16 @@ export default function Profile() {
 
   useEffect(() => {
     const fetchInformations = async () => {
-      if (!localStorage.getItem('token')) {
-        console.error("Token non trouvé dans le localStorage");
+      const token = Cookies.get('token');
+      if (!token) {
+        router.push("/auth/login")
         return;
       }
       try {
         const res = await fetch('/api/candidats/profile', {
           method: 'GET',
           headers: {
-            'Authorization': `Bearer ${localStorage.getItem('token')}`,
+            'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json'
           }
         })
@@ -64,21 +68,19 @@ export default function Profile() {
           <div className="bg-white/15">
             <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-4">
               <button
-                className={`px-4 sm:px-10 py-2 sm:py-4 text-base sm:text-[20px] font-extrabold ${
-                  activeTab === "profile"
+                className={`px-4 sm:px-10 py-2 sm:py-4 text-base sm:text-[20px] font-extrabold ${activeTab === "profile"
                     ? "bg-white/15 text-white font-extrabold"
                     : "text-white"
-                }`}
+                  }`}
                 onClick={() => setActiveTab("profile")}
               >
                 Mon profil
               </button>
               <button
-                className={`px-4 sm:px-6 py-2 sm:py-2 font-extrabold text-base sm:text-[20px] ${
-                  activeTab === "tracking"
+                className={`px-4 sm:px-6 py-2 sm:py-2 font-extrabold text-base sm:text-[20px] ${activeTab === "tracking"
                     ? "bg-white/15 text-white font-extrabold"
                     : "text-white"
-                }`}
+                  }`}
                 onClick={() => setActiveTab("tracking")}
               >
                 Suivi de l’état de la candidature
@@ -136,12 +138,12 @@ export default function Profile() {
                       <span className="text-gray-500">02/05/2025</span>
                       <div className="flex space-x-2">
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                          <circle cx="12" cy="12" r="6" fill="#7A20DA"/>
-                          <path d="M12 8V12L14 14" stroke="white" strokeWidth="2" strokeLinecap="round"/>
+                          <circle cx="12" cy="12" r="6" fill="#7A20DA" />
+                          <path d="M12 8V12L14 14" stroke="white" strokeWidth="2" strokeLinecap="round" />
                         </svg>
                         <svg className="animate-spin" width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                          <circle cx="12" cy="12" r="10" stroke="#7A20DA" strokeWidth="2"/>
-                          <path d="M12 4V8" stroke="#7A20DA" strokeWidth="2"/>
+                          <circle cx="12" cy="12" r="10" stroke="#7A20DA" strokeWidth="2" />
+                          <path d="M12 4V8" stroke="#7A20DA" strokeWidth="2" />
                         </svg>
                       </div>
                       <button className="bg-[#7A20DA] text-white px-4 py-2 rounded-[5px]">
@@ -161,11 +163,11 @@ export default function Profile() {
                       <span className="text-gray-500">02/05/2025</span>
                       <div className="flex space-x-2">
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                          <circle cx="12" cy="12" r="6" fill="#7A20DA"/>
-                          <path d="M12 8V12L14 14" stroke="white" strokeWidth="2" strokeLinecap="round"/>
+                          <circle cx="12" cy="12" r="6" fill="#7A20DA" />
+                          <path d="M12 8V12L14 14" stroke="white" strokeWidth="2" strokeLinecap="round" />
                         </svg>
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                          <path d="M5 13L9 17L19 7" stroke="#00CC00" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                          <path d="M5 13L9 17L19 7" stroke="#00CC00" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                         </svg>
                       </div>
                       <button className="bg-[#7A20DA] text-white px-4 py-2 rounded-[5px]">
@@ -185,12 +187,12 @@ export default function Profile() {
                       <span className="text-gray-500">02/05/2025</span>
                       <div className="flex space-x-2">
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                          <circle cx="12" cy="12" r="6" fill="#7A20DA"/>
-                          <path d="M12 8V12L14 14" stroke="white" strokeWidth="2" strokeLinecap="round"/>
+                          <circle cx="12" cy="12" r="6" fill="#7A20DA" />
+                          <path d="M12 8V12L14 14" stroke="white" strokeWidth="2" strokeLinecap="round" />
                         </svg>
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                          <path d="M6 6L18 18" stroke="#FF0000" strokeWidth="2" strokeLinecap="round"/>
-                          <path d="M18 6L6 18" stroke="#FF0000" strokeWidth="2" strokeLinecap="round"/>
+                          <path d="M6 6L18 18" stroke="#FF0000" strokeWidth="2" strokeLinecap="round" />
+                          <path d="M18 6L6 18" stroke="#FF0000" strokeWidth="2" strokeLinecap="round" />
                         </svg>
                       </div>
                       <button className="bg-[#7A20DA] text-white px-4 py-2 rounded-[5px]">

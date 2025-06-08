@@ -4,9 +4,11 @@ import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import Navbar from "@/app/components/Navbar";
+import { useRouter } from "next/navigation";
 
 export default function Candidature() {
   const [step, setStep] = useState(1); // Gérer les étapes (1, 2, 3, 4)
+  const router = useRouter();
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -114,7 +116,8 @@ export default function Candidature() {
       const result = await res.json();
 
       if (res.ok) {
-        window.location.href = "/pages/profil_candidat"; // Redirection après succès
+        alert("Candidature soumise avec succès !");
+        router.push("/candidat/profile"); // Rediriger vers le profil candidat
       } else {
         alert(`Erreur: ${result.error}`);
       }
