@@ -8,7 +8,6 @@ import { uploadToCloudinary } from '@/lib/cloudinary';
 const allowedFields = [
   "firstName",
   "lastName",
-  "emailpro",
   "phone",
   "alternanceSearch"
 ];

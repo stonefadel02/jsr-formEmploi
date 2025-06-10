@@ -55,7 +55,7 @@ export default function LoginForm({ role }: Props) {
       console.log("Redirection")
       router.push(role === "candidat"
         ? "/candidat/profile"
-        : "/employeur/profile"
+        : "/employeur/candidats"
       );
       console.log("Redirigé")
     } catch (err: unknown) {

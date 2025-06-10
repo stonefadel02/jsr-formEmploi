@@ -6,28 +6,15 @@ import axios from 'axios';
 import { useRouter } from 'next/navigation';
 import Footer from '@/app/components/Footer';
 import Navbar from '@/app/components/Navbar';
+import { ICandidat } from '@/lib/types';
 
 // Interface pour les données des candidats
-interface Candidat {
-  _id: string;
-  personalInfo: {
-    firstName: string;
-    lastName: string;
-    email: string;
-  };
-  alternanceSearch: {
-    sector: string;
-    location: string;
-    level: string;
-    contracttype: string;
-  };
-  createdAt: string;
-}
+
 
 interface ApiResponse {
   success: boolean;
   data: {
-    candidats: Candidat[];
+    candidats: ICandidat[];
     total: number;
   };
   message?: string;
@@ -49,7 +36,7 @@ interface FilterApiResponse {
 
 export default function ProfileEmployeur() {
   const router = useRouter();
-  const [candidats, setCandidats] = useState<Candidat[]>([]);
+  const [candidats, setCandidats] = useState<ICandidat[]>([]);
   const [total, setTotal] = useState<number>(0);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -113,6 +100,8 @@ export default function ProfileEmployeur() {
           limit: filters.limit,
         },
       });
+      console.log(response);
+      
 
       if (response.data.success) {
         setCandidats(response.data.data.candidats);
@@ -163,8 +152,9 @@ export default function ProfileEmployeur() {
   };
 
   // Formater la date
-  const formatDate = (date: string) => {
-    return new Date(date).toLocaleDateString('fr-FR', {
+  const formatDate = (date: string | Date) => {
+    const parsedDate = typeof date === 'string' ? new Date(date) : date;
+    return parsedDate.toLocaleDateString('fr-FR', {
       day: '2-digit',
       month: '2-digit',
       year: 'numeric',
@@ -173,7 +163,7 @@ export default function ProfileEmployeur() {
 
   // Rediriger vers le profil du candidat
   const viewProfile = (candidatId: string) => {
-    router.push(`/candidat/${candidatId}`);
+    router.push(`/employeur/candidats/${candidatId}`);
   };
 
   if (error) {
@@ -293,25 +283,25 @@ export default function ProfileEmployeur() {
                   </tr>
                 ) : (
                   candidats.map((candidat) => (
-                    <tr key={candidat._id} className="border-t border-[#C4C4C4]">
+                    <tr key={candidat._id.toString()} className="border-t border-[#C4C4C4]">
                       <td className="px-6 py-4 text-[#4C4C4C]">
-                        {anonymizeName(candidat.personalInfo.firstName)}
+                        {anonymizeName(candidat.firstName ?? 'Candidat')}
                       </td>
                       <td className="px-6 text-start py-4 text-[#4C4C4C]">
-                        {candidat.alternanceSearch.sector || 'N/A'}
+                        {candidat?.alternanceSearch?.sector || 'N/A'}
                       </td>
                       <td className="px-6 text-start py-4 text-[#4C4C4C]">
-                        {candidat.alternanceSearch.location || 'N/A'}
+                        {candidat?.alternanceSearch?.location || 'N/A'}
                       </td>
                       <td className="px-6 text-start py-4 text-[#4C4C4C]">
-                        {candidat.alternanceSearch.level || 'N/A'}
+                        {candidat?.alternanceSearch?.level || 'N/A'}
                       </td>
                       <td className="px-6 text-start py-4 text-[#4C4C4C]">
-                        {formatDate(candidat.createdAt)}
+                        {formatDate(candidat.createdAt ?? (new Date()))}
                       </td>
                       <td className="px-6 text-end py-4">
                         <button
-                          onClick={() => viewProfile(candidat._id)}
+                          onClick={() => viewProfile(candidat._id.toString())}
                           className="bg-[#7A20DA] text-white px-4 py-2 rounded-[5px] hover:bg-[#6A1AB8] transition duration-200"
                         >
                           Voir le profil

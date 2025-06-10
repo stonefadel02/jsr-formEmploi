@@ -1,19 +1,42 @@
-// app/api/admin/subscriptions/route.ts
-import { NextRequest, NextResponse } from 'next/server';
-import { connectEmployersDb } from '@/lib/mongodb';
-import Employer from '@/models/Employer';
-import { adminMiddleware } from '../middleware';
-import { ApiResponse, ISubscription } from '@/lib/types';
+// /app/api/employeurs/subscriptions/route.ts
 
-export const GET = adminMiddleware(async (req: NextRequest): Promise<NextResponse<ApiResponse<{ companyName: string; email: string; subscription: ISubscription }[]>>> => {
+import { NextResponse } from 'next/server';
+import { connectEmployersDb } from '@/lib/mongodb';
+import SubscriptionModel from '@/models/Subscription';
+
+export async function GET() {
   try {
     await connectEmployersDb();
-    const subscriptions = await Employer.find()
-      .select('companyName email subscription')
+
+    const SubscriptionModelResolved = await SubscriptionModel;
+    const subscriptions = await SubscriptionModelResolved.find()
+      .populate({
+        path: 'employerId',
+        select: 'companyName email',
+      })
       .lean();
-    return NextResponse.json({ success: true, data: subscriptions }, { status: 200 });
-  } catch (error) {
-    console.error('Erreur récupération abonnements :', error);
-    return NextResponse.json({ success: false, message: 'Erreur serveur' }, { status: 500 });
+
+    const formatted = subscriptions.map((sub) => ({
+      
+      companyName: typeof sub.employerId === 'object' && 'companyName' in sub.employerId
+        ? sub.employerId.companyName
+        : 'Inconnu',
+      email: typeof sub.employerId === 'object' && 'email' in sub.employerId
+        ? sub.employerId.email
+        : 'N/A',
+      plan: sub.plan,
+      startDate: sub.startDate,
+      endDate: sub.endDate,
+      isActive: sub.isActive,
+      isTrial: sub.isTrial,
+      price: sub.price ?? 0,
+    }));
+
+    return NextResponse.json(formatted);
+  } catch (err: any) {
+    return NextResponse.json(
+      { error: 'Erreur serveur', message: err.message },
+      { status: 500 }
+    );
   }
-});
+}

@@ -1,241 +1,304 @@
 "use client";
 
+import { ISubscription } from "@/lib/types";
+import { useState, useEffect } from "react";
+export interface statsType {
+  totalActifs: number;
+  totalEssais: number;
+  expirés: number;
+  revenusMensuels: number;
+}
+interface ISubscriptionExtended extends ISubscription {
+  companyName?: string;
+}
+
 
 export default function Abonnement() {
+
+  const [subscriptions, setSubscriptions] = useState<ISubscriptionExtended[]>([]);
+  const [stats, setStats] = useState<statsType | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    const fetchSubscriptions = async () => {
+      try {
+        const response = await fetch("/api/admin/subscriptions"); // Remplace cette URL par celle de ton API
+        if (!response.ok) throw new Error("Erreur lors du chargement des données");
+        const data = await response.json();
+        console.log(data)
+        setSubscriptions(data)
+
+      } catch (err: any) {
+        setError(err.message || "Une erreur est survenue");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchSubscriptions();
+  }, []);
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const response = await fetch("/api/admin/subscriptions/stats"); // Remplace cette URL par celle de ton API
+        if (!response.ok) throw new Error("Erreur lors du chargement des données");
+        const data = await response.json();
+        console.log(data); // Pour vérifier la structure des données
+        setStats(data); // Assurez-vous que data.candidats est un tableau
+      } catch (err: any) {
+        setError(err.message || "Une erreur est survenue");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchStats();
+  }, []);
+
+
   return (
     <>
-     
 
-        {/* Contenu principal */}
-          <div className="max-w-7xl w-full">
-           
-            {/* Filtres */}
-            <div className="rounded-[15px] bg-white p-10">
-              <div className="flex items-center gap-4">
-                <svg
-                  width="36"
-                  height="31"
-                  viewBox="0 0 47 42"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    d="M2.56005 8.14858C1.16823 8.44317 0.247609 9.86029 0.542196 11.2521L5.37104 34.0666C5.66562 35.4584 7.08146 36.381 8.47328 36.0865L44.4125 28.4797C45.8043 28.1851 46.7266 26.7676 46.432 25.3758L41.6031 2.5613C41.3085 1.16948 39.8911 0.247229 38.4992 0.541816L2.56005 8.14858ZM3.76219 11.138L38.6114 3.76197L43.2102 25.4898L8.36102 32.8658L3.76219 11.138Z"
-                    fill="#7A20DA"
-                  />
-                  <path
-                    d="M3.27518 15.2305C2.41787 15.4119 1.87003 16.2542 2.05126 17.1116C2.23271 17.9689 3.07502 18.5167 3.93238 18.3355L41.6286 10.3569C42.4863 10.1763 43.035 9.33455 42.8544 8.47681C42.8543 8.47634 42.8542 8.47588 42.8541 8.47541C42.6726 7.61787 41.8301 7.07009 40.9728 7.25154C40.9723 7.25164 40.9718 7.25174 40.9714 7.25184L3.27518 15.2305Z"
-                    fill="#7A20DA"
-                  />
-                  <path
-                    d="M10.8689 27.2935C10.0116 27.4749 9.46378 28.3172 9.64501 29.1746C9.82646 30.0319 10.6688 30.5797 11.5261 30.3985L13.1991 30.0444C14.0564 29.863 14.6042 29.0207 14.423 28.1633C14.2415 27.306 13.3992 26.7582 12.5419 26.9394L10.8689 27.2935Z"
-                    fill="#7A20DA"
-                  />
-                  <path
-                    d="M32.3787 22.7407C31.5214 22.9222 30.9736 23.7645 31.1548 24.6219C31.3362 25.4792 32.1785 26.027 33.0359 25.8458L39.3661 24.5059C40.2235 24.3245 40.7713 23.4822 40.5901 22.6248C40.4086 21.7675 39.5663 21.2197 38.7089 21.4009L32.3787 22.7407Z"
-                    fill="#7A20DA"
-                  />
-                  <path
-                    d="M4.82976 34.2212C2.70222 34.2212 0.941406 35.982 0.941406 38.1095C0.941406 40.2371 2.70222 41.9998 4.82976 41.9998H33.9926C34.8697 41.9998 35.581 41.2887 35.581 40.4116C35.581 40.4116 35.581 40.4116 35.581 40.4114C35.5808 39.5646 34.9166 38.8671 34.0707 38.8254H4.82976C4.40635 38.8254 4.11629 38.533 4.11629 38.1095C4.11629 37.6861 4.40635 37.3961 4.82976 37.3961H41.8044C42.2278 37.3961 42.5183 37.6861 42.5183 38.1095C42.5183 38.533 42.2278 38.8254 41.8044 38.8254H39.6006C38.7433 38.8518 38.062 39.5539 38.061 40.4114C38.061 41.2885 38.7721 41.9998 39.6492 41.9998H41.8044C43.9319 41.9998 45.6932 40.2371 45.6932 38.1095C45.6932 35.982 43.9319 34.2212 41.8044 34.2212H4.82976Z"
-                    fill="#7A20DA"
-                  />
-                </svg>
 
-                <h1 className="text-2xl font-bold text-[#8929E0]">
-                  Statistiques Globales
-                </h1>
-              </div>
-              <div className="border-[1px] my-4 border-[#8929E0]"></div>
-              <h4 className="py-4">Statistiques des Abonnements</h4>
-              {/* Ajout des KPI */}
-              <div className="flex flex-col sm:flex-row justify-between gap-4 mb-6">
-                <div className="flex w-1/4 ">
-                  <div className="w-2 rounded-l-[20px] bg-[#2A9D8F]"></div>
-                  <div className="bg-white rounded-r-[20px] p-4   shadow-md flex-1 text-center">
-                    <h3 className="text-[#4E4E4E] text-left font-semibold">
-                      Abonnements Actifs
-                    </h3>
-                    <div className="flex items-center py-4 justify-between">
-                      <p className="text-4xl font-bold text-[#7A20DA]">45</p>
-                      <svg
-                        width="35"
-                        height="35"
-                        viewBox="0 0 63 63"
-                        fill="none"
-                        xmlns="http://www.w3.org/2000/svg"
-                      >
-                        <path
-                          d="M31.5 0C14.1031 0 0 14.1031 0 31.5C0 48.8969 14.1031 63 31.5 63C48.8969 63 63 48.8969 63 31.5C63 14.1031 48.8969 0 31.5 0ZM42.5891 32.8933L27.2489 43.3362C26.7327 43.6875 26.0644 43.7247 25.5124 43.4328C24.9604 43.1407 24.615 42.5674 24.615 41.9429V21.0571C24.615 20.4326 24.9604 19.8593 25.5124 19.5672C26.0644 19.2753 26.7327 19.3123 27.2489 19.6638L42.5891 30.1067C43.0501 30.4206 43.3262 30.9422 43.3262 31.5C43.3262 32.0578 43.0503 32.5794 42.5891 32.8933Z"
-                          fill="#2A9D8F"
-                        />
-                      </svg>
-                    </div>
-                  </div>
-                </div>
+      {/* Contenu principal */}
+      <div className="max-w-7xl w-full">
 
-                <div className="flex w-1/4 ">
-                  <div className="w-2 rounded-l-[20px] bg-[#2A9D8F]"></div>
-                  <div className="bg-white rounded-r-[20px] p-4   shadow-md flex-1 text-center">
-                    <h3 className="text-[#4E4E4E] text-left font-semibold">
-                      Périodes d`Essai Actives
-                    </h3>
-                    <div className="flex items-center py-4 justify-between">
-                      <p className="text-4xl font-bold text-[#7A20DA]">12</p>
-                      <svg
-                        width="28"
-                        height="33"
-                        viewBox="0 0 58 63"
-                        fill="none"
-                        xmlns="http://www.w3.org/2000/svg"
-                      >
-                        <path
-                          d="M22.4197 60.6905H0V57.3313H22.7346C22.2397 58.411 22.1347 59.5808 22.4197 60.6905Z"
-                          fill="#EDC12E"
-                        />
-                        <path
-                          d="M24.2497 57.6761C23.6199 58.7558 23.6049 60.0005 24.1748 61.0953C24.2047 61.1402 24.2197 61.1852 24.2497 61.2302C24.8946 62.3549 26.0193 62.9998 27.324 62.9998H54.3776C55.6822 62.9998 56.792 62.3549 57.4518 61.2302C58.0967 60.1055 58.0967 58.8158 57.4518 57.6911L45.8746 37.6408L43.925 34.2666C43.2802 33.1419 42.1555 32.4971 40.8508 32.4971C39.5461 32.4971 38.4364 33.1419 37.7765 34.2666L24.2497 57.6761ZM39.2012 42.2897H42.5004L43.2052 52.7272H38.4813L39.2012 42.2897ZM43.2652 59.4007H38.4364V55.8615H43.2652V59.4007Z"
-                          fill="#EDC12E"
-                        />
-                        <path d="M0 0H49.6682V3.3592H0V0Z" fill="#EDC12E" />
-                        <path
-                          d="M45.7832 34.4767L47.2828 37.0711V4.84375H45.7832V34.4767Z"
-                          fill="#EDC12E"
-                        />
-                        <path
-                          d="M35.4671 12.7919C35.3321 15.6262 32.0929 18.7454 30.1883 20.3651C29.1086 21.2648 27.0991 23.0644 25.5994 25.2539V35.4215C27.1141 37.6109 29.1086 39.4105 30.1883 40.3103C30.5932 40.6552 31.1481 41.1351 31.748 41.72L30.9682 43.0696L28.3738 47.5386L27.504 49.0382H14.982C14.5921 49.0382 14.2771 48.7383 14.2321 48.3634C14.2171 48.2134 14.2171 48.0485 14.2171 47.8985C14.3521 45.0642 17.5763 41.9449 19.4959 40.3253C20.5756 39.4255 22.5852 37.6259 24.0848 35.4365V25.2839C22.5852 23.0944 20.5756 21.2948 19.4959 20.3951C17.5763 18.7754 14.3521 15.6562 14.2171 12.8219C14.2022 12.6719 14.2171 12.5069 14.2321 12.357C14.2621 11.9671 14.5921 11.6821 14.982 11.6821H34.7023C35.0922 11.6821 35.4071 11.9821 35.4521 12.357C35.4671 12.4919 35.4671 12.6419 35.4671 12.7919Z"
-                          fill="#EDC12E"
-                        />
-                        <path
-                          d="M27.8325 30.3377C27.8325 32.4822 31.4466 35.9613 32.8413 37.1161C33.1862 37.416 33.5311 37.7159 33.8611 38.0158L33.0962 39.3505C32.7063 38.9756 32.3014 38.6157 31.8815 38.2558C31.3267 37.7909 26.3328 33.5619 26.3328 30.3377C26.3328 27.1134 31.3117 22.8844 31.8815 22.4046C35.8856 18.9704 38.0451 15.6112 38.09 12.6719C38.12 10.6924 37.2202 9.43266 36.8153 8.98276H12.8511C12.4462 9.43266 11.5464 10.6924 11.5764 12.6719C11.6214 15.6112 13.7808 18.9854 17.7999 22.4046C18.3547 22.8694 23.3486 27.0984 23.3486 30.3227C23.3486 33.5469 18.3697 37.7759 17.7999 38.2558C13.7958 41.69 11.6364 45.0492 11.5914 47.9885C11.5614 49.968 12.4612 51.2277 12.8661 51.6776H25.9729L25.1031 53.1772L23.5885 55.8166H11.7863V52.7423C11.2464 52.1425 10.0467 50.5229 10.0767 48.0185C10.1217 44.5693 12.3862 40.9101 16.8251 37.1161C18.2348 35.9463 21.8489 32.4822 21.8489 30.3377C21.8489 28.1932 18.2348 24.714 16.8401 23.5593C12.4012 19.7652 10.1217 16.0911 10.0917 12.6569C10.0617 10.1375 11.2614 8.53287 11.8013 7.93301V4.84375H37.9101V7.93301C38.45 8.53287 39.6497 10.1525 39.6197 12.6569C39.5747 16.1061 37.3102 19.7652 32.8713 23.5593C31.4616 24.729 27.8325 28.1932 27.8325 30.3377Z"
-                          fill="#EDC12E"
-                        />
-                        <path
-                          d="M2.40039 4.84375H3.90003V55.8316H2.40039V4.84375Z"
-                          fill="#EDC12E"
-                        />
-                      </svg>
-                    </div>
-                  </div>
-                </div>
-                <div className="flex w-1/4 ">
-                  <div className="w-2 rounded-l-[20px] bg-[#2A9D8F]"></div>
-                  <div className="bg-white rounded-r-[20px] p-4   shadow-md flex-1 text-center">
-                    <h3 className="text-[#4E4E4E] text-left font-semibold">
-                      Abonnements Expirés
-                    </h3>
-                    <div className="flex items-center py-4 justify-between">
-                      <p className="text-4xl font-bold text-[#7A20DA]">8</p>
-                      <svg
-                        width="33"
-                        height="33"
-                        viewBox="0 0 63 63"
-                        fill="none"
-                        xmlns="http://www.w3.org/2000/svg"
-                      >
-                        <path
-                          d="M31.5 0C14.1031 0 0 14.1031 0 31.5C0 48.8969 14.1031 63 31.5 63C48.8969 63 63 48.8969 63 31.5C63 14.1031 48.8969 0 31.5 0ZM42.5891 32.8933L27.2489 43.3362C26.7327 43.6875 26.0644 43.7247 25.5124 43.4328C24.9604 43.1407 24.615 42.5674 24.615 41.9429V21.0571C24.615 20.4326 24.9604 19.8593 25.5124 19.5672C26.0644 19.2753 26.7327 19.3123 27.2489 19.6638L42.5891 30.1067C43.0501 30.4206 43.3262 30.9422 43.3262 31.5C43.3262 32.0578 43.0503 32.5794 42.5891 32.8933Z"
-                          fill="#FF0000"
-                        />
-                        <rect
-                          x="17"
-                          y="17"
-                          width="29"
-                          height="29"
-                          rx="5"
-                          fill="white"
-                        />
-                      </svg>
-                    </div>
-                  </div>
-                </div>
-                <div className="flex w-1/4 ">
-                  <div className="w-2 rounded-l-[20px] bg-[#2A9D8F]"></div>
-                  <div className="bg-white rounded-r-[20px] p-4   shadow-md flex-1 text-center">
-                    <h3 className="text-[#4E4E4E] text-left font-semibold">
-                      Revenu Mensuel Estimé
-                    </h3>
-                    <div className="flex items-center py-4 justify-between">
-                      <p className="text-4xl font-bold text-[#7A20DA]">
-                        € 2,000
-                      </p>
-                      <svg
-                        width="33"
-                        height="33"
-                        viewBox="0 0 63 63"
-                        fill="none"
-                        xmlns="http://www.w3.org/2000/svg"
-                      >
-                        <path
-                          d="M36.2595 37.0482H29.0095C29.0871 39.0846 29.6408 40.5895 30.6707 41.5615C31.7006 42.5336 33.4011 43.0196 35.771 43.0196C37.3041 43.0196 38.6675 42.7871 39.861 42.322L40.8602 48.5937C38.8004 49.06 36.7627 49.2938 34.7497 49.2938C30.5673 49.2938 27.2327 48.2098 24.7472 46.0405C22.2604 43.8724 20.9561 40.8749 20.8318 37.0482H16.9977V33.3309H20.8318V30.5193H16.9977V26.8021H20.9007C21.1948 22.9605 22.6357 19.9631 25.2221 17.8098C27.8086 15.6565 31.2244 14.5798 35.4695 14.5798C37.1109 14.5798 38.9087 14.8198 40.8602 15.2996L39.861 21.5738C38.6527 21.0939 37.3595 20.854 35.9801 20.854C33.8428 20.854 32.2075 21.3388 31.0779 22.3059C29.9471 23.2743 29.2802 24.773 29.0797 26.8021H36.2595V30.5193H29.0095V33.3309H36.2595V37.0482ZM31.5 0C14.1036 0 0 14.1024 0 31.5C0 48.8976 14.1036 63 31.5 63C48.8964 63 63 48.8964 63 31.5C63 14.1036 48.8964 0 31.5 0ZM31.5 56.7037C17.8209 56.7037 6.73313 45.6147 6.73313 31.9368C6.73313 18.2589 17.8209 7.16871 31.5 7.16871C45.1791 7.16871 56.2669 18.2577 56.2669 31.9368C56.2669 45.6159 45.1791 56.7037 31.5 56.7037Z"
-                          fill="#4DD5FF"
-                        />
-                      </svg>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              {/* Fin des KPI */}
-              <div className="bg-white rounded-[20px] py-2 px-6 shadow-md border-[1px] border-[#C4C4C4] mb-6">
-                <div className="flex flex-col sm:flex-row items-center justify-between space-y-4 sm:space-y-0 sm:space-x-4">
-                  <h3 className="text-[#4E4E4E] font-semibold">
-                    Type d’abonnement
-                  </h3>
-                  <select
-                    defaultValue=""
-                    className="p-2 pr-6 border border-[#F1F1F1] text-[#4C4C4C] rounded-[15px] w-full sm:w-[250px]"
+        {/* Filtres */}
+        <div className="rounded-[15px] bg-white p-10">
+          <div className="flex items-center gap-4">
+            <svg
+              width="36"
+              height="31"
+              viewBox="0 0 47 42"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M2.56005 8.14858C1.16823 8.44317 0.247609 9.86029 0.542196 11.2521L5.37104 34.0666C5.66562 35.4584 7.08146 36.381 8.47328 36.0865L44.4125 28.4797C45.8043 28.1851 46.7266 26.7676 46.432 25.3758L41.6031 2.5613C41.3085 1.16948 39.8911 0.247229 38.4992 0.541816L2.56005 8.14858ZM3.76219 11.138L38.6114 3.76197L43.2102 25.4898L8.36102 32.8658L3.76219 11.138Z"
+                fill="#7A20DA"
+              />
+              <path
+                d="M3.27518 15.2305C2.41787 15.4119 1.87003 16.2542 2.05126 17.1116C2.23271 17.9689 3.07502 18.5167 3.93238 18.3355L41.6286 10.3569C42.4863 10.1763 43.035 9.33455 42.8544 8.47681C42.8543 8.47634 42.8542 8.47588 42.8541 8.47541C42.6726 7.61787 41.8301 7.07009 40.9728 7.25154C40.9723 7.25164 40.9718 7.25174 40.9714 7.25184L3.27518 15.2305Z"
+                fill="#7A20DA"
+              />
+              <path
+                d="M10.8689 27.2935C10.0116 27.4749 9.46378 28.3172 9.64501 29.1746C9.82646 30.0319 10.6688 30.5797 11.5261 30.3985L13.1991 30.0444C14.0564 29.863 14.6042 29.0207 14.423 28.1633C14.2415 27.306 13.3992 26.7582 12.5419 26.9394L10.8689 27.2935Z"
+                fill="#7A20DA"
+              />
+              <path
+                d="M32.3787 22.7407C31.5214 22.9222 30.9736 23.7645 31.1548 24.6219C31.3362 25.4792 32.1785 26.027 33.0359 25.8458L39.3661 24.5059C40.2235 24.3245 40.7713 23.4822 40.5901 22.6248C40.4086 21.7675 39.5663 21.2197 38.7089 21.4009L32.3787 22.7407Z"
+                fill="#7A20DA"
+              />
+              <path
+                d="M4.82976 34.2212C2.70222 34.2212 0.941406 35.982 0.941406 38.1095C0.941406 40.2371 2.70222 41.9998 4.82976 41.9998H33.9926C34.8697 41.9998 35.581 41.2887 35.581 40.4116C35.581 40.4116 35.581 40.4116 35.581 40.4114C35.5808 39.5646 34.9166 38.8671 34.0707 38.8254H4.82976C4.40635 38.8254 4.11629 38.533 4.11629 38.1095C4.11629 37.6861 4.40635 37.3961 4.82976 37.3961H41.8044C42.2278 37.3961 42.5183 37.6861 42.5183 38.1095C42.5183 38.533 42.2278 38.8254 41.8044 38.8254H39.6006C38.7433 38.8518 38.062 39.5539 38.061 40.4114C38.061 41.2885 38.7721 41.9998 39.6492 41.9998H41.8044C43.9319 41.9998 45.6932 40.2371 45.6932 38.1095C45.6932 35.982 43.9319 34.2212 41.8044 34.2212H4.82976Z"
+                fill="#7A20DA"
+              />
+            </svg>
+
+            <h1 className="text-2xl font-bold text-[#8929E0]">
+              Statistiques Globales
+            </h1>
+          </div>
+          <div className="border-[1px] my-4 border-[#8929E0]"></div>
+          <h4 className="py-4">Statistiques des Abonnements</h4>
+          {/* Ajout des KPI */}
+          <div className="flex flex-col sm:flex-row justify-between gap-4 mb-6">
+            <div className="flex w-1/4 ">
+              <div className="w-2 rounded-l-[20px] bg-[#2A9D8F]"></div>
+              <div className="bg-white rounded-r-[20px] p-4   shadow-md flex-1 text-center">
+                <h3 className="text-[#4E4E4E] text-left font-semibold">
+                  Abonnements Actifs
+                </h3>
+                <div className="flex items-center py-4 justify-between">
+                  <p className="text-4xl font-bold text-[#7A20DA]">{stats?.totalActifs}</p>
+                  <svg
+                    width="35"
+                    height="35"
+                    viewBox="0 0 63 63"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
                   >
-                    <option value="">Tous</option>
-                  </select>
-                  <h3 className="text-[#4E4E4E] font-semibold">Secteur</h3>
-                  <select className="p-2 border border-[#F1F1F1] text-[#4C4C4C] rounded-[15px] w-full sm:w-[250px]">
-                    <option value="">Tous</option>
-                  </select>
-                  <div className="flex items-center w-full sm:w-auto space-x-2">
-                    <input
-                      type="text"
-                      placeholder="Recherche par..."
-                      className="p-2 border border-[#F1F1F1] rounded-[15px] w-full sm:w-[250px]"
+                    <path
+                      d="M31.5 0C14.1031 0 0 14.1031 0 31.5C0 48.8969 14.1031 63 31.5 63C48.8969 63 63 48.8969 63 31.5C63 14.1031 48.8969 0 31.5 0ZM42.5891 32.8933L27.2489 43.3362C26.7327 43.6875 26.0644 43.7247 25.5124 43.4328C24.9604 43.1407 24.615 42.5674 24.615 41.9429V21.0571C24.615 20.4326 24.9604 19.8593 25.5124 19.5672C26.0644 19.2753 26.7327 19.3123 27.2489 19.6638L42.5891 30.1067C43.0501 30.4206 43.3262 30.9422 43.3262 31.5C43.3262 32.0578 43.0503 32.5794 42.5891 32.8933Z"
+                      fill="#2A9D8F"
                     />
-                    <button className="">
-                      <svg
-                        width="100"
-                        height="100"
-                        viewBox="0 0 153 53"
-                        fill="none"
-                        xmlns="http://www.w3.org/2000/svg"
-                      >
-                        <rect width="153" height="53" rx="5" fill="#7A20DA" />
-                        <path
-                          fill-rule="evenodd"
-                          clip-rule="evenodd"
-                          d="M81.0277 31.7095C82.6485 29.8944 83.4335 27.5903 83.2214 25.2712C83.0092 22.952 81.816 20.794 79.8871 19.2409C77.9582 17.6879 75.4402 16.8578 72.8509 16.9214C70.2617 16.985 67.7979 17.9374 65.9663 19.5828C64.1348 21.2283 63.0746 23.4416 63.0038 25.7677C62.933 28.0939 63.857 30.3559 65.5858 32.0888C67.3145 33.8217 69.7167 34.8936 72.2982 35.0842C74.8797 35.2748 77.4444 34.5696 79.4649 33.1135L89.1011 41.7694C89.203 41.8642 89.3249 41.9397 89.4596 41.9917C89.5944 42.0437 89.7393 42.0711 89.886 42.0723C90.0326 42.0734 90.178 42.0483 90.3138 41.9984C90.4495 41.9485 90.5728 41.8748 90.6765 41.7817C90.7802 41.6885 90.8622 41.5777 90.9178 41.4558C90.9733 41.3339 91.0012 41.2032 91 41.0715C90.9987 40.9397 90.9682 40.8095 90.9103 40.6885C90.8524 40.5674 90.7683 40.458 90.6628 40.3664L81.0277 31.7095ZM73.131 33.1304C71.5654 33.1304 70.035 32.7133 68.7333 31.9319C67.4316 31.1506 66.4171 30.04 65.818 28.7406C65.2189 27.4412 65.0621 26.0114 65.3676 24.6320C65.673 23.2526 66.4269 21.9855 67.5339 20.9910C68.6409 19.9965 70.0513 19.3193 71.5867 19.0449C73.1222 18.7705 74.7137 18.9113 76.1601 19.4496C77.6065 19.9878 78.8427 20.8992 79.7125 22.0686C80.5822 23.2380 81.0465 24.6129 81.0465 26.0193C81.0456 27.9050 80.2114 29.7133 78.7271 31.0467C77.2429 32.3801 75.23 33.1296 73.131 33.1304Z"
-                          fill="white"
-                        />
-                      </svg>
-                    </button>
-                  </div>
+                  </svg>
                 </div>
               </div>
+            </div>
 
-              {/* Tableau */}
-              <div className="bg-white p-4 rounded-[15px] border-[1px] border-[#C4C4C4] shadow-md">
-                <table className="w-full text-left">
-                  <thead>
-                    <tr className="border-b border-gray-300">
-                      <th className="py-6 px-6">Entreprise</th>
-                      <th className="py-6 px-6">Type d`abonnement</th>
-                      <th className="py-6 px-6">Date de début</th>
-                      <th className="py-6 px-6">Date d`expiration</th>
-                      <th className="py-6 px-6">Statut</th>
-                      <th className="py-6 px-6">Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr className="border-b text-[#4C4C4C] border-gray-200 odd:bg-white even:bg-[#F6F6F6]">
-                      <td className="py-6 px-6">Alpha Corp</td>
-                      <td className="py-6 px-6">Premium</td>
-                      <td className="py-6 px-6">01/05/2025</td>
-                      <td className="py-6 px-6">01/06/2025</td>
+            <div className="flex w-1/4 ">
+              <div className="w-2 rounded-l-[20px] bg-[#2A9D8F]"></div>
+              <div className="bg-white rounded-r-[20px] p-4   shadow-md flex-1 text-center">
+                <h3 className="text-[#4E4E4E] text-left font-semibold">
+                  Périodes d`Essai Actives
+                </h3>
+                <div className="flex items-center py-4 justify-between">
+                  <p className="text-4xl font-bold text-[#7A20DA]">{stats?.totalEssais}</p>
+                  <svg
+                    width="28"
+                    height="33"
+                    viewBox="0 0 58 63"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      d="M22.4197 60.6905H0V57.3313H22.7346C22.2397 58.411 22.1347 59.5808 22.4197 60.6905Z"
+                      fill="#EDC12E"
+                    />
+                    <path
+                      d="M24.2497 57.6761C23.6199 58.7558 23.6049 60.0005 24.1748 61.0953C24.2047 61.1402 24.2197 61.1852 24.2497 61.2302C24.8946 62.3549 26.0193 62.9998 27.324 62.9998H54.3776C55.6822 62.9998 56.792 62.3549 57.4518 61.2302C58.0967 60.1055 58.0967 58.8158 57.4518 57.6911L45.8746 37.6408L43.925 34.2666C43.2802 33.1419 42.1555 32.4971 40.8508 32.4971C39.5461 32.4971 38.4364 33.1419 37.7765 34.2666L24.2497 57.6761ZM39.2012 42.2897H42.5004L43.2052 52.7272H38.4813L39.2012 42.2897ZM43.2652 59.4007H38.4364V55.8615H43.2652V59.4007Z"
+                      fill="#EDC12E"
+                    />
+                    <path d="M0 0H49.6682V3.3592H0V0Z" fill="#EDC12E" />
+                    <path
+                      d="M45.7832 34.4767L47.2828 37.0711V4.84375H45.7832V34.4767Z"
+                      fill="#EDC12E"
+                    />
+                    <path
+                      d="M35.4671 12.7919C35.3321 15.6262 32.0929 18.7454 30.1883 20.3651C29.1086 21.2648 27.0991 23.0644 25.5994 25.2539V35.4215C27.1141 37.6109 29.1086 39.4105 30.1883 40.3103C30.5932 40.6552 31.1481 41.1351 31.748 41.72L30.9682 43.0696L28.3738 47.5386L27.504 49.0382H14.982C14.5921 49.0382 14.2771 48.7383 14.2321 48.3634C14.2171 48.2134 14.2171 48.0485 14.2171 47.8985C14.3521 45.0642 17.5763 41.9449 19.4959 40.3253C20.5756 39.4255 22.5852 37.6259 24.0848 35.4365V25.2839C22.5852 23.0944 20.5756 21.2948 19.4959 20.3951C17.5763 18.7754 14.3521 15.6562 14.2171 12.8219C14.2022 12.6719 14.2171 12.5069 14.2321 12.357C14.2621 11.9671 14.5921 11.6821 14.982 11.6821H34.7023C35.0922 11.6821 35.4071 11.9821 35.4521 12.357C35.4671 12.4919 35.4671 12.6419 35.4671 12.7919Z"
+                      fill="#EDC12E"
+                    />
+                    <path
+                      d="M27.8325 30.3377C27.8325 32.4822 31.4466 35.9613 32.8413 37.1161C33.1862 37.416 33.5311 37.7159 33.8611 38.0158L33.0962 39.3505C32.7063 38.9756 32.3014 38.6157 31.8815 38.2558C31.3267 37.7909 26.3328 33.5619 26.3328 30.3377C26.3328 27.1134 31.3117 22.8844 31.8815 22.4046C35.8856 18.9704 38.0451 15.6112 38.09 12.6719C38.12 10.6924 37.2202 9.43266 36.8153 8.98276H12.8511C12.4462 9.43266 11.5464 10.6924 11.5764 12.6719C11.6214 15.6112 13.7808 18.9854 17.7999 22.4046C18.3547 22.8694 23.3486 27.0984 23.3486 30.3227C23.3486 33.5469 18.3697 37.7759 17.7999 38.2558C13.7958 41.69 11.6364 45.0492 11.5914 47.9885C11.5614 49.968 12.4612 51.2277 12.8661 51.6776H25.9729L25.1031 53.1772L23.5885 55.8166H11.7863V52.7423C11.2464 52.1425 10.0467 50.5229 10.0767 48.0185C10.1217 44.5693 12.3862 40.9101 16.8251 37.1161C18.2348 35.9463 21.8489 32.4822 21.8489 30.3377C21.8489 28.1932 18.2348 24.714 16.8401 23.5593C12.4012 19.7652 10.1217 16.0911 10.0917 12.6569C10.0617 10.1375 11.2614 8.53287 11.8013 7.93301V4.84375H37.9101V7.93301C38.45 8.53287 39.6497 10.1525 39.6197 12.6569C39.5747 16.1061 37.3102 19.7652 32.8713 23.5593C31.4616 24.729 27.8325 28.1932 27.8325 30.3377Z"
+                      fill="#EDC12E"
+                    />
+                    <path
+                      d="M2.40039 4.84375H3.90003V55.8316H2.40039V4.84375Z"
+                      fill="#EDC12E"
+                    />
+                  </svg>
+                </div>
+              </div>
+            </div>
+            <div className="flex w-1/4 ">
+              <div className="w-2 rounded-l-[20px] bg-[#2A9D8F]"></div>
+              <div className="bg-white rounded-r-[20px] p-4   shadow-md flex-1 text-center">
+                <h3 className="text-[#4E4E4E] text-left font-semibold">
+                  Abonnements Expirés
+                </h3>
+                <div className="flex items-center py-4 justify-between">
+                  <p className="text-4xl font-bold text-[#7A20DA]">{stats?.expirés}</p>
+                  <svg
+                    width="33"
+                    height="33"
+                    viewBox="0 0 63 63"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      d="M31.5 0C14.1031 0 0 14.1031 0 31.5C0 48.8969 14.1031 63 31.5 63C48.8969 63 63 48.8969 63 31.5C63 14.1031 48.8969 0 31.5 0ZM42.5891 32.8933L27.2489 43.3362C26.7327 43.6875 26.0644 43.7247 25.5124 43.4328C24.9604 43.1407 24.615 42.5674 24.615 41.9429V21.0571C24.615 20.4326 24.9604 19.8593 25.5124 19.5672C26.0644 19.2753 26.7327 19.3123 27.2489 19.6638L42.5891 30.1067C43.0501 30.4206 43.3262 30.9422 43.3262 31.5C43.3262 32.0578 43.0503 32.5794 42.5891 32.8933Z"
+                      fill="#FF0000"
+                    />
+                    <rect
+                      x="17"
+                      y="17"
+                      width="29"
+                      height="29"
+                      rx="5"
+                      fill="white"
+                    />
+                  </svg>
+                </div>
+              </div>
+            </div>
+            <div className="flex w-1/4 ">
+              <div className="w-2 rounded-l-[20px] bg-[#2A9D8F]"></div>
+              <div className="bg-white rounded-r-[20px] p-4   shadow-md flex-1 text-center">
+                <h3 className="text-[#4E4E4E] text-left font-semibold">
+                  Revenu Mensuel Estimé
+                </h3>
+                <div className="flex items-center py-4 justify-between">
+                  <p className="text-4xl font-bold text-[#7A20DA]">
+                    {stats?.revenusMensuels}
+                  </p>
+                  <svg
+                    width="33"
+                    height="33"
+                    viewBox="0 0 63 63"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      d="M36.2595 37.0482H29.0095C29.0871 39.0846 29.6408 40.5895 30.6707 41.5615C31.7006 42.5336 33.4011 43.0196 35.771 43.0196C37.3041 43.0196 38.6675 42.7871 39.861 42.322L40.8602 48.5937C38.8004 49.06 36.7627 49.2938 34.7497 49.2938C30.5673 49.2938 27.2327 48.2098 24.7472 46.0405C22.2604 43.8724 20.9561 40.8749 20.8318 37.0482H16.9977V33.3309H20.8318V30.5193H16.9977V26.8021H20.9007C21.1948 22.9605 22.6357 19.9631 25.2221 17.8098C27.8086 15.6565 31.2244 14.5798 35.4695 14.5798C37.1109 14.5798 38.9087 14.8198 40.8602 15.2996L39.861 21.5738C38.6527 21.0939 37.3595 20.854 35.9801 20.854C33.8428 20.854 32.2075 21.3388 31.0779 22.3059C29.9471 23.2743 29.2802 24.773 29.0797 26.8021H36.2595V30.5193H29.0095V33.3309H36.2595V37.0482ZM31.5 0C14.1036 0 0 14.1024 0 31.5C0 48.8976 14.1036 63 31.5 63C48.8964 63 63 48.8964 63 31.5C63 14.1036 48.8964 0 31.5 0ZM31.5 56.7037C17.8209 56.7037 6.73313 45.6147 6.73313 31.9368C6.73313 18.2589 17.8209 7.16871 31.5 7.16871C45.1791 7.16871 56.2669 18.2577 56.2669 31.9368C56.2669 45.6159 45.1791 56.7037 31.5 56.7037Z"
+                      fill="#4DD5FF"
+                    />
+                  </svg>
+                </div>
+              </div>
+            </div>
+          </div>
+          {/* Fin des KPI */}
+          <div className="bg-white rounded-[20px] py-2 px-6 shadow-md border-[1px] border-[#C4C4C4] mb-6">
+            <div className="flex flex-col sm:flex-row items-center justify-between space-y-4 sm:space-y-0 sm:space-x-4">
+              <h3 className="text-[#4E4E4E] font-semibold">
+                Type d’abonnement
+              </h3>
+              <select
+                defaultValue=""
+                className="p-2 pr-6 border border-[#F1F1F1] text-[#4C4C4C] rounded-[15px] w-full sm:w-[250px]"
+              >
+                <option value="">Tous</option>
+              </select>
+              <h3 className="text-[#4E4E4E] font-semibold">Secteur</h3>
+              <select className="p-2 border border-[#F1F1F1] text-[#4C4C4C] rounded-[15px] w-full sm:w-[250px]">
+                <option value="">Tous</option>
+              </select>
+              <div className="flex items-center w-full sm:w-auto space-x-2">
+                <input
+                  type="text"
+                  placeholder="Recherche par..."
+                  className="p-2 border border-[#F1F1F1] rounded-[15px] w-full sm:w-[250px]"
+                />
+                <button className="">
+                  <svg
+                    width="100"
+                    height="100"
+                    viewBox="0 0 153 53"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <rect width="153" height="53" rx="5" fill="#7A20DA" />
+                    <path
+                      fillRule="evenodd"
+                      clipRule="evenodd"
+                      d="M81.0277 31.7095C82.6485 29.8944 83.4335 27.5903 83.2214 25.2712C83.0092 22.952 81.816 20.794 79.8871 19.2409C77.9582 17.6879 75.4402 16.8578 72.8509 16.9214C70.2617 16.985 67.7979 17.9374 65.9663 19.5828C64.1348 21.2283 63.0746 23.4416 63.0038 25.7677C62.933 28.0939 63.857 30.3559 65.5858 32.0888C67.3145 33.8217 69.7167 34.8936 72.2982 35.0842C74.8797 35.2748 77.4444 34.5696 79.4649 33.1135L89.1011 41.7694C89.203 41.8642 89.3249 41.9397 89.4596 41.9917C89.5944 42.0437 89.7393 42.0711 89.886 42.0723C90.0326 42.0734 90.178 42.0483 90.3138 41.9984C90.4495 41.9485 90.5728 41.8748 90.6765 41.7817C90.7802 41.6885 90.8622 41.5777 90.9178 41.4558C90.9733 41.3339 91.0012 41.2032 91 41.0715C90.9987 40.9397 90.9682 40.8095 90.9103 40.6885C90.8524 40.5674 90.7683 40.458 90.6628 40.3664L81.0277 31.7095ZM73.131 33.1304C71.5654 33.1304 70.035 32.7133 68.7333 31.9319C67.4316 31.1506 66.4171 30.04 65.818 28.7406C65.2189 27.4412 65.0621 26.0114 65.3676 24.6320C65.673 23.2526 66.4269 21.9855 67.5339 20.9910C68.6409 19.9965 70.0513 19.3193 71.5867 19.0449C73.1222 18.7705 74.7137 18.9113 76.1601 19.4496C77.6065 19.9878 78.8427 20.8992 79.7125 22.0686C80.5822 23.2380 81.0465 24.6129 81.0465 26.0193C81.0456 27.9050 80.2114 29.7133 78.7271 31.0467C77.2429 32.3801 75.23 33.1296 73.131 33.1304Z"
+                      fill="white"
+                    />
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* Tableau */}
+          {loading && <p className="text-center text-gray-500">Chargement...</p>}
+          {error && <p className="text-center text-red-500">{error}</p>}
+
+          {!loading && subscriptions.length > 0 && (
+            <div className="bg-white p-4 rounded-[15px] border-[1px] border-[#C4C4C4] shadow-md">
+              <table className="w-full text-left">
+                <thead>
+                  <tr className="border-b border-gray-300">
+                    <th className="py-6 px-6">Entreprise</th>
+                    <th className="py-6 px-6">Type d`abonnement</th>
+                    <th className="py-6 px-6">Date de début</th>
+                    <th className="py-6 px-6">Date d`expiration</th>
+                    <th className="py-6 px-6">Statut</th>
+                    <th className="py-6 px-6">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {subscriptions.map((subscription: ISubscriptionExtended) => (
+                    <tr key={subscription.companyName} className="border-b text-[#4C4C4C] border-gray-200 odd:bg-white even:bg-[#F6F6F6]">
+                      <td className="py-6 px-6">
+                        {subscription.companyName ?? "N/A"}
+                      </td>
+                      <td className="py-6 px-6">{subscription.plan}</td>
+                      <td className="py-6 px-6">{subscription.startDate ? new Date(subscription.startDate).toLocaleDateString('fr-FR') : "N/A"}</td>
+                      <td className="py-6 px-6">{subscription.endDate ? new Date(subscription.endDate).toLocaleDateString('fr-FR') : "N/A"}</td>
                       <td className="py-6 px-6 text-[#2A9D8F]  ">
                         <div className="flex items-center gap-2">
                           <svg
@@ -251,8 +314,8 @@ export default function Abonnement() {
                                 fill="#F6F6F6"
                               />
                               <path
-                                fill-rule="evenodd"
-                                clip-rule="evenodd"
+                                fillRule="evenodd"
+                                clipRule="evenodd"
                                 d="M14 26.1506C20.5722 26.1506 25.9 20.8953 25.9 14.4125C25.9 7.92978 20.5722 2.67445 14 2.67445C7.42781 2.67445 2.1 7.92978 2.1 14.4125C2.1 20.8953 7.42781 26.1506 14 26.1506ZM14 28.222C21.7319 28.222 28 22.0394 28 14.4125C28 6.78577 21.7319 0.603027 14 0.603027C6.26801 0.603027 0 6.78577 0 14.4125C0 22.0394 6.26801 28.222 14 28.222Z"
                                 fill="#2A9D8F"
                               />
@@ -282,213 +345,217 @@ export default function Abonnement() {
                         </button>
                       </td>
                     </tr>
-                    <tr className="border-b border-gray-200 odd:bg-white even:bg-[#F6F6F6]">
-                      <td className="py-6 px-6">Beta Industriel</td>
-                      <td className="py-6 px-6">Essai 4</td>
-                      <td className="py-6 px-6">15/05/2025</td>
-                      <td className="py-6 px-6">15/06/2025</td>
-                      <td className="py-6 px-6 text-[#EDC12E]">
-                        <div className="flex items-center gap-2">
-                          <svg
-                            width="25"
-                            height="27"
-                            viewBox="0 0 25 27"
-                            fill="none"
-                            xmlns="http://www.w3.org/2000/svg"
-                          >
-                            <path
-                              d="M9.60832 26.01H0V24.5703H9.74329C9.5312 25.0331 9.48621 25.5344 9.60832 26.01Z"
-                              fill="#EDC12E"
-                            />
-                            <path
-                              d="M10.3927 24.7186C10.1228 25.1814 10.1164 25.7148 10.3606 26.184C10.3735 26.2032 10.3799 26.2225 10.3927 26.2418C10.6691 26.7238 11.1511 27.0002 11.7103 27.0002H23.3045C23.8637 27.0002 24.3393 26.7238 24.6221 26.2418C24.8984 25.7598 24.8984 25.2071 24.6221 24.725L19.6604 16.1322L18.8249 14.6861C18.5486 14.2041 18.0665 13.9277 17.5074 13.9277C16.9483 13.9277 16.4727 14.2041 16.1899 14.6861L10.3927 24.7186ZM16.8004 18.1245H18.2144L18.5164 22.5977H16.4919L16.8004 18.1245ZM18.5421 25.4577H16.4727V23.941H18.5421V25.4577Z"
-                              fill="#EDC12E"
-                            />
-                            <path
-                              d="M0 0H21.2861V1.43964H0V0Z"
-                              fill="#EDC12E"
-                            />
-                            <path
-                              d="M19.6211 14.7749L20.2638 15.8868V2.0752H19.6211V14.7749Z"
-                              fill="#EDC12E"
-                            />
-                            <path
-                              d="M15.2015 5.48243C15.1436 6.69713 13.7554 8.03394 12.9392 8.72805C12.4764 9.11367 11.6152 9.88491 10.9725 10.8232V15.1807C11.6217 16.1191 12.4764 16.8903 12.9392 17.2759C13.1127 17.4237 13.3505 17.6294 13.6076 17.8801L13.2734 18.4585L12.1615 20.3737L11.7888 21.0164H6.42223C6.25513 21.0164 6.12017 20.8879 6.10089 20.7272C6.09446 20.6629 6.09446 20.5922 6.09446 20.528C6.1523 19.3133 7.5341 17.9765 8.35675 17.2823C8.81949 16.8967 9.68071 16.1255 10.3234 15.1872V10.8361C9.68071 9.89776 8.81949 9.12652 8.35675 8.74091C7.5341 8.04679 6.1523 6.70998 6.09446 5.49529C6.08803 5.43102 6.09446 5.36032 6.10089 5.29605C6.11374 5.12895 6.25513 5.00684 6.42223 5.00684H14.8737C15.0408 5.00684 15.1758 5.13538 15.1951 5.29605C15.2015 5.35389 15.2015 5.41816 15.2015 5.48243Z"
-                              fill="#EDC12E"
-                            />
-                            <path
-                              d="M11.9281 13.001C11.9281 13.9201 13.477 15.4112 14.0747 15.906C14.2226 16.0346 14.3704 16.1631 14.5118 16.2917L14.184 16.8637C14.0169 16.703 13.8434 16.5487 13.6634 16.3945C13.4256 16.1952 11.2854 14.3828 11.2854 13.001C11.2854 11.6192 13.4192 9.80684 13.6634 9.60118C15.3794 8.1294 16.3049 6.68976 16.3242 5.43007C16.337 4.58171 15.9514 4.04185 15.7779 3.84904H5.50759C5.33406 4.04185 4.94844 4.58171 4.96129 5.43007C4.98057 6.68976 5.90606 8.13583 7.62849 9.60118C7.86628 9.80041 10.0065 11.6128 10.0065 12.9946C10.0065 14.3764 7.87271 16.1888 7.62849 16.3945C5.91248 17.8663 4.987 19.3059 4.96772 20.5656C4.95487 21.4139 5.34048 21.9538 5.51401 22.1466H11.1312L10.7584 22.7893L10.1093 23.9205H5.05127V22.6029C4.8199 22.3459 4.30574 21.6517 4.3186 20.5784C4.33788 19.1002 5.30835 17.5321 7.21073 15.906C7.81487 15.4047 9.36377 13.9201 9.36377 13.001C9.36377 12.082 7.81487 10.5909 7.21716 10.0961C5.31478 8.47003 4.33788 6.89542 4.32502 5.42365C4.31217 4.34392 4.82633 3.65623 5.0577 3.39915V2.0752H16.2471V3.39915C16.4784 3.65623 16.9926 4.35034 16.9797 5.42365C16.9604 6.90185 15.99 8.47003 14.0876 10.0961C13.4835 10.5974 11.9281 12.082 11.9281 13.001Z"
-                              fill="#EDC12E"
-                            />
-                            <path
-                              d="M1.0293 2.0752H1.67199V23.9269H1.0293V2.0752Z"
-                              fill="#EDC12E"
-                            />
-                          </svg>
-                          En essai
-                        </div>
-                      </td>
-                      <td className="py-6 px-6 flex space-x-2">
-                        <button className="bg-[#F4E9FF] text-[#7A20DA] font-bold flex px-4 items-center gap-2 py-1 rounded-[5px]">
-                          <svg
-                            width="5"
-                            height="14"
-                            viewBox="0 0 7 16"
-                            fill="none"
-                            xmlns="http://www.w3.org/2000/svg"
-                          >
-                            <path
-                              d="M2.23938 0.627251V15.3727C2.23938 15.6236 2.05277 15.8044 1.67954 15.9164C1.49893 15.9721 1.31274 16 1.11969 16L0.559846 15.9164C0.186186 15.8044 0 15.6236 0 15.3727V0.627251C0 0.37635 0.186615 0.195609 0.559846 0.0836335C0.740026 0.0278779 0.926641 0 1.11969 0L1.67954 0.0836335C2.05277 0.195145 2.23938 0.37635 2.23938 0.627251ZM7 0.627251V15.3727C7 15.6236 6.81339 15.8044 6.44016 15.9164C6.25955 15.9721 6.07336 16 5.88031 16L5.32046 15.9164C4.9468 15.8044 4.76062 15.6236 4.76062 15.3727V0.627251C4.76062 0.37635 4.94723 0.195609 5.32046 0.0836335C5.50064 0.0278779 5.68726 0 5.88031 0L6.44016 0.0836335C6.81339 0.195145 7 0.37635 7 0.627251Z"
-                              fill="#7A20DA"
-                            />
-                          </svg>
-                          Suspendre
-                        </button>
-                        <button className="bg-[#FF0000] text-white flex font-bold px-4 items-center gap-2 py-1 rounded-[5px]">
-                          <svg
-                            width="15"
-                            height="15"
-                            viewBox="0 0 22 22"
-                            fill="none"
-                            xmlns="http://www.w3.org/2000/svg"
-                          >
-                            <g clipPath="url(#clip0_63_3945)">
-                              <path
-                                d="M11 0C4.9347 0 0 4.93437 0 11C0 17.0656 4.93437 22 11 22C17.0656 22 22 17.0656 22 11C22 4.93437 17.0653 0 11 0ZM2.01471 11C2.01471 6.04548 6.04548 2.01471 11 2.01471C13.2323 2.01471 15.2759 2.83504 16.8491 4.18792L4.18792 16.8491C2.83504 15.2759 2.01471 13.2323 2.01471 11ZM11 19.9853C9.00275 19.9853 7.15626 19.3295 5.66269 18.2231L18.2227 5.66302C19.3292 7.1566 19.985 9.00308 19.985 11.0003C19.9853 15.9545 15.9545 19.9853 11 19.9853Z"
-                                fill="white"
-                              />
-                            </g>
-                            <defs>
-                              <clipPath id="clip0_63_3945">
-                                <rect width="22" height="22" fill="white" />
-                              </clipPath>
-                            </defs>
-                          </svg>
-                          Annuler
-                        </button>
-                        <button className="bg-[#F4E9FF] text-[#7A20DA] font-bold flex px-4 items-center gap-2 py-1 rounded-[5px]">
-                          <svg
-                            width="20"
-                            height="20"
-                            viewBox="0 0 23 23"
-                            fill="none"
-                            xmlns="http://www.w3.org/2000/svg"
-                          >
-                            <path
-                              d="M11.5 0C5.16147 0 0 5.16147 0 11.5C0 17.8385 5.16147 23 11.5 23C17.8385 23 23 17.8385 23 11.5C23 5.16147 17.8385 0 11.5 0ZM10.8235 16.0797V15.3829C10.8235 15.0109 11.1279 14.7065 11.5 14.7065C11.8721 14.7065 12.1765 15.0109 12.1765 15.3829V16.0797C12.1765 16.4585 11.8721 16.7562 11.5 16.7562C11.1279 16.7562 10.8235 16.4585 10.8235 16.0797ZM12.1765 13.2047C12.1765 13.5768 11.8721 13.8812 11.5 13.8812C11.1279 13.8812 10.8235 13.5768 10.8235 13.2047V6.92029C10.8235 6.54147 11.1279 6.24382 11.5 6.24382C11.8721 6.24382 12.1765 6.54147 12.1765 6.92029V13.2047Z"
-                              fill="#7A20DA"
-                            />
-                          </svg>
-                          Détails
-                        </button>
-                      </td>
-                    </tr>
-                    <tr className="border-b border-gray-200 odd:bg-white even:bg-[#F6F6F6]">
-                      <td className="py-6 px-6">Gamma Solutions</td>
-                      <td className="py-6 px-6">Entreprise</td>
-                      <td className="py-6 px-6">08/05/2025</td>
-                      <td className="py-6 px-6">08/06/2025</td>
+                  ))}
 
-                      <td className="py-6 px-6 text-[#FF0000] ">
-                        <div className="flex items-center gap-2">
-                          <svg
-                            width="18"
-                            height="19"
-                            viewBox="0 0 28 29"
-                            fill="none"
-                            xmlns="http://www.w3.org/2000/svg"
-                          >
-                            <g clipPath="url(#clip0_63_3963)">
-                              <path
-                                d="M28 14.4125C28 22.0394 21.7319 28.222 14 28.222C6.26801 28.222 0 22.0394 0 14.4125C0 6.78577 6.26801 0.603027 14 0.603027C21.7319 0.603027 28 6.78577 28 14.4125Z"
-                                fill="white"
-                              />
-                              <path
-                                fill-rule="evenodd"
-                                clip-rule="evenodd"
-                                d="M14 26.1506C20.5722 26.1506 25.9 20.8953 25.9 14.4125C25.9 7.92978 20.5722 2.67445 14 2.67445C7.42781 2.67445 2.1 7.92978 2.1 14.4125C2.1 20.8953 7.42781 26.1506 14 26.1506ZM14 28.222C21.7319 28.222 28 22.0394 28 14.4125C28 6.78577 21.7319 0.603027 14 0.603027C6.26801 0.603027 0 6.78577 0 14.4125C0 22.0394 6.26801 28.222 14 28.222Z"
-                                fill="#FF0000"
-                              />
-                              <path
-                                fill-rule="evenodd"
-                                clip-rule="evenodd"
-                                d="M9.336 9.21012C9.03037 8.92996 8.53484 8.92996 8.22922 9.21012C7.92359 9.49027 7.92359 9.94451 8.22922 10.2247L12.8932 14.5L8.22922 18.7754C7.92359 19.0556 7.92359 19.5097 8.22922 19.7899C8.53484 20.07 9.03037 20.07 9.336 19.7899L14 15.5146L18.6641 19.7899C18.9697 20.07 19.4651 20.07 19.7708 19.7899C20.0764 19.5097 20.0764 19.0556 19.7708 18.7754L15.1068 14.5L19.7708 10.2247C20.0764 9.94451 20.0764 9.49027 19.7708 9.21012C19.4651 8.92996 18.9697 8.92996 18.6641 9.21012L14 13.4854L9.336 9.21012Z"
-                                fill="#FF0000"
-                              />
-                            </g>
-                            <defs>
-                              <clipPath id="clip0_63_3963">
-                                <rect width="28" height="29" fill="white" />
-                              </clipPath>
-                            </defs>
-                          </svg>
-                          Expiré
-                        </div>
-                      </td>
-                      <td className="py-6 px-6 flex space-x-2">
-                        <button className="bg-[#7A20DA] flex font-bold text-white px-4 items-center gap-1 py-1 rounded-[5px]">
-                          <svg
-                            width="20"
-                            height="20"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            xmlns="http://www.w3.org/2000/svg"
-                          >
-                            <g clipPath="url(#clip0_63_3948)">
-                              <path
-                                d="M20.0685 8.16955C19.8341 7.93515 19.4541 7.93515 19.2197 8.16875L13.3413 14.048C13.1029 14.2784 13.0965 14.6584 13.3269 14.8968C13.5573 15.1352 13.9373 15.1416 14.1757 14.9112L14.1901 14.8968L20.0685 9.01835C20.3029 8.78395 20.3029 8.40395 20.0685 8.16955Z"
-                                fill="white"
-                              />
-                              <path
-                                d="M16.1282 9.18079C16.1282 8.19999 15.333 7.40479 14.3522 7.40479C13.3714 7.40479 12.5762 8.19999 12.5762 9.18079C12.5762 10.1616 13.3714 10.9568 14.3522 10.9568C15.3322 10.956 16.1274 10.1616 16.1282 9.18079ZM13.777 9.18159V9.18079C13.777 8.86239 14.0346 8.60479 14.353 8.60479C14.6714 8.60479 14.929 8.86239 14.929 9.18079C14.929 9.49919 14.6714 9.75679 14.353 9.75679C14.0354 9.75679 13.777 9.49999 13.777 9.18159Z"
-                                fill="white"
-                              />
-                              <path
-                                d="M19.0553 12.1079C18.0745 12.1079 17.2793 12.9031 17.2793 13.8839C17.2793 14.8647 18.0745 15.6599 19.0553 15.6599C20.0361 15.6599 20.8313 14.8647 20.8313 13.8839C20.8305 12.9039 20.0353 12.1095 19.0553 12.1079ZM19.6313 13.8839C19.6305 14.2015 19.3729 14.4591 19.0553 14.4591C18.7369 14.4591 18.4793 14.2015 18.4793 13.8831C18.4793 13.5647 18.7369 13.3071 19.0553 13.3071C19.3737 13.3071 19.6313 13.5655 19.6313 13.8839Z"
-                                fill="white"
-                              />
-                              <path
-                                d="M23.1295 3.02782C23.0455 2.19422 22.6319 1.42862 21.9799 0.902216C20.8607 -0.00578351 19.2679 -0.0385835 18.1119 0.822216L12.8159 4.75662C11.3031 5.87582 9.4719 6.48222 7.5903 6.48622H7.4919C7.1607 6.48622 6.8919 6.75502 6.8919 7.08622V15.3342L3.4967 15.0942C3.4887 15.0942 3.4815 15.0982 3.4743 15.0942C3.4671 15.0902 3.4607 15.0894 3.4535 15.0894H2.6535C2.0935 15.091 1.6391 14.6382 1.6375 14.0782V8.69982C1.6383 8.14142 2.0895 7.68862 2.6479 7.68622H3.4535C3.7847 7.68622 4.0535 7.41742 4.0535 7.08622C4.0535 6.75502 3.7847 6.48622 3.4535 6.48622H2.6471C1.4271 6.49022 0.4391 7.47982 0.4375 8.69982V14.0774C0.4391 15.2982 1.4295 16.2878 2.6503 16.2894H2.6719L1.7831 19.6078C1.5839 20.3438 1.9431 21.1166 2.6351 21.4374L7.3863 23.6534C8.1719 24.019 9.1047 23.679 9.4703 22.8934V22.8926C9.5087 22.8102 9.5399 22.7238 9.5639 22.6358L10.2551 20.023C10.4519 20.059 10.6519 20.0774 10.8519 20.0782C11.9719 20.0886 13.0327 19.5798 13.7263 18.7006L18.1111 21.9598C19.5087 22.999 21.4847 22.7078 22.5231 21.3102C22.8607 20.8566 23.0695 20.3198 23.1287 19.7574C23.7071 14.1958 23.7071 8.58942 23.1295 3.02782ZM8.3799 22.3854C8.2943 22.5694 8.0751 22.6486 7.8919 22.5622L3.1423 20.347C2.9807 20.2718 2.8967 20.091 2.9431 19.919L3.9031 16.3246L9.8767 16.751L8.3799 22.3854ZM10.8799 18.8774C10.7759 18.875 10.6719 18.8654 10.5687 18.8494L11.0559 17.0094C11.6607 17.271 12.2335 17.5998 12.7647 17.9894C12.3007 18.5534 11.6095 18.879 10.8799 18.8774ZM21.9351 19.6294L21.9375 19.6318C21.8255 20.7046 20.8639 21.4838 19.7911 21.371C19.4431 21.3342 19.1103 21.2054 18.8295 20.9966L13.5335 17.059C12.7151 16.4502 11.8079 15.971 10.8431 15.639C10.8191 15.631 10.7935 15.639 10.7687 15.6294C10.7423 15.6206 10.7159 15.6134 10.6887 15.6078L8.0927 15.4222V7.66542C10.0575 7.56462 11.9495 6.88782 13.5327 5.71982L18.8287 1.78302C19.6943 1.13902 20.9175 1.31902 21.5607 2.18462C21.7703 2.46622 21.8999 2.79982 21.9367 3.14942C22.5055 8.62782 22.5047 14.151 21.9351 19.6294Z"
-                                fill="white"
-                              />
-                            </g>
-                            <defs>
-                              <clipPath id="clip0_63_3948">
-                                <rect width="24" height="24" fill="white" />
-                              </clipPath>
-                            </defs>
-                          </svg>
-                          Promouvoir
-                        </button>
-                        <button className="bg-[#2A9D8F] flex items-center gap-1 text-white px-2 py-1 rounded-md">
-                          <svg
-                            width="20"
-                            height="20"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            xmlns="http://www.w3.org/2000/svg"
-                          >
-                            <path
-                              d="M11.5 1C9.22552 1 7.00211 1.67446 5.11095 2.9381C3.21978 4.20174 1.7458 5.99779 0.87539 8.09914C0.00498288 10.2005 -0.222756 12.5128 0.220974 14.7435C0.664704 16.9743 1.75997 19.0234 3.36828 20.6317C4.97658 22.24 7.02568 23.3353 9.25646 23.779C11.4872 24.2228 13.7995 23.995 15.9009 23.1246C18.0022 22.2542 19.7983 20.7802 21.0619 18.8891C22.3255 16.9979 23 14.7745 23 12.5C22.9989 9.45035 21.7869 6.52591 19.6305 4.36948C17.4741 2.21305 14.5497 1.0011 11.5 1ZM20.47 10.8133C20.5427 10.8825 20.6006 10.9658 20.6401 11.0581C20.6796 11.1503 20.7 11.2496 20.7 11.35C20.7 11.4504 20.6796 11.5497 20.6401 11.6419C20.6006 11.7342 20.5427 11.8175 20.47 11.8867L18.17 14.1867C18.1008 14.2594 18.0175 14.3172 17.9253 14.3568C17.833 14.3963 17.7337 14.4167 17.6333 14.4167C17.533 14.4167 17.4336 14.3963 17.3414 14.3568C17.2491 14.3172 17.1659 14.2594 17.0967 14.1867L14.7967 11.8867C14.6567 11.7438 14.5788 11.5516 14.5798 11.3516C14.5808 11.1516 14.6607 10.9601 14.8021 10.8187C14.9435 10.6773 15.135 10.5974 15.3349 10.5964C15.5349 10.5954 15.7272 10.6734 15.87 10.8133L16.8053 11.7333C16.6578 10.7159 16.221 9.76221 15.5469 8.98596C14.8728 8.2097 13.9897 7.64354 13.003 7.35489C12.0162 7.06625 10.9673 7.06727 9.9811 7.35785C8.99491 7.64843 8.11301 8.21632 7.44041 8.99389C6.7678 9.77146 6.33285 10.726 6.18733 11.7437C6.04181 12.7615 6.19185 13.7996 6.6196 14.7345C7.04735 15.6694 7.73478 16.4617 8.60003 17.017C9.46528 17.5723 10.4719 17.8672 11.5 17.8667C11.7033 17.8667 11.8983 17.9474 12.0421 18.0912C12.1859 18.235 12.2667 18.43 12.2667 18.6333C12.2667 18.8367 12.1859 19.0317 12.0421 19.1754C11.8983 19.3192 11.7033 19.4 11.5 19.4C10.1642 19.3995 8.85721 19.0113 7.73773 18.2825C6.61825 17.5537 5.7344 16.5155 5.19346 15.2941C4.65252 14.0727 4.47775 12.7206 4.69036 11.4018C4.90297 10.083 5.49382 8.85426 6.3912 7.86474C7.28858 6.87522 8.45389 6.16746 9.7457 5.82737C11.0375 5.48728 12.4003 5.52947 13.6686 5.94883C14.9368 6.3682 16.0561 7.1467 16.8906 8.18984C17.725 9.23298 18.2387 10.4959 18.3693 11.8253L19.3967 10.8133C19.4659 10.7406 19.5491 10.6828 19.6414 10.6432C19.7336 10.6037 19.833 10.5833 19.9333 10.5833C20.0337 10.5833 20.133 10.6037 20.2253 10.6432C20.3175 10.6828 20.4008 10.7406 20.47 10.8133Z"
-                              fill="white"
-                            />
-                          </svg>
-                          Renouveler
-                        </button>
-                        <button className="bg-red-600 text-white px-2 py-1 rounded-md">
-                          Annuler
-                        </button>
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-
-              <button className="bg-[#7A20DA] text-white py-2 px-10 mt-10 font-semibold rounded-[5px]">
-                Voir plus de candidatures
-              </button>
+                </tbody>
+              </table>
             </div>
+          )}
+
+          <button className="bg-[#7A20DA] text-white py-2 px-10 mt-10 font-semibold rounded-[5px]">
+            Voir plus de candidatures
+          </button>
+        </div>
+      </div>
+      {/* <button className="bg-[#7A20DA] flex font-bold text-white px-4 items-center gap-1 py-1 rounded-[5px]">
+        <svg
+          width="20"
+          height="20"
+          viewBox="0 0 24 24"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <g clipPath="url(#clip0_63_3948)">
+            <path
+              d="M20.0685 8.16955C19.8341 7.93515 19.4541 7.93515 19.2197 8.16875L13.3413 14.048C13.1029 14.2784 13.0965 14.6584 13.3269 14.8968C13.5573 15.1352 13.9373 15.1416 14.1757 14.9112L14.1901 14.8968L20.0685 9.01835C20.3029 8.78395 20.3029 8.40395 20.0685 8.16955Z"
+              fill="white"
+            />
+            <path
+              d="M16.1282 9.18079C16.1282 8.19999 15.333 7.40479 14.3522 7.40479C13.3714 7.40479 12.5762 8.19999 12.5762 9.18079C12.5762 10.1616 13.3714 10.9568 14.3522 10.9568C15.3322 10.956 16.1274 10.1616 16.1282 9.18079ZM13.777 9.18159V9.18079C13.777 8.86239 14.0346 8.60479 14.353 8.60479C14.6714 8.60479 14.929 8.86239 14.929 9.18079C14.929 9.49919 14.6714 9.75679 14.353 9.75679C14.0354 9.75679 13.777 9.49999 13.777 9.18159Z"
+              fill="white"
+            />
+            <path
+              d="M19.0553 12.1079C18.0745 12.1079 17.2793 12.9031 17.2793 13.8839C17.2793 14.8647 18.0745 15.6599 19.0553 15.6599C20.0361 15.6599 20.8313 14.8647 20.8313 13.8839C20.8305 12.9039 20.0353 12.1095 19.0553 12.1079ZM19.6313 13.8839C19.6305 14.2015 19.3729 14.4591 19.0553 14.4591C18.7369 14.4591 18.4793 14.2015 18.4793 13.8831C18.4793 13.5647 18.7369 13.3071 19.0553 13.3071C19.3737 13.3071 19.6313 13.5655 19.6313 13.8839Z"
+              fill="white"
+            />
+            <path
+              d="M23.1295 3.02782C23.0455 2.19422 22.6319 1.42862 21.9799 0.902216C20.8607 -0.00578351 19.2679 -0.0385835 18.1119 0.822216L12.8159 4.75662C11.3031 5.87582 9.4719 6.48222 7.5903 6.48622H7.4919C7.1607 6.48622 6.8919 6.75502 6.8919 7.08622V15.3342L3.4967 15.0942C3.4887 15.0942 3.4815 15.0982 3.4743 15.0942C3.4671 15.0902 3.4607 15.0894 3.4535 15.0894H2.6535C2.0935 15.091 1.6391 14.6382 1.6375 14.0782V8.69982C1.6383 8.14142 2.0895 7.68862 2.6479 7.68622H3.4535C3.7847 7.68622 4.0535 7.41742 4.0535 7.08622C4.0535 6.75502 3.7847 6.48622 3.4535 6.48622H2.6471C1.4271 6.49022 0.4391 7.47982 0.4375 8.69982V14.0774C0.4391 15.2982 1.4295 16.2878 2.6503 16.2894H2.6719L1.7831 19.6078C1.5839 20.3438 1.9431 21.1166 2.6351 21.4374L7.3863 23.6534C8.1719 24.019 9.1047 23.679 9.4703 22.8934V22.8926C9.5087 22.8102 9.5399 22.7238 9.5639 22.6358L10.2551 20.023C10.4519 20.059 10.6519 20.0774 10.8519 20.0782C11.9719 20.0886 13.0327 19.5798 13.7263 18.7006L18.1111 21.9598C19.5087 22.999 21.4847 22.7078 22.5231 21.3102C22.8607 20.8566 23.0695 20.3198 23.1287 19.7574C23.7071 14.1958 23.7071 8.58942 23.1295 3.02782ZM8.3799 22.3854C8.2943 22.5694 8.0751 22.6486 7.8919 22.5622L3.1423 20.347C2.9807 20.2718 2.8967 20.091 2.9431 19.919L3.9031 16.3246L9.8767 16.751L8.3799 22.3854ZM10.8799 18.8774C10.7759 18.875 10.6719 18.8654 10.5687 18.8494L11.0559 17.0094C11.6607 17.271 12.2335 17.5998 12.7647 17.9894C12.3007 18.5534 11.6095 18.879 10.8799 18.8774ZM21.9351 19.6294L21.9375 19.6318C21.8255 20.7046 20.8639 21.4838 19.7911 21.371C19.4431 21.3342 19.1103 21.2054 18.8295 20.9966L13.5335 17.059C12.7151 16.4502 11.8079 15.971 10.8431 15.639C10.8191 15.631 10.7935 15.639 10.7687 15.6294C10.7423 15.6206 10.7159 15.6134 10.6887 15.6078L8.0927 15.4222V7.66542C10.0575 7.56462 11.9495 6.88782 13.5327 5.71982L18.8287 1.78302C19.6943 1.13902 20.9175 1.31902 21.5607 2.18462C21.7703 2.46622 21.8999 2.79982 21.9367 3.14942C22.5055 8.62782 22.5047 14.151 21.9351 19.6294Z"
+              fill="white"
+            />
+          </g>
+          <defs>
+            <clipPath id="clip0_63_3948">
+              <rect width="24" height="24" fill="white" />
+            </clipPath>
+          </defs>
+        </svg>
+        Promouvoir
+      </button>
+      <tr className="border-b border-gray-200 odd:bg-white even:bg-[#F6F6F6]">
+        <td className="py-6 px-6">Beta Industriel</td>
+        <td className="py-6 px-6">Essai 4</td>
+        <td className="py-6 px-6">15/05/2025</td>
+        <td className="py-6 px-6">15/06/2025</td>
+        <td className="py-6 px-6 text-[#EDC12E]">
+          <div className="flex items-center gap-2">
+            <svg
+              width="25"
+              height="27"
+              viewBox="0 0 25 27"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M9.60832 26.01H0V24.5703H9.74329C9.5312 25.0331 9.48621 25.5344 9.60832 26.01Z"
+                fill="#EDC12E"
+              />
+              <path
+                d="M10.3927 24.7186C10.1228 25.1814 10.1164 25.7148 10.3606 26.184C10.3735 26.2032 10.3799 26.2225 10.3927 26.2418C10.6691 26.7238 11.1511 27.0002 11.7103 27.0002H23.3045C23.8637 27.0002 24.3393 26.7238 24.6221 26.2418C24.8984 25.7598 24.8984 25.2071 24.6221 24.725L19.6604 16.1322L18.8249 14.6861C18.5486 14.2041 18.0665 13.9277 17.5074 13.9277C16.9483 13.9277 16.4727 14.2041 16.1899 14.6861L10.3927 24.7186ZM16.8004 18.1245H18.2144L18.5164 22.5977H16.4919L16.8004 18.1245ZM18.5421 25.4577H16.4727V23.941H18.5421V25.4577Z"
+                fill="#EDC12E"
+              />
+              <path
+                d="M0 0H21.2861V1.43964H0V0Z"
+                fill="#EDC12E"
+              />
+              <path
+                d="M19.6211 14.7749L20.2638 15.8868V2.0752H19.6211V14.7749Z"
+                fill="#EDC12E"
+              />
+              <path
+                d="M15.2015 5.48243C15.1436 6.69713 13.7554 8.03394 12.9392 8.72805C12.4764 9.11367 11.6152 9.88491 10.9725 10.8232V15.1807C11.6217 16.1191 12.4764 16.8903 12.9392 17.2759C13.1127 17.4237 13.3505 17.6294 13.6076 17.8801L13.2734 18.4585L12.1615 20.3737L11.7888 21.0164H6.42223C6.25513 21.0164 6.12017 20.8879 6.10089 20.7272C6.09446 20.6629 6.09446 20.5922 6.09446 20.528C6.1523 19.3133 7.5341 17.9765 8.35675 17.2823C8.81949 16.8967 9.68071 16.1255 10.3234 15.1872V10.8361C9.68071 9.89776 8.81949 9.12652 8.35675 8.74091C7.5341 8.04679 6.1523 6.70998 6.09446 5.49529C6.08803 5.43102 6.09446 5.36032 6.10089 5.29605C6.11374 5.12895 6.25513 5.00684 6.42223 5.00684H14.8737C15.0408 5.00684 15.1758 5.13538 15.1951 5.29605C15.2015 5.35389 15.2015 5.41816 15.2015 5.48243Z"
+                fill="#EDC12E"
+              />
+              <path
+                d="M11.9281 13.001C11.9281 13.9201 13.477 15.4112 14.0747 15.906C14.2226 16.0346 14.3704 16.1631 14.5118 16.2917L14.184 16.8637C14.0169 16.703 13.8434 16.5487 13.6634 16.3945C13.4256 16.1952 11.2854 14.3828 11.2854 13.001C11.2854 11.6192 13.4192 9.80684 13.6634 9.60118C15.3794 8.1294 16.3049 6.68976 16.3242 5.43007C16.337 4.58171 15.9514 4.04185 15.7779 3.84904H5.50759C5.33406 4.04185 4.94844 4.58171 4.96129 5.43007C4.98057 6.68976 5.90606 8.13583 7.62849 9.60118C7.86628 9.80041 10.0065 11.6128 10.0065 12.9946C10.0065 14.3764 7.87271 16.1888 7.62849 16.3945C5.91248 17.8663 4.987 19.3059 4.96772 20.5656C4.95487 21.4139 5.34048 21.9538 5.51401 22.1466H11.1312L10.7584 22.7893L10.1093 23.9205H5.05127V22.6029C4.8199 22.3459 4.30574 21.6517 4.3186 20.5784C4.33788 19.1002 5.30835 17.5321 7.21073 15.906C7.81487 15.4047 9.36377 13.9201 9.36377 13.001C9.36377 12.082 7.81487 10.5909 7.21716 10.0961C5.31478 8.47003 4.33788 6.89542 4.32502 5.42365C4.31217 4.34392 4.82633 3.65623 5.0577 3.39915V2.0752H16.2471V3.39915C16.4784 3.65623 16.9926 4.35034 16.9797 5.42365C16.9604 6.90185 15.99 8.47003 14.0876 10.0961C13.4835 10.5974 11.9281 12.082 11.9281 13.001Z"
+                fill="#EDC12E"
+              />
+              <path
+                d="M1.0293 2.0752H1.67199V23.9269H1.0293V2.0752Z"
+                fill="#EDC12E"
+              />
+            </svg>
+            En essai
           </div>
+        </td>
+        <td className="py-6 px-6 flex space-x-2">
+          <button className="bg-[#F4E9FF] text-[#7A20DA] font-bold flex px-4 items-center gap-2 py-1 rounded-[5px]">
+            <svg
+              width="5"
+              height="14"
+              viewBox="0 0 7 16"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M2.23938 0.627251V15.3727C2.23938 15.6236 2.05277 15.8044 1.67954 15.9164C1.49893 15.9721 1.31274 16 1.11969 16L0.559846 15.9164C0.186186 15.8044 0 15.6236 0 15.3727V0.627251C0 0.37635 0.186615 0.195609 0.559846 0.0836335C0.740026 0.0278779 0.926641 0 1.11969 0L1.67954 0.0836335C2.05277 0.195145 2.23938 0.37635 2.23938 0.627251ZM7 0.627251V15.3727C7 15.6236 6.81339 15.8044 6.44016 15.9164C6.25955 15.9721 6.07336 16 5.88031 16L5.32046 15.9164C4.9468 15.8044 4.76062 15.6236 4.76062 15.3727V0.627251C4.76062 0.37635 4.94723 0.195609 5.32046 0.0836335C5.50064 0.0278779 5.68726 0 5.88031 0L6.44016 0.0836335C6.81339 0.195145 7 0.37635 7 0.627251Z"
+                fill="#7A20DA"
+              />
+            </svg>
+            Suspendre
+          </button>
+          <button className="bg-[#FF0000] text-white flex font-bold px-4 items-center gap-2 py-1 rounded-[5px]">
+            <svg
+              width="15"
+              height="15"
+              viewBox="0 0 22 22"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <g clipPath="url(#clip0_63_3945)">
+                <path
+                  d="M11 0C4.9347 0 0 4.93437 0 11C0 17.0656 4.93437 22 11 22C17.0656 22 22 17.0656 22 11C22 4.93437 17.0653 0 11 0ZM2.01471 11C2.01471 6.04548 6.04548 2.01471 11 2.01471C13.2323 2.01471 15.2759 2.83504 16.8491 4.18792L4.18792 16.8491C2.83504 15.2759 2.01471 13.2323 2.01471 11ZM11 19.9853C9.00275 19.9853 7.15626 19.3295 5.66269 18.2231L18.2227 5.66302C19.3292 7.1566 19.985 9.00308 19.985 11.0003C19.9853 15.9545 15.9545 19.9853 11 19.9853Z"
+                  fill="white"
+                />
+              </g>
+              <defs>
+                <clipPath id="clip0_63_3945">
+                  <rect width="22" height="22" fill="white" />
+                </clipPath>
+              </defs>
+            </svg>
+            Annuler
+          </button>
+          <button className="bg-[#F4E9FF] text-[#7A20DA] font-bold flex px-4 items-center gap-2 py-1 rounded-[5px]">
+            <svg
+              width="20"
+              height="20"
+              viewBox="0 0 23 23"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M11.5 0C5.16147 0 0 5.16147 0 11.5C0 17.8385 5.16147 23 11.5 23C17.8385 23 23 17.8385 23 11.5C23 5.16147 17.8385 0 11.5 0ZM10.8235 16.0797V15.3829C10.8235 15.0109 11.1279 14.7065 11.5 14.7065C11.8721 14.7065 12.1765 15.0109 12.1765 15.3829V16.0797C12.1765 16.4585 11.8721 16.7562 11.5 16.7562C11.1279 16.7562 10.8235 16.4585 10.8235 16.0797ZM12.1765 13.2047C12.1765 13.5768 11.8721 13.8812 11.5 13.8812C11.1279 13.8812 10.8235 13.5768 10.8235 13.2047V6.92029C10.8235 6.54147 11.1279 6.24382 11.5 6.24382C11.8721 6.24382 12.1765 6.54147 12.1765 6.92029V13.2047Z"
+                fill="#7A20DA"
+              />
+            </svg>
+            Détails
+          </button>
+        </td>
+      </tr>
+      <tr className="border-b border-gray-200 odd:bg-white even:bg-[#F6F6F6]">
+        <td className="py-6 px-6">Gamma Solutions</td>
+        <td className="py-6 px-6">Entreprise</td>
+        <td className="py-6 px-6">08/05/2025</td>
+        <td className="py-6 px-6">08/06/2025</td>
+
+        <td className="py-6 px-6 text-[#FF0000] ">
+          <div className="flex items-center gap-2">
+            <svg
+              width="18"
+              height="19"
+              viewBox="0 0 28 29"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <g clipPath="url(#clip0_63_3963)">
+                <path
+                  d="M28 14.4125C28 22.0394 21.7319 28.222 14 28.222C6.26801 28.222 0 22.0394 0 14.4125C0 6.78577 6.26801 0.603027 14 0.603027C21.7319 0.603027 28 6.78577 28 14.4125Z"
+                  fill="white"
+                />
+                <path
+                  fillRule="evenodd"
+                  clipRule="evenodd"
+                  d="M14 26.1506C20.5722 26.1506 25.9 20.8953 25.9 14.4125C25.9 7.92978 20.5722 2.67445 14 2.67445C7.42781 2.67445 2.1 7.92978 2.1 14.4125C2.1 20.8953 7.42781 26.1506 14 26.1506ZM14 28.222C21.7319 28.222 28 22.0394 28 14.4125C28 6.78577 21.7319 0.603027 14 0.603027C6.26801 0.603027 0 6.78577 0 14.4125C0 22.0394 6.26801 28.222 14 28.222Z"
+                  fill="#FF0000"
+                />
+                <path
+                  fillRule="evenodd"
+                  clipRule="evenodd"
+                  d="M9.336 9.21012C9.03037 8.92996 8.53484 8.92996 8.22922 9.21012C7.92359 9.49027 7.92359 9.94451 8.22922 10.2247L12.8932 14.5L8.22922 18.7754C7.92359 19.0556 7.92359 19.5097 8.22922 19.7899C8.53484 20.07 9.03037 20.07 9.336 19.7899L14 15.5146L18.6641 19.7899C18.9697 20.07 19.4651 20.07 19.7708 19.7899C20.0764 19.5097 20.0764 19.0556 19.7708 18.7754L15.1068 14.5L19.7708 10.2247C20.0764 9.94451 20.0764 9.49027 19.7708 9.21012C19.4651 8.92996 18.9697 8.92996 18.6641 9.21012L14 13.4854L9.336 9.21012Z"
+                  fill="#FF0000"
+                />
+              </g>
+              <defs>
+                <clipPath id="clip0_63_3963">
+                  <rect width="28" height="29" fill="white" />
+                </clipPath>
+              </defs>
+            </svg>
+            Expiré
+          </div>
+        </td>
+        <td className="py-6 px-6 flex space-x-2">
+
+          <button className="bg-[#2A9D8F] flex items-center gap-1 text-white px-2 py-1 rounded-md">
+            <svg
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M11.5 1C9.22552 1 7.00211 1.67446 5.11095 2.9381C3.21978 4.20174 1.7458 5.99779 0.87539 8.09914C0.00498288 10.2005 -0.222756 12.5128 0.220974 14.7435C0.664704 16.9743 1.75997 19.0234 3.36828 20.6317C4.97658 22.24 7.02568 23.3353 9.25646 23.779C11.4872 24.2228 13.7995 23.995 15.9009 23.1246C18.0022 22.2542 19.7983 20.7802 21.0619 18.8891C22.3255 16.9979 23 14.7745 23 12.5C22.9989 9.45035 21.7869 6.52591 19.6305 4.36948C17.4741 2.21305 14.5497 1.0011 11.5 1ZM20.47 10.8133C20.5427 10.8825 20.6006 10.9658 20.6401 11.0581C20.6796 11.1503 20.7 11.2496 20.7 11.35C20.7 11.4504 20.6796 11.5497 20.6401 11.6419C20.6006 11.7342 20.5427 11.8175 20.47 11.8867L18.17 14.1867C18.1008 14.2594 18.0175 14.3172 17.9253 14.3568C17.833 14.3963 17.7337 14.4167 17.6333 14.4167C17.533 14.4167 17.4336 14.3963 17.3414 14.3568C17.2491 14.3172 17.1659 14.2594 17.0967 14.1867L14.7967 11.8867C14.6567 11.7438 14.5788 11.5516 14.5798 11.3516C14.5808 11.1516 14.6607 10.9601 14.8021 10.8187C14.9435 10.6773 15.135 10.5974 15.3349 10.5964C15.5349 10.5954 15.7272 10.6734 15.87 10.8133L16.8053 11.7333C16.6578 10.7159 16.221 9.76221 15.5469 8.98596C14.8728 8.2097 13.9897 7.64354 13.003 7.35489C12.0162 7.06625 10.9673 7.06727 9.9811 7.35785C8.99491 7.64843 8.11301 8.21632 7.44041 8.99389C6.7678 9.77146 6.33285 10.726 6.18733 11.7437C6.04181 12.7615 6.19185 13.7996 6.6196 14.7345C7.04735 15.6694 7.73478 16.4617 8.60003 17.017C9.46528 17.5723 10.4719 17.8672 11.5 17.8667C11.7033 17.8667 11.8983 17.9474 12.0421 18.0912C12.1859 18.235 12.2667 18.43 12.2667 18.6333C12.2667 18.8367 12.1859 19.0317 12.0421 19.1754C11.8983 19.3192 11.7033 19.4 11.5 19.4C10.1642 19.3995 8.85721 19.0113 7.73773 18.2825C6.61825 17.5537 5.7344 16.5155 5.19346 15.2941C4.65252 14.0727 4.47775 12.7206 4.69036 11.4018C4.90297 10.083 5.49382 8.85426 6.3912 7.86474C7.28858 6.87522 8.45389 6.16746 9.7457 5.82737C11.0375 5.48728 12.4003 5.52947 13.6686 5.94883C14.9368 6.3682 16.0561 7.1467 16.8906 8.18984C17.725 9.23298 18.2387 10.4959 18.3693 11.8253L19.3967 10.8133C19.4659 10.7406 19.5491 10.6828 19.6414 10.6432C19.7336 10.6037 19.833 10.5833 19.9333 10.5833C20.0337 10.5833 20.133 10.6037 20.2253 10.6432C20.3175 10.6828 20.4008 10.7406 20.47 10.8133Z"
+                fill="white"
+              />
+            </svg>
+            Renouveler
+          </button>
+          <button className="bg-red-600 text-white px-2 py-1 rounded-md">
+            Annuler
+          </button>
+        </td>
+      </tr> */}
     </>
   );
 }

@@ -1,17 +1,29 @@
-// app/api/admin/employers/route.ts
 import { NextRequest, NextResponse } from 'next/server';
-import { connectEmployersDb } from '@/lib/mongodb';
-import Employer from '@/models/Employer';
-import { adminMiddleware } from '../../middleware';
-import { ApiResponse, IEmployer } from '@/lib/types';
+import jwt from 'jsonwebtoken';
+import EmployerModelPromise from '@/models/Employer'; 
 
-export const GET = adminMiddleware(async (req: NextRequest): Promise<NextResponse<ApiResponse<IEmployer[]>>> => {
+export async function GET(req: NextRequest) {
   try {
-    await connectEmployersDb();
-    const employers = await Employer.find().select('-password');
-    return NextResponse.json({ success: true, data: employers }, { status: 200 });
-  } catch (error) {
-    console.error('Erreur récupération employeurs :', error);
-    return NextResponse.json({ success: false, message: 'Erreur serveur' }, { status: 500 });
+    // ✅ Vérification du token (facultatif si la route est publique)
+    const token = req.cookies.get('token')?.value;
+    if (!token) {
+      return NextResponse.json({ error: 'Token manquant' }, { status: 401 });
+    }
+
+    const decoded = jwt.verify(token, process.env.JWT_SECRET!) as any;
+    // if (decoded.role !== 'admin') { // Ou employeur, selon la logique métier
+    //   return NextResponse.json({ error: 'Accès interdit' }, { status: 403 });
+    // }
+    
+    // ✅ Récupérer tous les employeurs
+    const EmployeurModel = await EmployerModelPromise;
+    const employeurs = await EmployeurModel.find();
+
+    return NextResponse.json(employeurs);
+  } catch (err: any) {
+    return NextResponse.json(
+      { error: 'Erreur serveur', details: err.message },
+      { status: 500 }
+    );
   }
-});
+}

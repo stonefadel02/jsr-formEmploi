@@ -13,7 +13,6 @@ export default function Candidature() {
     firstName: "",
     lastName: "",
     phone: "",
-    emailpro: "",
     adresse: "",
     sector: "",
     location: "",
@@ -82,7 +81,6 @@ export default function Candidature() {
     // Champs simples
     data.append("firstName", formData.firstName);
     data.append("lastName", formData.lastName);
-    data.append("emailpro", formData.emailpro); // correspondance avec ton API
     data.append("phone", formData.phone);
 
     // Exemple d’objet alternanceSearch (à adapter selon ton UI étape 2+)
@@ -177,24 +175,6 @@ export default function Candidature() {
                       value={formData.firstName}
                       onChange={handleChange}
                       placeholder="Prénom"
-                      className="mt-2 block w-full px-4 py-3 border text-gray-700 border-[#C4C4C4] rounded-[15px] placeholder-[#D9D9D9] focus:ring-purple-900 focus:border-purple-900"
-                      required
-                    />
-                  </div>
-                  <div>
-                    <label
-                      className="text-[#4C4C4C] text-[18px]"
-                      htmlFor="email"
-                    >
-                      Email <span className="text-[#FF0000]"> *</span>
-                    </label>
-                    <input
-                      type="email"
-                      name="emailpro"
-                      id="email"
-                      value={formData.emailpro}
-                      onChange={handleChange}
-                      placeholder="example@gmail.com"
                       className="mt-2 block w-full px-4 py-3 border text-gray-700 border-[#C4C4C4] rounded-[15px] placeholder-[#D9D9D9] focus:ring-purple-900 focus:border-purple-900"
                       required
                     />
