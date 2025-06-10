@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import EmployerModelPromise from '@/models/Employer';
+import SubscriptionModelPromise from '@/models/Subscription';
 
 
 export async function POST(req: NextRequest) {
@@ -30,6 +31,18 @@ export async function POST(req: NextRequest) {
       email,
       password: passwordHash, // nom de champ cohérent
     });
+
+    const SubscriptionModel = await SubscriptionModelPromise;
+    await SubscriptionModel.create({
+      employerId: employer._id,
+      plan: 'Gratuit',
+      startDate: new Date(),
+      endDate: new Date(new Date().setMonth(new Date().getMonth() + 2)),
+      isTrial: true,
+      isActive: true, // tu peux mettre false si tu actives plus tard manuellement
+      price: 0
+    });
+    
 
     const token = jwt.sign(
       { id: employer._id, email: employer.email, role: 'employer' },

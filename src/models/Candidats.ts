@@ -20,7 +20,6 @@ const candidateSchema = new Schema<ICandidat>(
       index: true,
     },
     authProvider: { type: String, default: 'local' },
-    emailpro: { type: String, unique: true },
     phone: { type: String },
     alternanceSearch: {
       sector: { type: String },

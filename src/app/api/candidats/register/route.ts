@@ -28,6 +28,7 @@ export async function POST(req: NextRequest) {
     const candidat = await CandidatModel.create({
       email,
       password: passwordHash, // nom de champ cohérent
+      status: 'Validé'
     });
 
     const token = jwt.sign(

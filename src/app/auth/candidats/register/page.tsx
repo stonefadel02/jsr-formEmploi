@@ -50,7 +50,7 @@ export default function Register() {
         sameSite: "Lax",
       });
       // Rediriger vers une page après connexion (exemple)
-      window.location.href = "/pages/candidature";
+      window.location.href = "/candidat/candidature";
     } catch (err: unknown) {
       if (err instanceof Error) {
         setError(err.message);

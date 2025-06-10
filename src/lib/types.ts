@@ -31,7 +31,6 @@ export interface ICandidat extends Document {
   password?: string;
   role: 'candidat';
   authProvider: string;
-  emailpro: String;
   phone?: string;
   alternanceSearch?: {
     sector?: string;
@@ -47,11 +46,19 @@ export interface ICandidat extends Document {
 }
 
 export interface ISubscription {
+  employerId: {
+    companyName?: string;
+    email?: string;
+  } | Types.ObjectId;
   plan: 'Gratuit' | 'Standard' | 'Premium';
   startDate: Date;
   endDate?: Date;
+  isTrial: boolean;
   isActive: boolean;
+  price: number;
+  paymentId?: string;
 }
+
 
 export interface IEmployer {
   _id: Types.ObjectId;

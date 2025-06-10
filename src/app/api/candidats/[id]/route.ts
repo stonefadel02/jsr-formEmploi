@@ -16,7 +16,7 @@ export async function GET(
         { success: false, message: "Authentication required" },
         { status: 401 }
       );
-    }
+    } 
 
     let decoded: { id: string; email: string; role?: string };
     try {
