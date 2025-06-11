@@ -173,7 +173,7 @@ export default function ProfileEmployeur() {
 
   // Rediriger vers le profil du candidat
   const viewProfile = (candidatId: string) => {
-    router.push(`/candidat/${candidatId}`);
+    router.push(`../candidats/${candidatId}`);
   };
 
   if (error) {
@@ -295,7 +295,7 @@ export default function ProfileEmployeur() {
                   candidats.map((candidat) => (
                     <tr key={candidat._id} className="border-t border-[#C4C4C4]">
                       <td className="px-6 py-4 text-[#4C4C4C]">
-                        {anonymizeName(candidat.personalInfo.firstName)}
+                        {anonymizeName(candidat.firstName)}
                       </td>
                       <td className="px-6 text-start py-4 text-[#4C4C4C]">
                         {candidat.alternanceSearch.sector || 'N/A'}

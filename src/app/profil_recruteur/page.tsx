@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import { useState, useEffect } from 'react';
 import Cookies from 'js-cookie';
@@ -7,25 +7,21 @@ import { useRouter } from 'next/navigation';
 import Footer from '@/app/components/Footer';
 import Navbar from '@/app/components/Navbar';
 
-// Interface pour les données des candidats (basée sur ICandidat)
+// Interface pour les données des candidats
 interface Candidat {
   _id: string;
-  firstName: string;
-  lastName: string;
-  email: string;
-  authProvider: string;
-  phone?: string;
+  personalInfo: {
+    firstName: string;
+    lastName: string;
+    email: string;
+  };
   alternanceSearch: {
     sector: string;
     location: string;
     level: string;
     contracttype: string;
   };
-  cvUrl?: string;
-  videoUrl?: string;
-  status?: "En attente" | "Validé" | "Refusé";
   createdAt: string;
-  updatedAt?: string;
 }
 
 interface ApiResponse {
@@ -68,12 +64,12 @@ export default function ProfileEmployeur() {
 
   // États pour les filtres et la pagination
   const [filters, setFilters] = useState({
-    keyword: "",
-    sector: "",
-    location: "",
-    level: "",
-    contracttype: "",
-    sortBy: "date" as "date" | "relevance" | "location",
+    keyword: '',
+    sector: '',
+    location: '',
+    level: '',
+    contracttype: '', // Ajout du filtre contracttype
+    sortBy: 'date' as 'date' | 'relevance' | 'location',
     page: 1,
     limit: 10,
   });
@@ -81,14 +77,14 @@ export default function ProfileEmployeur() {
   // Récupérer les options des filtres
   const fetchFilterOptions = async () => {
     try {
-      const response = await axios.get<FilterApiResponse>("/api/candidats/filters");
+      const response = await axios.get<FilterApiResponse>('/api/candidats/filters');
       if (response.data.success) {
         setFilterOptions(response.data.data);
       } else {
-        console.error("Erreur récupération options filtres:", response.data.message);
+        console.error('Erreur récupération options filtres:', response.data.message);
       }
     } catch (err) {
-      console.error("Erreur fetchFilterOptions:", err);
+      console.error('Erreur fetchFilterOptions:', err);
     }
   };
 
@@ -104,14 +100,14 @@ export default function ProfileEmployeur() {
         return;
       }
 
-      const response = await axios.get<ApiResponse>("/api/candidats/allCandidats", {
+      const response = await axios.get<ApiResponse>('/api/candidats/allCandidats', {
         headers: { Authorization: `Bearer ${token}` },
         params: {
           keyword: filters.keyword || undefined,
           sector: filters.sector || undefined,
           location: filters.location || undefined,
           level: filters.level || undefined,
-          contracttype: filters.contracttype || undefined,
+          contracttype: filters.contracttype || undefined, // Ajout du paramètre
           sortBy: filters.sortBy,
           page: filters.page,
           limit: filters.limit,
@@ -122,11 +118,11 @@ export default function ProfileEmployeur() {
         setCandidats(response.data.data.candidats);
         setTotal(response.data.data.total);
       } else {
-        setError(response.data.message || "Erreur lors de la récupération des candidats.");
+        setError(response.data.message || 'Erreur lors de la récupération des candidats.');
       }
-    } catch (err: any) {
-      setError(err.response?.data?.message || "Erreur serveur. Veuillez réessayer plus tard.");
-      console.error("Erreur fetchCandidats:", err);
+    } catch (err) {
+      setError('Erreur serveur. Veuillez réessayer plus tard.');
+      console.error('Erreur fetchCandidats:', err);
     } finally {
       setLoading(false);
     }
@@ -134,8 +130,8 @@ export default function ProfileEmployeur() {
 
   // Appeler les APIs au chargement
   useEffect(() => {
-    fetchFilterOptions();
-    fetchCandidats();
+    fetchFilterOptions(); // Récupérer les options des filtres
+    fetchCandidats(); // Récupérer les candidats
   }, []);
 
   // Appeler fetchCandidats à chaque changement de filtres
@@ -168,10 +164,10 @@ export default function ProfileEmployeur() {
 
   // Formater la date
   const formatDate = (date: string) => {
-    return new Date(date).toLocaleDateString("fr-FR", {
-      day: "2-digit",
-      month: "2-digit",
-      year: "numeric",
+    return new Date(date).toLocaleDateString('fr-FR', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
     });
   };
 
@@ -220,9 +216,7 @@ export default function ProfileEmployeur() {
               >
                 <option value="">Secteur</option>
                 {filterOptions.sectors.map((sector) => (
-                  <option key={sector} value={sector}>
-                    {sector}
-                  </option>
+                  <option key={sector} value={sector}>{sector}</option>
                 ))}
               </select>
               <select
@@ -233,9 +227,7 @@ export default function ProfileEmployeur() {
               >
                 <option value="">Localisation</option>
                 {filterOptions.locations.map((location) => (
-                  <option key={location} value={location}>
-                    {location}
-                  </option>
+                  <option key={location} value={location}>{location}</option>
                 ))}
               </select>
               <select
@@ -244,11 +236,9 @@ export default function ProfileEmployeur() {
                 onChange={handleFilterChange}
                 className="border border-gray-300 rounded-[5px] px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#7A20DA]"
               >
-                <option value="">Niveau d'étude</option>
+                <option value="">Niveau d`étude</option>
                 {filterOptions.levels.map((level) => (
-                  <option key={level} value={level}>
-                    {level}
-                  </option>
+                  <option key={level} value={level}>{level}</option>
                 ))}
               </select>
               <select
@@ -259,9 +249,7 @@ export default function ProfileEmployeur() {
               >
                 <option value="">Type de contrat</option>
                 {filterOptions.contractTypes.map((contractType) => (
-                  <option key={contractType} value={contractType}>
-                    {contractType}
-                  </option>
+                  <option key={contractType} value={contractType}>{contractType}</option>
                 ))}
               </select>
               <select
@@ -282,24 +270,12 @@ export default function ProfileEmployeur() {
             <table className="w-full">
               <thead>
                 <tr>
-                  <th className="px-6 py-6 text-sm font-semibold text-left text-[#202020]">
-                    Nom (anonymisé)
-                  </th>
-                  <th className="px-6 py-3 text-sm font-semibold text-start text-[#202020]">
-                    Secteur
-                  </th>
-                  <th className="px-6 py-3 text-sm font-semibold text-start text-[#202020]">
-                    Localisation
-                  </th>
-                  <th className="px-6 py-3 text-sm font-semibold text-start text-[#202020]">
-                    Niveau d'étude
-                  </th>
-                  <th className="px-6 py-3 text-sm font-semibold text-start text-[#202020]">
-                    Date de soumission
-                  </th>
-                  <th className="px-6 py-3 text-sm font-semibold text-end text-[#202020]">
-                    Actions
-                  </th>
+                  <th className="px-6 py-6 text-sm font-semibold text-left text-[#202020]">Nom (anonymisé)</th>
+                  <th className="px-6 py-3 text-sm font-semibold text-start text-[#202020]">Secteur</th>
+                  <th className="px-6 py-3 text-sm font-semibold text-start text-[#202020]">Localisation</th>
+                  <th className="px-6 py-3 text-sm font-semibold text-start text-[#202020]">Niveau d`étude</th>
+                  <th className="px-6 py-3 text-sm font-semibold text-start text-[#202020]">Date de soumission</th>
+                  <th className="px-6 py-3 text-sm font-semibold text-end text-[#202020]">Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -312,7 +288,7 @@ export default function ProfileEmployeur() {
                 ) : candidats.length === 0 ? (
                   <tr>
                     <td colSpan={6} className="px-6 py-4 text-center text-[#4C4C4C]">
-                      Aucun candidat validé trouvé.
+                      Aucun candidat trouvé.
                     </td>
                   </tr>
                 ) : (
@@ -322,13 +298,13 @@ export default function ProfileEmployeur() {
                         {anonymizeName(candidat.firstName)}
                       </td>
                       <td className="px-6 text-start py-4 text-[#4C4C4C]">
-                        {candidat.alternanceSearch.sector || "N/A"}
+                        {candidat.alternanceSearch.sector || 'N/A'}
                       </td>
                       <td className="px-6 text-start py-4 text-[#4C4C4C]">
-                        {candidat.alternanceSearch.location || "N/A"}
+                        {candidat.alternanceSearch.location || 'N/A'}
                       </td>
                       <td className="px-6 text-start py-4 text-[#4C4C4C]">
-                        {candidat.alternanceSearch.level || "N/A"}
+                        {candidat.alternanceSearch.level || 'N/A'}
                       </td>
                       <td className="px-6 text-start py-4 text-[#4C4C4C]">
                         {formatDate(candidat.createdAt)}
@@ -351,17 +327,14 @@ export default function ProfileEmployeur() {
           {/* Pagination */}
           <div className="flex justify-center mt-6">
             <nav className="flex space-x-2">
-              {Array.from(
-                { length: Math.ceil(total / filters.limit) },
-                (_, i) => i + 1
-              ).map((pageNum) => (
+              {Array.from({ length: Math.ceil(total / filters.limit) }, (_, i) => i + 1).map((pageNum) => (
                 <button
                   key={pageNum}
                   onClick={() => handlePageChange(pageNum)}
                   className={`px-3 py-1 text-sm font-medium rounded transition duration-200 ${
                     filters.page === pageNum
-                      ? "text-white bg-[#7A20DA] hover:bg-[#6A1AB8]"
-                      : "text-gray-700 bg-gray-200 hover:bg-gray-300"
+                      ? 'text-white bg-[#7A20DA] hover:bg-[#6A1AB8]'
+                      : 'text-gray-700 bg-gray-200 hover:bg-gray-300'
                   }`}
                 >
                   {pageNum}

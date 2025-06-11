@@ -29,11 +29,17 @@ export default function Navbar() {
               </Link>
             {/* Menu pour desktop */}
             <div className="hidden md:flex space-x-8 items-center">
-              <Link href="/" className="text-[#501891] hover:text-gray-600 font-medium">
-                Offres d’emploi
+              <Link href="/pages/acceuil" className="text-[#501891] hover:text-gray-600 font-medium">
+                Je suis candidat
               </Link>
-              <Link href="/formations" className="text-[#501891] hover:text-gray-600 font-medium">
-                Accès recruteurs
+              <Link href="/pages/acceuil_recruteur" className="text-[#501891] hover:text-gray-600 font-medium">
+                Je suis recruteur
+              </Link>
+              <Link href="/pages/tarifs" className="text-[#501891] hover:text-gray-600 font-medium">
+                Nos Tarifs
+              </Link>
+                <Link href="/pages/contact" className="text-[#501891] hover:text-gray-600 font-medium">
+                Nous contacter
               </Link>
             </div>
           </div>
