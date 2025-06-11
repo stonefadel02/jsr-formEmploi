@@ -1,4 +1,4 @@
-import { Schema, Model, Connection, models } from 'mongoose';
+import { Schema, Model } from 'mongoose';
 import { IEmployer } from '@/lib/types'; // définis ton interface ici
 import { connectEmployersDb } from '@/lib/mongodb';
 

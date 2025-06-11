@@ -1,4 +1,4 @@
-import { Schema, model, Types, Model } from 'mongoose';
+import { Schema, Model } from 'mongoose';
 import { connectEmployersDb } from '@/lib/mongodb';
 import { ISubscription } from '@/lib/types';
 

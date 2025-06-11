@@ -1,4 +1,4 @@
-import { MongoClient } from "./mongodb";
+import { MongoClient } from "mongodb";
 
 const uri = process.env.MONGODB_CANDIDATS_URI;
 if (!uri) throw new Error("Please define MONGODB_CANDIDATS_URI in .env.local");
@@ -8,6 +8,8 @@ let clientPromise: Promise<MongoClient>;
 
 // Étend proprement l’interface globale pour TypeScript
 declare global {
+  // Ajoute _mongoClientPromise à l'interface globale NodeJS
+  // eslint-disable-next-line no-var
   var _mongoClientPromise: Promise<MongoClient> | undefined;
 }
 

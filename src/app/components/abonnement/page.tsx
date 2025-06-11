@@ -29,8 +29,12 @@ export default function Abonnement() {
         console.log(data)
         setSubscriptions(data)
 
-      } catch (err: any) {
-        setError(err.message || "Une erreur est survenue");
+      } catch (err: unknown) {
+        if (err instanceof Error) {
+          setError(err.message);
+        } else {
+          setError("Une erreur est survenue");
+        }
       } finally {
         setLoading(false);
       }
@@ -47,8 +51,12 @@ export default function Abonnement() {
         const data = await response.json();
         console.log(data); // Pour vérifier la structure des données
         setStats(data); // Assurez-vous que data.candidats est un tableau
-      } catch (err: any) {
-        setError(err.message || "Une erreur est survenue");
+      } catch (err: unknown) {
+        if (err instanceof Error) {
+          setError(err.message);
+        } else {
+          setError("Une erreur est survenue");
+        }
       } finally {
         setLoading(false);
       }

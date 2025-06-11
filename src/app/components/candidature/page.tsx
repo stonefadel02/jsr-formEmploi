@@ -21,8 +21,12 @@ export default function Candidature() {
         console.log(data.data.candidats); // Pour vérifier la structure des données
 
         setCandidatures(data.data.candidats); // Assurez-vous que data.candidats est un tableau
-      } catch (err: any) {
-        setError(err.message || "Une erreur est survenue");
+      } catch (err: unknown) {
+        if (err instanceof Error) {
+          setError(err.message);
+        } else {
+          setError("Une erreur est survenue");
+        }
       } finally {
         setLoading(false);
       }
@@ -51,8 +55,12 @@ export default function Candidature() {
       
       router.push("/admin/gestion_candidat")
 
-    } catch (err: any) {
-      setError(err.message || "Une erreur est survenue");
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError("Une erreur est survenue");
+      }
     } finally {
       setLoading(false);
     }

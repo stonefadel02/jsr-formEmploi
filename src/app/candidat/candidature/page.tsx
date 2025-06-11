@@ -1,8 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
-import Image from "next/image";
+
 import Navbar from "@/app/components/Navbar";
 import { useRouter } from "next/navigation";
 
@@ -69,9 +68,7 @@ export default function Candidature() {
     setStep(step + 1); // Passer à l'étape suivante
   };
 
-  const handleBack = () => {
-    setStep(step - 1); // Revenir à l'étape précédente
-  };
+ 
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

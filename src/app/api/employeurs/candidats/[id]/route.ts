@@ -32,7 +32,8 @@ export async function GET(req: NextRequest) {
     }
 
     return NextResponse.json(candidat);
-  } catch (err: any) {
-    return NextResponse.json({ error: 'Erreur serveur', details: err.message }, { status: 500 });
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : 'Une erreur inconnue est survenue';
+    return NextResponse.json({ error: 'Erreur serveur', details: message }, { status: 500 });
   }
 }
