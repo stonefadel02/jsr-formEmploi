@@ -2,12 +2,15 @@
 
 import { IEmployer } from "@/lib/types";
 import { useState, useEffect } from "react";
+import Cookies from "js-cookie";
+import { useRouter } from "next/navigation";
 
 export default function Employeur() {
 
   const [employeurs, setEmployeurs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const router =  useRouter()
 
   useEffect(() => {
     const fetchEmployeurs = async () => {
@@ -26,6 +29,28 @@ export default function Employeur() {
 
     fetchEmployeurs();
   }, []);
+
+  const deleteEmployeurs = async (id: string) => {
+    try {
+      const token = Cookies.get('token');
+      const response = await fetch(`/api/admin/employers/employer/${id}`,
+        {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      ); // Remplace cette URL par celle de ton API
+      if (!response.ok) throw new Error("Erreur lors du chargement des données");
+      
+      router.push("/admin/gestion_employeur")
+
+    } catch (err: any) {
+      setError(err.message || "Une erreur est survenue");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <>
@@ -109,7 +134,7 @@ export default function Employeur() {
                           </svg>
                           Suspendre
                         </button>
-                        <button className="bg-[#FF0000] text-white flex font-bold px-4 items-center gap-2 py-1 rounded-[5px]">
+                        <button onClick={()=> deleteEmployeurs((employeur._id).toString()) } className="bg-[#FF0000] text-white flex font-bold px-4 items-center gap-2 py-1 rounded-[5px]">
                           <svg
                             width="16"
                             height="16"

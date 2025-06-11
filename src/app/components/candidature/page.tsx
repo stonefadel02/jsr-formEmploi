@@ -3,6 +3,7 @@
 import { ICandidat } from "@/lib/types";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import Cookies from "js-cookie";
 
 
 export default function Candidature() {
@@ -34,6 +35,27 @@ export default function Candidature() {
 
   const viewProfile = (candidatId: string) => {
     router.push(`/employeur/candidats/${candidatId}`);
+  };
+  const deleteCandidat = async (id: string) => {
+    try {
+      const token = Cookies.get('token');
+      const response = await fetch(`/api/admin/candidats/${id}`,
+        {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      ); // Remplace cette URL par celle de ton API
+      if (!response.ok) throw new Error("Erreur lors du chargement des données");
+      
+      router.push("/admin/gestion_candidat")
+
+    } catch (err: any) {
+      setError(err.message || "Une erreur est survenue");
+    } finally {
+      setLoading(false);
+    }
   };
   return (
     <>
@@ -154,7 +176,7 @@ export default function Candidature() {
                           </svg>
                           Voir
                         </button>
-                        <button className="bg-[#FF0000] text-white flex font-bold px-4 items-center gap-2 py-1 rounded-[5px]">
+                        <button onClick={()=> deleteCandidat(candidature._id.toString())} className="bg-[#FF0000] text-white flex font-bold px-4 items-center gap-2 py-1 rounded-[5px]">
                           <svg
                             width="16"
                             height="16"

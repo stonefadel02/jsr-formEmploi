@@ -1,21 +1,24 @@
-// app/api/admin/candidats/[id]/route.ts
 import { NextRequest, NextResponse } from 'next/server';
-import { connectCandidatsDb } from '@/lib/mongodb';
-import Candidat from '../../../../../models/Candidats';
-import { adminMiddleware } from '../../middleware';
-import { ApiResponse } from '@/lib/types';
+import CandidatModelPromise from '@/models/Candidats';
 
-export const DELETE = adminMiddleware(async (req: NextRequest): Promise<NextResponse<ApiResponse<void>>> => {
+export async function DELETE(
+  req: NextRequest,
+  { params }: { params: { id: string } }
+) {
   try {
-    const id = req.nextUrl.pathname.split('/').reverse()[1];
-    await connectCandidatsDb();
-    const candidat = await Candidat.findByIdAndDelete(id);
-    if (!candidat) {
-      return NextResponse.json({ success: false, message: 'Candidat non trouvé' }, { status: 404 });
+    const candidatId = params.id; // ✅ OK maintenant
+    const CandidatModel = await CandidatModelPromise;
+
+    const deletedCandidat = await CandidatModel.findByIdAndDelete(candidatId);
+    if (!deletedCandidat) {
+      return NextResponse.json({ error: 'Candidat non trouvé' }, { status: 404 });
     }
-    return NextResponse.json({ success: true, message: 'Candidat supprimé' }, { status: 200 });
-  } catch (error) {
-    console.error('Erreur suppression candidat :', error);
-    return NextResponse.json({ success: false, message: 'Erreur serveur' }, { status: 500 });
+
+    return NextResponse.json({ message: 'Candidat supprimé avec succès' });
+  } catch (err: any) {
+    return NextResponse.json(
+      { error: 'Erreur serveur', details: err.message },
+      { status: 500 }
+    );
   }
-});
+}
