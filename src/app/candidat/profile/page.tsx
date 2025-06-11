@@ -56,7 +56,7 @@ export default function Profile() {
     };
 
     fetchInformations();
-  }, []);
+  }, [router]);
 
   const handleEdit = (section: string) => {
     setIsEditing((prev) => ({ ...prev, [section]: true }));
@@ -161,16 +161,16 @@ export default function Profile() {
     setSuccessMessage(null);
   };
 
-  const handleDownload = (url: string | undefined, field: string) => {
-    if (url) {
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = url.split("/").pop() || "document";
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-    }
-  };
+  // const handleDownload = (url: string | undefined, field: string) => {
+  //   if (url) {
+  //     const link = document.createElement("a");
+  //     link.href = url;
+  //     link.download = url.split("/").pop() || "document";
+  //     document.body.appendChild(link);
+  //     link.click();
+  //     document.body.removeChild(link);
+  //   }
+  // };
 
   const allowedFields = [
     "firstName",

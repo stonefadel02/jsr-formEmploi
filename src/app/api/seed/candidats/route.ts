@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+import {  NextResponse } from "next/server";
 import { connectCandidatsDb } from "@/lib/mongodb";
 import CandidatPromise from "../../../../models/Candidats";
 import bcrypt from "bcrypt";
@@ -114,7 +114,7 @@ const fakeCandidats = [
   },
 ];
 
-export async function POST(req: NextRequest): Promise<NextResponse<ApiResponse<string>>> {
+export async function POST(): Promise<NextResponse<ApiResponse<string>>> {
   try {
     await connectCandidatsDb();
     const Candidat = await CandidatPromise;
@@ -129,8 +129,7 @@ export async function POST(req: NextRequest): Promise<NextResponse<ApiResponse<s
         return {
           ...candidat,
           password: passwordHash,
-          // Supprimer personalInfo s'il est encore présent par erreur
-          ...(candidat.personalInfo && { ...candidat.personalInfo, password: passwordHash }),
+ 
         };
       })
     );

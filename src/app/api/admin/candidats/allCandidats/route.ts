@@ -1,11 +1,11 @@
 // app/api/admin/candidats/route.ts
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { connectCandidatsDb } from '@/lib/mongodb';
 import Candidat from '../../../../../models/Candidats'; 
 import { adminMiddleware } from '../../middleware';
 import { ApiResponse, ICandidat } from '@/lib/types';
 
-export const GET = adminMiddleware(async (req: NextRequest): Promise<NextResponse<ApiResponse<ICandidat[]>>> => {
+export const GET = adminMiddleware(async (): Promise<NextResponse<ApiResponse<ICandidat[]>>> => {
   try {
     await connectCandidatsDb();
     const candidats = await Candidat.find().select('-password');

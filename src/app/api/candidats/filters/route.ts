@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { connectCandidatsDb } from '@/lib/mongodb';
 import CandidatPromise from '../../../../models/Candidats';
 import { ApiResponse } from '@/lib/types';
@@ -10,7 +10,7 @@ interface FilterOptions {
   contractTypes: string[];
 }
 
-export async function GET(req: NextRequest): Promise<NextResponse<ApiResponse<FilterOptions>>> {
+export async function GET(): Promise<NextResponse<ApiResponse<FilterOptions>>> {
   try {
     await connectCandidatsDb();
     const Candidat = await CandidatPromise;

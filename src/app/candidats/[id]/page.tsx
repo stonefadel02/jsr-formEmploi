@@ -8,9 +8,26 @@ import Image from "next/image";
 import axios from "axios";
 import Cookies from "js-cookie";
 
+type AlternanceSearch = {
+  sector?: string;
+  location?: string;
+  level?: string;
+  contracttype?: string;
+};
+
+type Candidate = {
+  firstName?: string;
+  lastName?: string;
+  email?: string;
+  videoUrl?: string;
+  cvUrl?: string;
+  skills?: string[];
+  alternanceSearch?: AlternanceSearch;
+};
+
 export default function CandidateProfile() {
   const { id } = useParams();
-  const [candidat, setCandidat] = useState<any>(null);
+  const [candidat, setCandidat] = useState<Candidate | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [cvError, setCvError] = useState<string | null>(null);
@@ -139,7 +156,7 @@ export default function CandidateProfile() {
                     </p>
                   </div>
                   <div className="grid grid-cols-[150px_1fr] gap-4 items-center">
-                    <h3 className="text-[#4E4E4E] text-[18px]">Niveau d'étude</h3>
+                    <h3 className="text-[#4E4E4E] text-[18px]">Niveau d`étude</h3>
                     <p className="text-[#4C4C4C] py-2">
                       {candidat.alternanceSearch?.level || "Non spécifié"}
                     </p>
@@ -239,46 +256,7 @@ export default function CandidateProfile() {
                 <h3 className="text-[#202020] text-lg sm:text-xl font-semibold mb-2">
                   Expérience Professionnelle
                 </h3>
-                {candidat.experience && candidat.experience.length > 0 ? (
-                  candidat.experience.map((exp: any, index: number) => (
-                    <div key={index} className="mb-6">
-                      <h4 className="text-[#4E4E4E] mt-6 text-md font-semibold sm:text-base">
-                        {exp.title || "Poste non spécifié"}
-                      </h4>
-                      <p className="text-[#4C4C4C] py-4">
-                        {exp.period || "Période non spécifiée"}
-                      </p>
-                      <p className="text-[#4C4C4C]">
-                        {exp.description || "Description non disponible"}
-                      </p>
-                      {exp.tasks && exp.tasks.length > 0 && (
-                        <div className="text-[#4C4C4C] pl-5 mt-2">
-                          {exp.tasks.map((task: string, taskIndex: number) => (
-                            <li key={taskIndex}>{task}</li>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                  ))
-                ) : (
-                  // Expérience par défaut
-                  <div>
-                    <h4 className="text-[#4E4E4E] mt-6 text-md font-semibold sm:text-base">
-                      Stage - Développement front-end
-                    </h4>
-                    <p className="text-[#4C4C4C] py-4">
-                      Juin 2024 - Août 2024 (3 mois)
-                    </p>
-                    <p className="text-[#4C4C4C]">
-                      Participation au développement de l'interface utilisateur d'une application web en React.
-                    </p>
-                    <div className="text-[#4C4C4C] pl-5">
-                      <li>Implémentation de composants UI</li>
-                      <li>Intégration d'APIs</li>
-                      <li>Correction de bugs</li>
-                    </div>
-                  </div>
-                )}
+          
               </div>
 
               {/* Informations de Contact */}

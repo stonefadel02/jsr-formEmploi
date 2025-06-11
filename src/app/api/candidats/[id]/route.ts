@@ -1,3 +1,7 @@
+export const config = {
+  runtime: 'nodejs',
+};
+
 import { NextRequest, NextResponse } from "next/server";
 import { connectCandidatsDb } from "@/lib/mongodb";
 import CandidatPromise from "../../../../models/Candidats";
@@ -30,6 +34,7 @@ export async function GET(
         { success: false, message: "Invalid or expired token" },
         { status: 401 }
       );
+      console.log("Token invalide ou expiré :", error);
     }
 
     // Vérifier que l'utilisateur est un employeur (si tu as un champ role dans ton token)
@@ -58,19 +63,13 @@ export async function GET(
     // S'assurer que toutes les données nécessaires sont incluses
     const candidatData = {
       ...candidat.toObject(),
-      // S'assurer que l'URL du CV est bien présente
-      cvUrl: candidat.cvUrl || candidat.cv?.url || null,
-      // S'assurer que l'URL de la vidéo est bien présente
-      videoUrl: candidat.videoUrl || candidat.video?.url || null,
-      // Informations personnelles
-      firstName: candidat.firstName || candidat.personalInfo?.firstName || "Non spécifié",
-      lastName: candidat.lastName || candidat.personalInfo?.lastName || "Non spécifié",
-      email: candidat.email || candidat.personalInfo?.email || "Non spécifié",
-      // Compétences
+      cvUrl: candidat.cvUrl || undefined,
+      videoUrl: candidat.videoUrl || undefined,
+      firstName: candidat.firstName || "Non spécifié",
+      lastName: candidat.lastName || "Non spécifié",
+      email: candidat.email || "Non spécifié",
       skills: candidat.skills || [],
-      // Expérience
       experience: candidat.experience || [],
-      // Recherche d'alternance
       alternanceSearch: candidat.alternanceSearch || {
         sector: "Non spécifié",
         location: "Non spécifié",

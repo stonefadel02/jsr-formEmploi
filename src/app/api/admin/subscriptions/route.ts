@@ -33,9 +33,13 @@ export async function GET() {
     }));
 
     return NextResponse.json(formatted);
-  } catch (err: any) {
+  } catch (err: unknown) {
+    let message = 'Unknown error';
+    if (err instanceof Error) {
+      message = err.message;
+    }
     return NextResponse.json(
-      { error: 'Erreur serveur', message: err.message },
+      { error: 'Erreur serveur', message },
       { status: 500 }
     );
   }

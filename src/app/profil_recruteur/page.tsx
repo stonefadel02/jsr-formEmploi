@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import Cookies from 'js-cookie';
 import axios from 'axios';
 import { useRouter } from 'next/navigation';
@@ -9,7 +9,8 @@ import Navbar from '@/app/components/Navbar';
 
 // Interface pour les données des candidats
 interface Candidat {
-  _id: string;
+  _id: string;    
+  firstName: string;
   personalInfo: {
     firstName: string;
     lastName: string;
@@ -89,7 +90,7 @@ export default function ProfileEmployeur() {
   };
 
   // Récupérer les candidats via l'API
-  const fetchCandidats = async () => {
+  const fetchCandidats = useCallback(async () => {
     setLoading(true);
     setError(null);
 
@@ -126,18 +127,18 @@ export default function ProfileEmployeur() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [filters, router]);
 
   // Appeler les APIs au chargement
   useEffect(() => {
     fetchFilterOptions(); // Récupérer les options des filtres
     fetchCandidats(); // Récupérer les candidats
-  }, []);
+  }, [fetchCandidats]);
 
   // Appeler fetchCandidats à chaque changement de filtres
   useEffect(() => {
     fetchCandidats();
-  }, [filters]);
+  }, [fetchCandidats, filters]);
 
   // Gérer les changements des filtres
   const handleFilterChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {

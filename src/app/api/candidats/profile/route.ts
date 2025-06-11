@@ -1,8 +1,9 @@
 import { getServerSession } from "next-auth";
-import { authOptions } from "../../auth/[...nextauth]/route";
 import jwt from "jsonwebtoken";
 import { NextRequest, NextResponse } from "next/server";
 import CandidatModelPromise from "@/models/Candidats";
+import { authOptions } from "@/lib/auth";
+
 
 export async function GET(req: NextRequest) {
   try {
@@ -23,7 +24,7 @@ export async function GET(req: NextRequest) {
       try {
         const decoded = jwt.verify(token, process.env.JWT_SECRET!) as { email: string };
         email = decoded.email;
-      } catch (err) {
+      } catch {
         return NextResponse.json({ error: "Token invalide" }, { status: 403 });
       }
     }

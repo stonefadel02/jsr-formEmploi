@@ -25,9 +25,13 @@ export function middleware(req: NextRequest) {
   }
 
   let role: string | null = null;
-  let decoded: any = null;
+  interface JwtPayload {
+    role?: string;
+    [key: string]: unknown;
+  }
+  let decoded: JwtPayload | null = null;
   try {
-    decoded = jwt.decode(token);
+    decoded = jwt.decode(token) as JwtPayload | null;
     if (decoded && typeof decoded === "object" && "role" in decoded) {
       role = decoded.role as string;
     }
