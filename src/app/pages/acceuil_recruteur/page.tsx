@@ -23,7 +23,7 @@ export default function AcceuilRecruteur() {
               <p className="text-sm sm:text-base md:text-lg py-2 sm:py-4 md:py-6 mb-2 sm:mb-4">
                 Accédez à une base de candidats ciblés – 2 mois d’essai gratuits.
               </p>
-              <Link href={"/components/register"}>
+              <Link href={"/employeur/profile"}>
                 <button className="bg-white text-[#501891] px-4 sm:px-6 py-2 sm:py-3 rounded-[10px] font-medium hover:bg-gray-100 transition duration-200 cursor-pointer">
                   Consulter les candidats
                 </button>
