@@ -39,7 +39,7 @@ export async function POST(req: NextRequest) {
       startDate: new Date(),
       endDate: new Date(new Date().setMonth(new Date().getMonth() + 2)),
       isTrial: true,
-      isActive: true, // tu peux mettre false si tu actives plus tard manuellement
+      isActive: false, 
       price: 0
     });
     
