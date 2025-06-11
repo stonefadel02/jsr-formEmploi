@@ -16,7 +16,9 @@ export async function GET() {
       startDate: { $gte: new Date(now.setMonth(now.getMonth() - 2)) },
     });
     const expirés = await SubscriptionModelResolved.countDocuments({
-      endDate: { $lt: new Date() },
+      isActive: false,
+      isTrial: false,
+      // endDate: { $lt: new Date() },
     });
 
     const revenusAgg = await SubscriptionModelResolved.aggregate([
