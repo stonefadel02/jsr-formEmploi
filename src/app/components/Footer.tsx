@@ -225,9 +225,9 @@ export default function Footer() {
         </div>
 
         {/* Copyright (en dessous du trait, aligné avec la colonne Candidat) */}
-        <p className="text-[#8F8F8F] text-[20px] pt-4 ml-0 md:ml-[25%] text-left">
+        <a href="https://honadi.com/" className="text-[#8F8F8F] text-[20px] pt-4 ml-0 md:ml-[25%] text-left">
           ©2025 JSR | Powered by HONADI
-        </p>
+        </a>
       </div>
     </footer>
   );
