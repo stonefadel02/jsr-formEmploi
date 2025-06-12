@@ -25,10 +25,10 @@ export default function Footer() {
             <ul className="space-y-2 text-[14px]  text-[#8F8F8F]">
               <li>
                 <Link
-                  href="/offres-emploi"
+                  href="/candidat/candidature"
                   className="hover:text-[#501891] transition duration-200"
                 >
-                  Parcourir les offres d’emploi
+                  Candidature
                 </Link>
               </li>
               <li>
@@ -72,18 +72,18 @@ export default function Footer() {
             <ul className="space-y-2 text-[14px] text-[#8F8F8F]">
               <li>
                 <Link
-                  href="/cabinet-recrutement"
+                  href="/auth/employeur/register"
                   className="hover:text-[#501891] transition duration-200"
                 >
-                  Cabinet de recrutement
+                  Commencer
                 </Link>
               </li>
               <li>
                 <Link
-                  href="/publier-offre"
+                  href="/pages/acceuil_recruteur"
                   className="hover:text-[#501891] transition duration-200"
                 >
-                  Publier une offre d’emploi
+                  Je suis recruteur
                 </Link>
               </li>
               <li>
@@ -103,26 +103,26 @@ export default function Footer() {
             <ul className="space-y-2 text-[14px] text-[#8F8F8F]">
               <li>
                 <Link
-                  href="/conditions-utilisation"
+                  href="/pages/tarifs"
                   className="hover:text-[#501891] transition duration-200"
                 >
-                  Conditions d’utilisation
+                  Tarifs
                 </Link>
               </li>
               <li>
                 <Link
-                  href="/confidentialite"
+                  href="/pages/contact"
                   className="hover:text-[#501891] transition duration-200"
                 >
-                  Centre de confidentialité
+                  Contacts
                 </Link>
               </li>
               <li>
                 <Link
-                  href="/securite"
+                  href="/pages/paiement"
                   className="hover:text-[#501891] transition duration-200"
                 >
-                  Centre de sécurité
+                  Paiement
                 </Link>
               </li>
             </ul>

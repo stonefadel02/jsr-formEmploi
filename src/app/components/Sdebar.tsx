@@ -59,7 +59,7 @@ export default function Sidebar() {
             <ul className="space-y-1 mx-auto pt-10 ">
               <li>
                 <Link
-                  href="/statistics"
+                  href="/admin/gestion_statistique"
                   className="flex text-left items-center px-6 py-6  text-white text-[15px] font-medium hover:bg-[#A67BC1]/90 transition-colors duration-200"
                 >
                   Statistiques Globales

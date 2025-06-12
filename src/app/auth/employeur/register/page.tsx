@@ -51,7 +51,7 @@ export default function Login() {
         sameSite: "Lax",
       });
       // Rediriger vers une page après connexion (exemple)
-      // window.location.href = "/dashboard";
+      window.location.href = "/auth/login";
     } catch (err: unknown) {
       if (err instanceof Error) {
         setError("Cet email est déjà utilisé.");

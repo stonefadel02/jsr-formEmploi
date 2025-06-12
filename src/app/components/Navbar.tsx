@@ -64,6 +64,9 @@ export default function Navbar() {
                 <Link href="/pages/tarifs" className="text-[#501891] hover:text-gray-600 font-medium text-[14px] sm:text-[15px] ">
                   Nos Tarifs
                 </Link>
+                 <Link href="/pages/paiement" className="text-[#501891] hover:text-gray-600 font-medium text-[14px] sm:text-[15px] ">
+                  Paiement
+                </Link>
                 <Link href="/pages/contact" className="text-[#501891] hover:text-gray-600 font-medium text-[14px] sm:text-[15px] ">
                   Nous contacter
                 </Link>
