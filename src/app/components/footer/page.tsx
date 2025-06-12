@@ -15,20 +15,20 @@ export default function Footer() {
               alt="JSR FormEmploi Logo"
               width={156}
               height={82}
-              className="h-[82px] w-[156px] object-contain"
+              className="h-[62px] w-[136px] object-contain"
             />
           </div>
 
           {/* Colonne Candidat */}
           <div>
-            <h3 className="text-[#8F8F8F]  text-[20px] font-bold mb-6">Candidat</h3>
-            <ul className="space-y-2 text-[17px]  text-[#8F8F8F]">
+            <h3 className="text-[#8F8F8F]  text-[16px]  font-bold mb-6">Candidat</h3>
+            <ul className="space-y-2 text-[14px]  text-[#8F8F8F]">
               <li>
                 <Link
-                  href="/offres-emploi"
+                  href="/candidat/candidature"
                   className="hover:text-[#501891] transition duration-200"
                 >
-                  Parcourir les offres d’emploi
+                  Candidature
                 </Link>
               </li>
               <li>
@@ -68,22 +68,22 @@ export default function Footer() {
 
           {/* Colonne Recruteur */}
           <div>
-            <h3 className="text-[#8F8F8F] text-[20px] font-bold mb-6">Recruteur</h3>
-            <ul className="space-y-2 text-[17px] text-[#8F8F8F]">
+            <h3 className="text-[#8F8F8F] text-[16px]  font-bold mb-6">Recruteur</h3>
+            <ul className="space-y-2 text-[14px] text-[#8F8F8F]">
               <li>
                 <Link
-                  href="/cabinet-recrutement"
+                  href="/auth/employeur/register"
                   className="hover:text-[#501891] transition duration-200"
                 >
-                  Cabinet de recrutement
+                  Commencer
                 </Link>
               </li>
               <li>
                 <Link
-                  href="/publier-offre"
+                  href="/pages/acceuil_recruteur"
                   className="hover:text-[#501891] transition duration-200"
                 >
-                  Publier une offre d’emploi
+                  Je suis recruteur
                 </Link>
               </li>
               <li>
@@ -99,30 +99,30 @@ export default function Footer() {
 
           {/* Colonne Ressources utiles */}
           <div>
-            <h3 className="text-[#8F8F8F] text-[20px] font-bold mb-6">Ressources utiles</h3>
-            <ul className="space-y-2 text-[17px] text-[#8F8F8F]">
+            <h3 className="text-[#8F8F8F] text-[16px]  font-bold mb-6">Ressources utiles</h3>
+            <ul className="space-y-2 text-[14px] text-[#8F8F8F]">
               <li>
                 <Link
-                  href="/conditions-utilisation"
+                  href="/pages/tarifs"
                   className="hover:text-[#501891] transition duration-200"
                 >
-                  Conditions d’utilisation
+                  Tarifs
                 </Link>
               </li>
               <li>
                 <Link
-                  href="/confidentialite"
+                  href="/pages/contact"
                   className="hover:text-[#501891] transition duration-200"
                 >
-                  Centre de confidentialité
+                  Contacts
                 </Link>
               </li>
               <li>
                 <Link
-                  href="/securite"
+                  href="/pages/paiement"
                   className="hover:text-[#501891] transition duration-200"
                 >
-                  Centre de sécurité
+                  Paiement
                 </Link>
               </li>
             </ul>
@@ -130,8 +130,8 @@ export default function Footer() {
         </div>
 
         {/* Retrouve-nous sur les réseaux (au-dessus du trait, aligné avec la colonne Candidat) */}
-        <div className="ml-0 mt-10 md:ml-[25%] flex items-center space-x-4 mb-4">
-          <span className="text-[#8F8F8F] text-[20px]">
+        <div className="ml-0 mt-10 md:ml-[25%] flex items-center space-x-4 mb-2">
+          <span className="text-[#8F8F8F] text-[14px] ">
             Retrouve-nous sur les réseaux
           </span>
           <div className="flex space-x-2">
@@ -219,15 +219,15 @@ export default function Footer() {
         </div>
 
         {/* Trait de séparation commençant à partir de la colonne Candidat */}
-        <div className="relative py-6 ">
+        <div className="relative py-5 ">
           <div className="absolute hidden md:block left-[25%] w-[75%] h-px bg-gray-300"></div>
           <div className="md:hidden border-t border-gray-300"></div>
         </div>
 
         {/* Copyright (en dessous du trait, aligné avec la colonne Candidat) */}
-        <p className="text-[#8F8F8F] text-[20px] pt-4 ml-0 md:ml-[25%] text-left">
+        <a href="https://honadi.com/" className="text-[#8F8F8F] text-[14px]  pt-4 ml-0 md:ml-[25%] text-left">
           ©2025 JSR | Powered by HONADI
-        </p>
+        </a>
       </div>
     </footer>
   );

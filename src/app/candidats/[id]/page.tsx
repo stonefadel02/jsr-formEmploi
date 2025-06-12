@@ -104,9 +104,9 @@ export default function CandidateProfile() {
         <div className="max-w-7xl w-full mt-10 sm:mt-20 md:mt-32 mb-10">
           <div className="grid grid-cols-1 md:grid-cols-[400px_1fr] gap-6 sm:gap-8 lg:gap-12">
             {/* Section gauche : Photo, CV et Vidéo */}
-            <div className=" max-w-[400px] flex flex-col items-center bg-white rounded-[20px] p-10 space-y-6">
+            <div className=" max-w-[400px] flex flex-col items-center bg-white rounded-[20px] p-10 space-y-4">
               {/* Photo de profil */}
-              <div className="w-20 h-20 sm:w-28 sm:h-40 overflow-hidden rounded-full bg-gray-200">
+              <div className="w-20 h-20 sm:w-28 sm:h-28 overflow-hidden rounded-full bg-gray-200">
                 <Image
                   src="/user.png"
                   alt="profil"
@@ -116,8 +116,11 @@ export default function CandidateProfile() {
                 />
               </div>
               {/* Nom et prénom */}
-              <h2 className="text-lg sm:text-xl font-semibold text-gray-800">
-                {candidat.firstName} {candidat.lastName}
+              <h2 className="text-lg sm:text-xl text-left font-semibold text-gray-800">
+                 {candidat.lastName}
+              </h2>
+                 <h2 className="text-lg sm:text-xl text-left  text-gray-700">
+                {candidat.firstName}
               </h2>
               
               {/* Vidéo */}
