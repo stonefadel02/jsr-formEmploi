@@ -12,7 +12,7 @@ const nextConfig: NextConfig = {
   typescript: {
     ignoreBuildErrors: true, // Ignorer toutes les erreurs de TypeScript pendant le build
   },images: {
-    unoptimized: true, // Désactive l'optimisation pour tous les images (test temporaire)
+    
   },
 
 };
