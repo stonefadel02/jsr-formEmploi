@@ -39,7 +39,7 @@ export default function Navbar() {
                 Nos Tarifs
               </Link>
                 <Link href="/pages/contact" className="text-[#501891] hover:text-gray-600 font-medium">
-                Nous contacter22
+                Nous contacter
               </Link>
             </div>
           </div>
