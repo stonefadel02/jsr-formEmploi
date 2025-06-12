@@ -29,7 +29,7 @@ export default function Login() {
     setSuccess("");
 
     try {
-      const response = await fetch("http://localhost:3000/api/employeurs/register", {
+      const response = await fetch("api/employeurs/register", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
