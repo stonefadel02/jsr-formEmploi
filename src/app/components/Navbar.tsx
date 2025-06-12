@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import Image from "next/image";
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
@@ -18,11 +19,11 @@ export default function Navbar() {
           <div className="flex items-center space-x-8">
             {/* Logo */}
               <Link href="/pages/acceuil" className="text-[#501891] hover:text-gray-600 font-medium">
-              <img
+              <Image
               src="/JSR-Logo.png"
               alt="JSR FormEmploi Logo"
-              // width={156}
-              // height={82}
+              width={156}
+              height={82}
               className="h-[82px] w-[156px] object-contain"
             />
               </Link>

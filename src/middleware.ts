@@ -2,15 +2,21 @@ import { NextRequest, NextResponse } from "next/server";
 import jwt from "jsonwebtoken";
 
 const publicRoutes = [
-  '/',
-  '/auth/login',
-  '/auth/candidats/register',
-  '/auth/employeur/register',
-  '/auth/google',
+  "/",
+  "/auth/login",
+  "/auth/candidats/register",
+  "/auth/employeur/register",
+  "/auth/google",
 ];
 
 export function middleware(req: NextRequest) {
   const url = req.nextUrl.pathname;
+
+  // ✅ Exclure explicitement les routes d'images avant toute vérification
+  if (url.startsWith("/_next/image")) {
+    return NextResponse.next();
+  }
+
   const token = req.cookies.get("token")?.value;
 
   // ✅ Autoriser l'accès aux routes publiques
@@ -63,15 +69,10 @@ export function middleware(req: NextRequest) {
   }
 
   // ✅ Protection des routes par rôle
-  // if (url.startsWith("/admin") && role !== "admin") {
-  //   return NextResponse.redirect(new URL("/unauthorized", req.url));
-  // }
-
   if (url.startsWith("/employeur") && role !== "employeur") {
     return NextResponse.redirect(new URL("/unauthorized", req.url));
   }
 
-  // Modifier la condition pour /candidat : autoriser employeur et candidat
   if (url.startsWith("/candidat") && role !== "candidat" && role !== "employeur") {
     return NextResponse.redirect(new URL("/unauthorized", req.url));
   }
@@ -80,5 +81,5 @@ export function middleware(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/((?!_next/static|_next/image|favicon.ico|.*\\.svg$|api/).*)"],
+  matcher: ["/((?!_next/image|_next/static|_next|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif)$|api/).*)"],
 };
