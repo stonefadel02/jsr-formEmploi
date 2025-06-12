@@ -67,7 +67,7 @@ export default function Sidebar() {
               </li>
               <li>
                 <Link
-                  href="/candidatures"
+                  href="/admin/gestion_candidature"
                   className="flex text-left items-center  px-6 py-6 text-white text-[15px] font-medium hover:bg-[#A67BC1]/90 transition-colors duration-200"
                 >
                   Gestion des Candidatures
@@ -75,7 +75,7 @@ export default function Sidebar() {
               </li>
               <li>
                 <Link
-                  href="/employers"
+                  href="/admin/gestion_employeur"
                   className="flex text-left items-center  px-6 py-6 text-white text-[15px] font-medium hover:bg-[#A67BC1]/90 transition-colors duration-200"
                 >
                   Gestions des Employeurs
@@ -83,7 +83,7 @@ export default function Sidebar() {
               </li>
               <li>
                 <Link
-                  href="/subscriptions"
+                  href="/admin/gestion_abonnement"
                   className="flex text-left items-center  px-6 py-6 text-white text-[15px] font-medium hover:bg-[#A67BC1]/90 transition-colors duration-200"
                 >
                   Gestions des Abonnements
