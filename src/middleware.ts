@@ -2,7 +2,10 @@ import { NextRequest, NextResponse } from "next/server";
 import jwt from "jsonwebtoken";
 
 const publicRoutes = [
-  "/",
+  "/pages/contact",
+  "/pages/acceuil",
+  "/pages/acceuil_recruteur",
+  "/pages/tarifs",
   "/auth/login",
   "/auth/candidats/register",
   "/auth/employeur/register",

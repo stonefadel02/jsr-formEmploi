@@ -60,9 +60,10 @@ export default function LoginForm({ role }: Props) {
       console.log("Redirigé")
     } catch (err: unknown) {
       if (err instanceof Error) {
-        setError(err.message);
+        setError("Email ou mot de passe incorrect.");
+        console.log("Erreur lors de la connexion :", err.message);
       } else {
-        setError("Une erreur inconnue est survenue");
+        console.log("Une erreur inconnue est survenue");
       }
     }
   };
