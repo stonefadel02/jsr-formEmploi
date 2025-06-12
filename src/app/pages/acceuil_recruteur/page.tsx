@@ -13,18 +13,18 @@ export default function AcceuilRecruteur() {
       <div className="min-h-screen bg-[url('/background.png')] bg-cover bg-center bg-no-repeat relative flex items-center justify-center px-4 sm:px-6 lg:px-8">
         {/* Overlay sombre pour lisibilité */}
         <div className="absolute inset-0 bg-black/50"></div>
-        <div className="max-w-7xl w-full mt-10 sm:mt-20 md:mt-40 relative z-10 text-left">
+        <div className="max-w-5xl w-full mt-10 sm:mt-20 md:mt-40 relative z-10 text-left">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 md:gap-8 items-start">
             {/* Contenu texte et bouton (gauche) */}
             <div className="text-white">
-              <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-7xl font-bold mb-2 sm:mb-4">
+              <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-6xl font-bold mb-2 sm:mb-4">
                 Trouvez des talents qualifiés en quelques clics.
               </h1>
-              <p className="text-sm sm:text-base md:text-lg py-2 sm:py-4 md:py-6 mb-2 sm:mb-4">
+              <p className="text-sm sm:text-base md:text-md py-2 sm:py-4 md:py-6 mb-2 sm:mb-4">
                 Accédez à une base de candidats ciblés – 2 mois d’essai gratuits.
               </p>
-              <Link href={"/employeur/profile"}>
-                <button className="bg-white text-[#501891] px-4 sm:px-6 py-2 sm:py-3 rounded-[10px] font-medium hover:bg-gray-100 transition duration-200 cursor-pointer">
+              <Link href={"/employeur/candidats"}>
+                <button className="bg-white text-[#501891] text-[15px] px-4 sm:px-6 py-2 sm:py-3 rounded-[10px] font-medium hover:bg-gray-100 transition duration-200 cursor-pointer">
                   Consulter les candidats
                 </button>
               </Link>

@@ -84,40 +84,38 @@ export default function Navbar() {
         {/* Menu déroulant pour mobile */}
         {isOpen && (
           <div className="md:hidden mt-2">
-            <div className="space-y-2 bg-white p-2 rounded-md shadow-lg">
-              <Link href="/" className="block text-[#501891] hover:text-gray-600 py-1 font-medium text-sm">
-                Offres d’emploi
-              </Link>
-              <Link href="/formations" className="block text-[#501891] hover:text-gray-600 py-1 font-medium text-sm">
-                Accès recruteurs
-              </Link>
+            <div className="space-y-4 bg-white p-2 rounded-md shadow-lg">
 
-              <Link href="/pages/acceuil" className="  text-[#501891] hover:text-gray-600 font-medium text-[14px] sm:text-[15px] ">
+              <Link href="/pages/acceuil" className="   block text-[#501891] hover:text-gray-600 font-medium text-[14px] sm:text-[15px] ">
                 Je suis candidat
               </Link>
-              <Link href="/pages/acceuil_recruteur" className="text-[#501891] hover:text-gray-600 font-medium text-[14px] sm:text-[15px] ">
+              <Link href="/pages/acceuil_recruteur" className=" block text-[#501891] hover:text-gray-600 font-medium text-[14px] sm:text-[15px] ">
                 Je suis recruteur
               </Link>
-              <Link href="/pages/tarifs" className="text-[#501891] hover:text-gray-600 font-medium text-[14px] sm:text-[15px] ">
+              <Link href="/pages/tarifs" className=" block text-[#501891] hover:text-gray-600 font-medium text-[14px] sm:text-[15px] ">
                 Nos Tarifs
               </Link>
-              <Link href="/pages/contact" className="text-[#501891] hover:text-gray-600 font-medium text-[14px] sm:text-[15px] ">
+              <Link href="/pages/contact" className=" block text-[#501891] hover:text-gray-600 font-medium text-[14px] sm:text-[15px] ">
                 Nous contacter
               </Link>
             </div>
-            <div className="mt-2 space-y-2 bg-white p-2 rounded-md shadow-lg">
-              <Link
-                href="/components/register"
-                className="block bg-[#501891] text-white px-2 py-1 rounded-[5px] hover:bg-white hover:text-[#501891] hover:border border-[#501891] transition duration-200 font-medium text-sm text-center"
+            <div className="mt-2 space-x-4 bg-white p-2 rounded-md shadow-lg">
+             <a href="/components/register">
+               <button
+                
+                className=" bg-[#501891] text-white px-4 py-2 rounded-[5px] hover:bg-white hover:text-[#501891] hover:border border-[#501891] transition duration-200 font-medium text-[12px] text-center"
               >
                 Inscription
-              </Link>
-              <Link
-                href="/components/login"
-                className="block text-[#501891] px-2 py-1 rounded-[5px] border border-[#501891] hover:bg-[#501891] hover:text-white transition duration-200 font-medium text-sm text-center"
+              </button>
+             </a>
+             <a href="/components/login " className="">
+               <button
+               
+                className=" text-[#501891] px-4 py-2 rounded-[5px] border border-[#501891] hover:bg-[#501891] hover:text-white transition duration-200 font-medium text-[12px] text-center"
               >
                 Se connecter
-              </Link>
+              </button>
+             </a>
             </div>
           </div>
         )}
