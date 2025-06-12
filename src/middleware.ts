@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import jwt from "jsonwebtoken";
 
 const publicRoutes = [
+  "/",
   "/pages/contact",
   "/pages/acceuil",
   "/pages/acceuil_recruteur",
@@ -29,7 +30,6 @@ export function middleware(req: NextRequest) {
 
   // ❌ Rediriger les non-connectés vers la page de connexion appropriée
   if (!token) {
-    console.log("Token non trouvé");
     return NextResponse.redirect(new URL("/auth/login", req.url));
   }
 
@@ -49,8 +49,6 @@ export function middleware(req: NextRequest) {
     return NextResponse.redirect(new URL("/auth/login", req.url));
   }
 
-  console.log(`Token trouvé : ${token}`);
-  console.log("Decoded token :", decoded);
 
   // ✅ Interdire l’accès aux pages d’auth si déjà connecté → rediriger vers le bon dashboard
   if (publicRoutes.includes(url) && decoded) {
