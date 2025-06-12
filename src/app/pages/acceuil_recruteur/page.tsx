@@ -12,8 +12,8 @@ export default function AcceuilRecruteur() {
       {/* Première section (existante) */}
       <div className="min-h-screen bg-[url('/background.png')] bg-cover bg-center bg-no-repeat relative flex items-center justify-center px-4 sm:px-6 lg:px-8">
         {/* Overlay sombre pour lisibilité */}
-        <div className="absolute inset-0 bg-black/50"></div>
-        <div className="max-w-5xl w-full mt-10 sm:mt-20 md:mt-40 relative z-10 text-left">
+        <div className="absolute inset-0 bg-black/10"></div>
+        <div className="max-w-6xl px-4 md:px-16 w-full mt-10 sm:mt-20 md:mt-40 relative z-10 text-left">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 md:gap-8 items-start">
             {/* Contenu texte et bouton (gauche) */}
             <div className="text-white">
@@ -38,7 +38,7 @@ export default function AcceuilRecruteur() {
         <h2 className="text-[#7A20DA] text-center font-bold text-lg sm:text-xl md:text-[28px]">
           Pourquoi choisir JSR
         </h2>
-        <div className="max-w-4xl mx-auto w-full mt-6 sm:mt-12 md:mt-24">
+        <div className="max-w-4xl px-14 md:px-0 mx-auto w-full mt-6 sm:mt-12 md:mt-24">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 md:gap-10 justify-center items-start">
             {/* Colonne 1 : 2 éléments */}
             <div className="flex flex-col gap-4 sm:gap-6 md:gap-8">
