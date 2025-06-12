@@ -26,7 +26,7 @@ export default function CandidateProfile() {
         }
 
         const response = await axios.get(
-          `api/candidats/${id}`,
+          `/api/candidats/${id}`,
           {
             headers: { Authorization: `Bearer ${token}` },
           }
