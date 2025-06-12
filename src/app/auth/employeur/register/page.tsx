@@ -29,7 +29,7 @@ export default function Login() {
     setSuccess("");
 
     try {
-      const response = await fetch("api/employeurs/register", {
+      const response = await fetch("/api/employeurs/register", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -54,9 +54,10 @@ export default function Login() {
       // window.location.href = "/dashboard";
     } catch (err: unknown) {
       if (err instanceof Error) {
-        setError(err.message);
+        setError("Cet email est déjà utilisé.");
+        console.log("Erreur lors de l'inscription :", err.message);
       } else {
-        setError("Une erreur inconnue est survenue");
+        console.log("Une erreur inconnue est survenue");
       }
     }
   };

@@ -53,9 +53,10 @@ export default function Register() {
       window.location.href = "/candidat/candidature";
     } catch (err: unknown) {
       if (err instanceof Error) {
-        setError(err.message);
+        setError("Cet email est déjà utilisé.");
+        console.log("Erreur lors de l'inscription :", err.message);
       } else {
-        setError("Une erreur inconnue est survenue");
+        console.log("Une erreur inconnue est survenue");
       }
     }
   };

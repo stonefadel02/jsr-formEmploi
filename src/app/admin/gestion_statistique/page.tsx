@@ -5,8 +5,43 @@ import Candidature from "@/app/components/candidature/page";
 import Employeur from "@/app/components/employeur/page";
 import Entete from "@/app/components/entete/page";
 import Sidebar from "@/app/components/sidebar/page"; // Importer ton Sidebar existant
+import { useState, useEffect } from "react";
+
+export interface statType {
+  employeurs: number;
+  candidats: number;
+}
 
 export default function GestionStatistique() {
+
+    const [stats, setStats] = useState<statType | null>(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState("");
+  
+    useEffect(() => {
+      const fetchStats = async () => {
+        try {
+          const response = await fetch("/api/admin/stats"); // Remplace cette URL par celle de ton API
+          if (!response.ok) throw new Error("Erreur lors du chargement des données");
+          const data = await response.json();
+          console.log(data); // Pour vérifier la structure des données
+          setStats(data); // Assurez-vous que data.candidats est un tableau
+        } catch (err: unknown) {
+          if (err instanceof Error) {
+            setError(err.message);
+          } else {
+            setError("Une erreur est survenue");
+          }
+        } finally {
+          setLoading(false);
+        }
+      };
+  
+      fetchStats();
+    }, []);
+  
+  
+
   return (
     <>
       <div className="flex min-h-screen bg-[#F6F6F6] pb-20">
@@ -64,7 +99,7 @@ export default function GestionStatistique() {
                       Candidatures Soumises
                     </h3>
                     <div className="flex items-center py-4 justify-between">
-                      <p className="text-4xl font-bold text-[#7A20DA]">12</p>
+                      <p className="text-4xl font-bold text-[#7A20DA]">{stats?.candidats}</p>
                       <svg
                         width="28"
                         height="33"
@@ -140,7 +175,7 @@ export default function GestionStatistique() {
                     </h3>
                     <div className="flex items-center py-4 justify-between">
                       <p className="text-4xl font-bold text-[#7A20DA]">
-                        € 2,000
+                        {stats?.employeurs}
                       </p>
                       <svg
                         width="33"
