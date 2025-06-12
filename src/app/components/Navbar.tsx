@@ -1,11 +1,36 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
+import { signOut } from 'next-auth/react';
+import Cookies from 'js-cookie';
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
+
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  useEffect(() => {
+    // Vérifie la présence d’un token (dans localStorage ou cookies)
+    const token = Cookies.get('token');
+    if (token) {
+      // Si le token est présent, l'utilisateur est connecté
+      setIsLoggedIn(true);
+    } else {
+      // Sinon, l'utilisateur n'est pas connecté
+      setIsLoggedIn(false);
+    }
+  }, []);
+
+  const handleLogout = () => {
+    // 1. Supprimer les données locales si tu en stockes
+    Cookies.remove('userType');
+    Cookies.remove('token');// ou tout autre clé que tu utilises
+
+    // 2. Déconnexion via NextAuth
+    signOut({ callbackUrl: '/auth/login' }); // redirige vers la page d'accueil
+  };
 
   const toggleMenu = () => {
     setIsOpen(!isOpen);
@@ -28,37 +53,55 @@ export default function Navbar() {
               />
             </Link>
             {/* Menu pour desktop */}
-            <div className="hidden md:flex space-x-4 sm:space-x-6 lg:space-x-8 items-center">
-              <Link href="/pages/acceuil" className="text-[#501891] hover:text-gray-600 font-medium text-[14px] sm:text-[15px] ">
-                Je suis candidat
-              </Link>
-              <Link href="/pages/acceuil_recruteur" className="text-[#501891] hover:text-gray-600 font-medium text-[14px] sm:text-[15px] ">
-                Je suis recruteur
-              </Link>
-              <Link href="/pages/tarifs" className="text-[#501891] hover:text-gray-600 font-medium text-[14px] sm:text-[15px] ">
-                Nos Tarifs
-              </Link>
-              <Link href="/pages/contact" className="text-[#501891] hover:text-gray-600 font-medium text-[14px] sm:text-[15px] ">
-                Nous contacter
-              </Link>
-            </div>
+            {!isLoggedIn ? (
+              <div className="hidden md:flex space-x-4 sm:space-x-6 lg:space-x-8 items-center">
+                <Link href="/pages/acceuil" className="text-[#501891] hover:text-gray-600 font-medium text-[14px] sm:text-[15px] ">
+                  Je suis candidat
+                </Link>
+                <Link href="/pages/acceuil_recruteur" className="text-[#501891] hover:text-gray-600 font-medium text-[14px] sm:text-[15px] ">
+                  Je suis recruteur
+                </Link>
+                <Link href="/pages/tarifs" className="text-[#501891] hover:text-gray-600 font-medium text-[14px] sm:text-[15px] ">
+                  Nos Tarifs
+                </Link>
+                <Link href="/pages/contact" className="text-[#501891] hover:text-gray-600 font-medium text-[14px] sm:text-[15px] ">
+                  Nous contacter
+                </Link>
+              </div>
+            ) : (
+              <div className="hidden md:flex space-x-4 sm:space-x-6 lg:space-x-8 items-center">
+
+              </div>
+            )
+            }
           </div>
 
           {/* Boutons à droite (masqués sur mobile, affichés sur desktop) */}
-          <div className="hidden md:flex items-center space-x-2 sm:space-x-3 lg:space-x-4">
-            <Link
-              href="/components/register"
-              className="bg-[#501891] text-white px-2 sm:px-4 py-1 sm:py-2 rounded-[5px] hover:bg-white hover:text-[#501891] hover:border border-[#501891] transition duration-200 font-medium text-[12px] sm:text-[12px]"
-            >
-              Inscription
-            </Link>
-            <Link
-              href="/components/login"
-              className="text-[#501891] px-2 sm:px-4 py-1 sm:py-2 rounded-[5px] border border-[#501891] hover:bg-[#501891] hover:text-white transition duration-200 font-medium text-[12px] sm:text-[12px]"
-            >
-              Se connecter
-            </Link>
-          </div>
+          {!isLoggedIn ? (
+            <div className="hidden md:flex items-center space-x-2 sm:space-x-3 lg:space-x-4">
+              <Link
+                href="/components/register"
+                className="bg-[#501891] text-white px-2 sm:px-4 py-1 sm:py-2 rounded-[5px] hover:bg-white hover:text-[#501891] hover:border border-[#501891] transition duration-200 font-medium text-[12px] sm:text-[12px]"
+              >
+                Inscription
+              </Link>
+              <Link
+                href="/auth/login"
+                className="text-[#501891] px-2 sm:px-4 py-1 sm:py-2 rounded-[5px] border border-[#501891] hover:bg-[#501891] hover:text-white transition duration-200 font-medium text-[12px] sm:text-[12px]"
+              >
+                Se connecter
+              </Link>
+            </div>
+          ) : (
+            <div className="hidden md:flex items-center space-x-2 sm:space-x-3 lg:space-x-4">
+              <Link onClick={handleLogout}
+                href="/auth/login"
+                className="bg-[#501891] text-white px-2 sm:px-4 py-1 sm:py-2 rounded-[5px] hover:bg-white hover:text-[#501891] hover:border border-[#501891] transition duration-200 font-medium text-[12px] sm:text-[12px]"
+              >
+                Déconnexion
+              </Link>
+            </div>
+          )}
 
           {/* Menu hamburger pour mobile */}
           <div className="md:hidden">
@@ -84,41 +127,56 @@ export default function Navbar() {
         {/* Menu déroulant pour mobile */}
         {isOpen && (
           <div className="md:hidden mt-2">
-            <div className="space-y-2 bg-white p-2 rounded-md shadow-lg">
-              <Link href="/" className="block text-[#501891] hover:text-gray-600 py-1 font-medium text-sm">
-                Offres d’emploi
-              </Link>
-              <Link href="/formations" className="block text-[#501891] hover:text-gray-600 py-1 font-medium text-sm">
-                Accès recruteurs
-              </Link>
+            {!isLoggedIn ? (
+              <div className="space-y-2 bg-white p-2 rounded-md shadow-lg">
+                <Link href="/" className="block text-[#501891] hover:text-gray-600 py-1 font-medium text-sm">
+                  Offres d’emploi
+                </Link>
+                <Link href="/formations" className="block text-[#501891] hover:text-gray-600 py-1 font-medium text-sm">
+                  Accès recruteurs
+                </Link>
 
-              <Link href="/pages/acceuil" className="  text-[#501891] hover:text-gray-600 font-medium text-[14px] sm:text-[15px] ">
-                Je suis candidat
-              </Link>
-              <Link href="/pages/acceuil_recruteur" className="text-[#501891] hover:text-gray-600 font-medium text-[14px] sm:text-[15px] ">
-                Je suis recruteur
-              </Link>
-              <Link href="/pages/tarifs" className="text-[#501891] hover:text-gray-600 font-medium text-[14px] sm:text-[15px] ">
-                Nos Tarifs
-              </Link>
-              <Link href="/pages/contact" className="text-[#501891] hover:text-gray-600 font-medium text-[14px] sm:text-[15px] ">
-                Nous contacter
-              </Link>
-            </div>
-            <div className="mt-2 space-y-2 bg-white p-2 rounded-md shadow-lg">
-              <Link
-                href="/components/register"
-                className="block bg-[#501891] text-white px-2 py-1 rounded-[5px] hover:bg-white hover:text-[#501891] hover:border border-[#501891] transition duration-200 font-medium text-sm text-center"
-              >
-                Inscription
-              </Link>
-              <Link
-                href="/components/login"
-                className="block text-[#501891] px-2 py-1 rounded-[5px] border border-[#501891] hover:bg-[#501891] hover:text-white transition duration-200 font-medium text-sm text-center"
-              >
-                Se connecter
-              </Link>
-            </div>
+                <Link href="/pages/acceuil" className="  text-[#501891] hover:text-gray-600 font-medium text-[14px] sm:text-[15px] ">
+                  Je suis candidat
+                </Link>
+                <Link href="/pages/acceuil_recruteur" className="text-[#501891] hover:text-gray-600 font-medium text-[14px] sm:text-[15px] ">
+                  Je suis recruteur
+                </Link>
+                <Link href="/pages/tarifs" className="text-[#501891] hover:text-gray-600 font-medium text-[14px] sm:text-[15px] ">
+                  Nos Tarifs
+                </Link>
+                <Link href="/pages/contact" className="text-[#501891] hover:text-gray-600 font-medium text-[14px] sm:text-[15px] ">
+                  Nous contacter
+                </Link>
+              </div>
+            ) : (<div className="hidden md:flex space-x-4 sm:space-x-6 lg:space-x-8 items-center">
+
+            </div>)}
+            {!isLoggedIn ? (
+              <div className="mt-2 space-y-2 bg-white p-2 rounded-md shadow-lg">
+                <Link
+                  href="/components/register"
+                  className="block bg-[#501891] text-white px-2 py-1 rounded-[5px] hover:bg-white hover:text-[#501891] hover:border border-[#501891] transition duration-200 font-medium text-sm text-center"
+                >
+                  Inscription
+                </Link>
+                <Link
+                  href="/auth/login"
+                  className="block text-[#501891] px-2 py-1 rounded-[5px] border border-[#501891] hover:bg-[#501891] hover:text-white transition duration-200 font-medium text-sm text-center"
+                >
+                  Se connecter
+                </Link>
+              </div>
+            ) : (
+              <div className="hidden md:flex items-center space-x-2 sm:space-x-3 lg:space-x-4">
+                <Link onClick={handleLogout}
+                  href="/auth/login"
+                  className="bg-[#501891] text-white px-2 sm:px-4 py-1 sm:py-2 rounded-[5px] hover:bg-white hover:text-[#501891] hover:border border-[#501891] transition duration-200 font-medium text-[12px] sm:text-[12px]"
+                >
+                  Déconnexion
+                </Link>
+              </div>
+            )}
           </div>
         )}
       </div>

@@ -221,7 +221,7 @@ export default function Profile() {
               >
                 Mon profil
               </button>
-              <button
+              {/* <button
                 className={`px-4 sm:px-6 py-2 sm:py-2 font-extrabold text-base sm:text-[20px] ${
                   activeTab === "tracking"
                     ? "bg-white/15 text-white font-extrabold"
@@ -230,7 +230,7 @@ export default function Profile() {
                 onClick={() => setActiveTab("tracking")}
               >
                 Suivi de l’état de la candidature
-              </button>
+              </button> */}
             </div>
 
           <div className="bg-white rounded-[20px] shadow-lg p-4 sm:p-6 md:p-8 mt-2 sm:mt-0">
