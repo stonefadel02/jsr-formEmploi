@@ -163,7 +163,7 @@ export default function ProfileEmployeur() {
 
   // Rediriger vers le profil du candidat
   const viewProfile = (candidatId: string) => {
-    router.push(`/employeur/candidats/${candidatId}`);
+    router.push(`candidats/${candidatId}`);
   };
 
   if (error) {
