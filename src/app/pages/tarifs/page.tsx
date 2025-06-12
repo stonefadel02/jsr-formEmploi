@@ -8,12 +8,12 @@ export default function Acceuil() {
   return (
     <>
       <Navbar />
-      <div className="min-h-screen bg-gradient-to-l from-[#8E2DE2] to-[#4B00C8] flex items-center justify-center px-4 sm:px-6 lg:px-8">
-        <div className="max-w-6xl w-full mt-10 sm:mt-20">
+      <div className="min-h-screen bg-gradient-to-l py-10 from-[#8E2DE2] to-[#4B00C8] flex items-center justify-center px-4 sm:px-6 lg:px-8">
+        <div className="max-w-5xl w-full mt-10 sm:mt-20">
           {/* Titre et description */}
-          <div className="text-center text-white mb-12">
-            <h1 className="text-3xl mx-auto  sm:text-5xl md:text-5xl font-bold mb-4">
-              Émployeur, choisissez la formule qui vous correspond
+          <div className="text-center px-10 max-w-2xl mx-auto text-white mb-12">
+            <h1 className="text-3xl mx-auto sm:text-4xl md:text-4xl font-bold mb-4">
+              Employeur, choisissez la formule qui vous correspond
             </h1>
           </div>
 
