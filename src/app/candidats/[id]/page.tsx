@@ -273,9 +273,8 @@ export default function CandidateProfile() {
               <a
               onClick={handleDownloadCv}
                  
-                 href=""
                   rel="noopener noreferrer"
-                  className="bg-[#7A20DA] text-white px-8 py-2 rounded-[5px] hover:bg-[#6A1AB8] transition duration-200 inline-block text-center w-full sm:w-auto"
+                  className="bg-[#7A20DA] text-white px-8 py-2 cursor-pointer rounded-[5px] hover:bg-[#6A1AB8] transition duration-200 inline-block text-center w-full sm:w-auto"
                 >
                   Télécharger le CV (PDF)
                 </a>
