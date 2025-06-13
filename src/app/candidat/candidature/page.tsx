@@ -19,6 +19,7 @@ export default function Candidature() {
     cvFile: null as File | null,
     videoFile: null as File | null,
   });
+  const [loading, setLoading] = useState(false); // Nouvel état pour le loader
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -60,6 +61,7 @@ export default function Candidature() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setLoading(true); // Active le loader
 
     const data = new FormData();
     data.append("firstName", formData.firstName);
@@ -98,6 +100,8 @@ export default function Candidature() {
     } catch (error) {
       console.error("Erreur lors de la soumission :", error);
       alert("Une erreur est survenue.");
+    } finally {
+      setLoading(false); // Désactive le loader, même en cas d'erreur
     }
   };
 
@@ -351,20 +355,31 @@ export default function Candidature() {
                   </div>
                   <p className="text-[#616161] text-center text-xs sm:text-[14px] mt-1 sm:mt-2">
                     Les types de fichiers pris en charge sont uniquement
-                    MP4/WebM (Taille max. : 1 MB)
+                    MP4/WebM (Taille max. : 5 MB) {/* Correction de 1 MB à 5 MB pour cohérence */}
                   </p>
                 </>
               )}
 
               {/* Boutons de navigation */}
               <div className="flex gap-2 sm:gap-4 mt-2 sm:mt-4">
-                
+                {step > 1 && (
+                  <button
+                    type="button"
+                    onClick={() => setStep(step - 1)}
+                    className="w-full bg-gray-300 text-gray-700 font-medium py-2 px-3 sm:px-4 rounded-lg hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-500 transition duration-200"
+                  >
+                    Retour
+                  </button>
+                )}
                 <button
                   type="submit"
-                  className={`${step === 1 ? "w-full" : "w-full"
-                    } bg-[#7A20DA] text-white font-medium py-2 px-3 sm:px-4 rounded-lg hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 transition duration-200`}
+                  className={`${step === 1 || step === 4 ? "w-full" : "w-full"
+                    } bg-[#7A20DA] text-white font-medium py-2 px-3 sm:px-4 rounded-lg cursor-pointer hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 transition duration-200 disabled:opacity-50`}
+                  disabled={loading} // Désactive le bouton pendant le chargement
                 >
-                  {step === 4 ? "Soumettre" : "Continuez"}
+                  {loading ? (
+                    <div className="w-6 h-6 border-4 border-t-[#7A20DA] border-t-transparent rounded-full animate-spin mx-auto"></div>
+                  ) : step === 4 ? "Soumettre" : "Continuez"}
                 </button>
               </div>
             </form>
