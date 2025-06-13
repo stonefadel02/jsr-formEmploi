@@ -15,6 +15,7 @@ export default function Login() {
   });
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const [loading, setLoading] = useState(false); // Nouvel état pour le loader
   const router = useRouter();
 
   const handleChange = (
@@ -27,6 +28,7 @@ export default function Login() {
     e.preventDefault();
     setError("");
     setSuccess("");
+    setLoading(true); // Active le loader
 
     try {
       const response = await fetch("/api/employeurs/register", {
@@ -59,6 +61,8 @@ export default function Login() {
       } else {
         console.log("Une erreur inconnue est survenue");
       }
+    } finally {
+      setLoading(false); // Désactive le loader, même en cas d'erreur
     }
   };
 
@@ -138,12 +142,11 @@ export default function Login() {
               </div>
 
               {/* Nouvelle section : Bannière de notification */}
-              <div className="flex ">
-                <div className="bg-[#7A20DA] w-4 border-[#7A20DA] rounded-l-[15px] border-[1px]  "></div>
+              <div className="flex">
+                <div className="bg-[#7A20DA] w-4 border-[#7A20DA] rounded-l-[15px] border-[1px]"></div>
                 <div className="bg-[#F4E9FF] py-8 px-10 rounded-r-[15px] flex items-center justify-start">
-                
-                  <p className="text-sm text-[#7A20DA]  sm:text-base">
-                    🎁 2 mois d’accès gratuits à l’inscription.   Ensuite, un
+                  <p className="text-sm text-[#7A20DA] sm:text-base">
+                    🎁 2 mois d’accès gratuits à l’inscription. Ensuite, un
                     abonnement sera requis pour continuer à accéder aux
                     candidatures.
                   </p>
@@ -152,9 +155,14 @@ export default function Login() {
 
               <button
                 type="submit"
-                className="w-full bg-[#7A20DA] cursor-pointer text-white py-3 px-4 rounded-lg hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 transition duration-200"
+                className="w-full bg-[#7A20DA] cursor-pointer text-white py-3 px-4 rounded-lg hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 transition duration-200 disabled:opacity-50"
+                disabled={loading} // Désactive le bouton pendant le chargement
               >
-                Créer un compte
+                {loading ? (
+                  <div className="w-6 h-6 border-4 border-t-[#7A20DA] border-t-transparent rounded-full animate-spin mx-auto"></div>
+                ) : (
+                  "Créer un compte"
+                )}
               </button>
 
               <div className="flex items-center gap-5 justify-between">
@@ -165,9 +173,10 @@ export default function Login() {
             </form>
             <div className="mt-4 text-center">
               <button
-              type="button"
-              onClick={() => router.push("/auth/redirect?userType=employeur")}
-               className="w-full bg-white border cursor-pointer border-gray-300 text-gray-700 py-3 px-4 rounded-lg hover:bg-gray-50 flex items-center justify-center space-x-2">
+                type="button"
+                onClick={() => router.push("/auth/redirect?userType=employeur")}
+                className="w-full bg-white border cursor-pointer border-gray-300 text-gray-700 py-3 px-4 rounded-lg hover:bg-gray-50 flex items-center justify-center space-x-2"
+              >
                 <Image
                   src="/Google.svg"
                   alt="Google logo"
@@ -194,10 +203,7 @@ export default function Login() {
           </div>
           <p className="mt-10 text-[#616161] text-[16px] text-center">
             Déjà un compte sur JSR ?{" "}
-            <Link
-              href="/auth/login"
-              className="text-[#7A20DA] hover:underline"
-            >
+            <Link href="/auth/login" className="text-[#7A20DA] hover:underline">
               Se connecter
             </Link>
           </p>

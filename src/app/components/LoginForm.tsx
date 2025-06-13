@@ -4,7 +4,6 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Cookies from "js-cookie";
 
-
 interface Props {
   role: "candidat" | "employeur";
 }
@@ -13,6 +12,7 @@ export default function LoginForm({ role }: Props) {
   const [formData, setFormData] = useState({ email: "", password: "" });
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const [loading, setLoading] = useState(false); // Nouvel état pour le loader
   const router = useRouter();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -23,6 +23,7 @@ export default function LoginForm({ role }: Props) {
     e.preventDefault();
     setError("");
     setSuccess("");
+    setLoading(true); // Active le loader
 
     try {
       const endpoint =
@@ -44,7 +45,7 @@ export default function LoginForm({ role }: Props) {
       if (!response.ok) {
         throw new Error(data.message || "Erreur lors de la connexion");
       }
-        console.log("Réponse API :", data, "Statut :", response.status);
+      console.log("Réponse API :", data, "Statut :", response.status);
 
       setSuccess("Connexion réussie !");
       Cookies.set("token", data.token, {
@@ -52,12 +53,11 @@ export default function LoginForm({ role }: Props) {
         secure: process.env.NODE_ENV === "production", // important en prod
         sameSite: "Lax",
       });
-      console.log("Redirection")
-      router.push(role === "candidat"
-        ? "/candidat/profile"
-        : "/employeur/candidats"
+      console.log("Redirection");
+      router.push(
+        role === "candidat" ? "/candidat/profile" : "/employeur/candidats"
       );
-      console.log("Redirigé")
+      console.log("Redirigé");
     } catch (err: unknown) {
       if (err instanceof Error) {
         setError("Email ou mot de passe incorrect.");
@@ -65,6 +65,8 @@ export default function LoginForm({ role }: Props) {
       } else {
         console.log("Une erreur inconnue est survenue");
       }
+    } finally {
+      setLoading(false); // Désactive le loader, même en cas d'erreur
     }
   };
 
@@ -99,9 +101,14 @@ export default function LoginForm({ role }: Props) {
 
       <button
         type="submit"
-        className="w-full bg-[#7A20DA] text-white py-3 rounded-lg hover:bg-purple-700"
+        className="w-full cursor-pointer bg-[#7A20DA] text-white py-3 rounded-lg hover:bg-purple-700 disabled:opacity-50"
+        disabled={loading} // Désactive le bouton pendant le chargement
       >
-        Continuez
+        {loading ? (
+          <div className="w-6 h-6 border-4 border-t-[#7A20DA] border-t-transparent rounded-full animate-spin mx-auto"></div>
+        ) : (
+          "Continuez"
+        )}
       </button>
     </form>
   );
