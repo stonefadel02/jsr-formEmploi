@@ -60,7 +60,7 @@ export async function GET(req: NextRequest): Promise<NextResponse<ApiResponse<{ 
 
     const Employer = await EmployerPromise;
     const employer = await Employer.findById(decoded.id).select("role");
-    if (!employer || employer.role !== "employeur") {
+    if (!employer || employer.role !== "employeur" && employer.role !== "admin") {
       return NextResponse.json({ success: false, message: "Employeur access required" }, { status: 403 });
     }
 

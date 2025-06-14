@@ -38,7 +38,7 @@ export default function Candidature() {
   const router = useRouter();
 
   const viewProfile = (candidatId: string) => {
-    router.push(`/employeur/candidats/${candidatId}`);
+    router.push(`/candidats/${candidatId}`);
   };
   const deleteCandidat = async (id: string) => {
     const confirmRenouvellement = window.confirm("Êtes-vous sûr de vouloir faire cette action ?");
@@ -180,12 +180,12 @@ export default function Candidature() {
                       <td className="py-6 px-6">{candidature.createdAt ? new Date(candidature.createdAt).toLocaleDateString() : "Date non disponible"}</td>
                       <td className="py-6 px-6">En cours</td>
                       <td className="py-6 px-6 flex space-x-2">
-                        <button onClick={() => viewProfile(candidature._id.toString())} className="bg-[#7A20DA] flex font-bold text-white px-4 items-center gap-2 py-1 rounded-[5px]">
+                        {/* <button onClick={() => viewProfile(candidature._id.toString())} className="bg-[#7A20DA] flex font-bold text-white px-4 items-center gap-2 py-1 rounded-[5px]">
                           <svg xmlns="http://www.w3.org/2000/svg" fill="white" viewBox="0 0 24 24" width="24" height="24">
                             <path d="M12 4.5C7 4.5 2.73 8.11 1 12c1.73 3.89 6 7.5 11 7.5s9.27-3.61 11-7.5C21.27 8.11 17 4.5 12 4.5zm0 12a4.5 4.5 0 1 1 0-9 4.5 4.5 0 0 1 0 9zm0-7a2.5 2.5 0 1 0 .001 5.001A2.5 2.5 0 0 0 12 9.5z" />
                           </svg>
                           Voir
-                        </button>
+                        </button> */}
                         <button onClick={()=> deleteCandidat(candidature._id.toString())} className="bg-[#FF0000] text-white flex font-bold px-4 items-center gap-2 py-1 rounded-[5px]">
                           <svg
                             width="16"

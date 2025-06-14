@@ -73,11 +73,19 @@ export function middleware(req: NextRequest) {
   }
 
   // ✅ Protection des routes par rôle
-  if (url.startsWith("/employeur") && role !== "employeur") {
+  if (url.startsWith("/employeur") && role !== "employeur" && role !== "admin") {
     return NextResponse.redirect(new URL("/unauthorized", req.url));
   }
 
-  if (url.startsWith("/candidat") && role !== "candidat" && role !== "employeur") {
+  if (url.startsWith("/candidats") && role !== "employeur" && role !== "admin") {
+    return NextResponse.redirect(new URL("/unauthorized", req.url));
+  }
+
+  if (url.startsWith("/candidat") && role !== "candidat") {
+    return NextResponse.redirect(new URL("/unauthorized", req.url));
+  }
+
+  if (url.startsWith("/admin") && role !== "admin") {
     return NextResponse.redirect(new URL("/unauthorized", req.url));
   }
 
