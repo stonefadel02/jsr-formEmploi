@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import { ICandidat } from "@/lib/types";
 import Cookies from "js-cookie";
 import { useRouter } from "next/navigation";
+import axios from "axios";
 
 export default function Profile() {
   const [activeTab, setActiveTab] = useState<"profile" | "tracking">("profile");
@@ -24,6 +25,10 @@ export default function Profile() {
     alternanceSearch: false,
     cv: false,
     video: false,
+    downloadCv: false,
+    downloadVideo: false,
+    uploadCv: false, // Nouvel état pour le loader du téléversement CV
+    uploadVideo: false, // Nouvel état pour le loader du téléversement vidéo
   });
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
@@ -45,7 +50,7 @@ export default function Profile() {
         const data = await res.json();
         if (data.candidat) {
           setProfile(data.candidat);
-          setFormData(data.candidat); // Initialiser formData avec les données actuelles
+          setFormData(data.candidat);
         } else {
           setError("Candidat introuvable");
         }
@@ -67,7 +72,7 @@ export default function Profile() {
   ) => {
     const { name, value } = e.target;
     if (name.startsWith("alternanceSearch[")) {
-      const subField = name.match(/\[(.*?)\]/)?.[1]; // Extrait 'sector' ou 'location'
+      const subField = name.match(/\[(.*?)\]/)?.[1];
       if (subField) {
         setFormData((prev) => ({
           ...prev,
@@ -82,13 +87,24 @@ export default function Profile() {
     }
   };
 
-  const handleFileChange = (
+  const handleFileChange = async (
     e: React.ChangeEvent<HTMLInputElement>,
     field: string
   ) => {
     const file = e.target.files?.[0];
     if (file) {
-      setFormData((prev) => ({ ...prev, [field]: file }));
+      setIsLoading((prev) => ({ ...prev, [`upload${field.charAt(0).toUpperCase() + field.slice(1)}`]: true }));
+      try {
+        setFormData((prev) => ({ ...prev, [field]: file }));
+        // Simuler un délai de traitement (remplace par une logique réelle si nécessaire)
+        await new Promise((resolve) => setTimeout(resolve, 1000)); // 1 seconde de délai
+        setSuccessMessage(`${field === "cv" ? "CV" : "Vidéo"} sélectionné avec succès !`);
+      } catch (err) {
+        console.error(`Erreur lors de la sélection du ${field}:`, err);
+        setError(`Erreur lors de la sélection du ${field}.`);
+      } finally {
+        setIsLoading((prev) => ({ ...prev, [`upload${field.charAt(0).toUpperCase() + field.slice(1)}`]: false }));
+      }
     }
   };
 
@@ -106,10 +122,7 @@ export default function Profile() {
     if (section === "personalInfo" || section === "alternanceSearch") {
       allowedFields.forEach((field) => {
         if (formData[field]) {
-          if (
-            field === "alternanceSearch" &&
-            typeof formData[field] === "object"
-          ) {
+          if (field === "alternanceSearch" && typeof formData[field] === "object") {
             formDataToSend.append(field, JSON.stringify(formData[field]));
           } else {
             formDataToSend.append(field, formData[field] as string);
@@ -156,29 +169,79 @@ export default function Profile() {
   };
 
   const handleCancel = (section: string) => {
-    setFormData(profile || {}); // Réinitialiser formData avec les données actuelles
+    setFormData(profile || {});
     setIsEditing((prev) => ({ ...prev, [section]: false }));
     setSuccessMessage(null);
   };
 
-  // const handleDownload = (url: string | undefined, field: string) => {
-  //   if (url) {
-  //     const link = document.createElement("a");
-  //     link.href = url;
-  //     link.download = url.split("/").pop() || "document";
-  //     document.body.appendChild(link);
-  //     link.click();
-  //     document.body.removeChild(link);
-  //   }
-  // };
-
   const allowedFields = [
     "firstName",
     "lastName",
-    "emailpro",
+    "email",
     "phone",
+    "localisation",
     "alternanceSearch",
   ];
+
+  const handleDownloadCv = async () => {
+    if (!profile?.cvUrl) {
+      alert("Aucun CV disponible.");
+      return;
+    }
+
+    setIsLoading((prev) => ({ ...prev, downloadCv: true }));
+    try {
+      const token = Cookies.get("token");
+      const response = await axios.get(profile.cvUrl, {
+        headers: { Authorization: `Bearer ${token}` },
+        responseType: "blob",
+      });
+
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", `CV_${profile.firstName}_${profile.lastName}.pdf`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error("Erreur lors du téléchargement du CV :", error);
+      alert("Erreur lors du téléchargement du CV.");
+    } finally {
+      setIsLoading((prev) => ({ ...prev, downloadCv: false }));
+    }
+  };
+
+  const handleDownloadVideo = async () => {
+    if (!profile?.videoUrl) {
+      alert("Aucune vidéo disponible.");
+      return;
+    }
+
+    setIsLoading((prev) => ({ ...prev, downloadVideo: true }));
+    try {
+      const token = Cookies.get("token");
+      const response = await axios.get(profile.videoUrl, {
+        headers: { Authorization: `Bearer ${token}` },
+        responseType: "blob",
+      });
+
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", `Video_${profile.firstName}_${profile.lastName}.mp4`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error("Erreur lors du téléchargement de la vidéo :", error);
+      alert("Erreur lors du téléchargement de la vidéo.");
+    } finally {
+      setIsLoading((prev) => ({ ...prev, downloadVideo: false }));
+    }
+  };
 
   if (error) {
     return (
@@ -208,7 +271,7 @@ export default function Profile() {
     <>
       <Navbar />
       <div className="min-h-screen bg-gradient-to-l from-[#8E2DE2] to-[#4B00C8] flex items-center justify-center px-4 sm:px-6 lg:px-8 py-4 sm:py-8">
-        <div className="max-w-7xl py-10 sm:py-20  w-full mt-10 sm:mt-20">
+        <div className="max-w-7xl py-10 sm:py-20 w-full mt-10 sm:mt-20">
           <div className="bg-white/15">
             <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-4">
               <button
@@ -229,321 +292,419 @@ export default function Profile() {
                 }`}
                 onClick={() => setActiveTab("tracking")}
               >
-                Suivi de l’état de la candidature
+                Details
               </button> */}
             </div>
 
-          <div className="bg-white rounded-[20px] shadow-lg p-4 sm:p-6 md:p-8 mt-2 sm:mt-0">
-            {activeTab === "profile" ? (
-              <div className="flex flex-col sm:flex-row items-center justify-between">
-                <div className="flex items-center">
-                  <div className="w-12 sm:w-16 h-12 sm:h-16 bg-[#7A20DA] text-white flex items-center justify-center rounded-full mr-4">
-                    mD
-                  </div>
-                  <div>
-                    <h2 className="text-2xl sm:text-[30px] font-bold">
-                      Bonjour, {profile.firstName}
-                    </h2>
-                    <h2 className="text-lg sm:text-xl font-sans">
-                      {profile.lastName}
-                    </h2>
+            <div className="bg-white rounded-[20px] shadow-lg p-4 sm:p-6 md:p-8 mt-2 sm:mt-0">
+              {activeTab === "profile" ? (
+                <div className="flex flex-col sm:flex-row items-center justify-between">
+                  <div className="flex items-center">
+                    <div className="w-12 sm:w-16 h-12 sm:h-16 bg-[#7A20DA] text-white flex items-center justify-center rounded-full mr-4">
+                      mD
+                    </div>
+                    <div>
+                      <h2 className="text-2xl sm:text-[30px] font-bold">
+                        Bonjour, {profile.firstName}
+                      </h2>
+                      <h2 className="text-lg sm:text-xl font-sans">
+                        {profile.lastName}
+                      </h2>
+                    </div>
                   </div>
                 </div>
+              ) : (
+                <div className="">les details</div>
+              )}
+            </div>
+
+            {activeTab === "profile" && (
+              <div className="bg-white rounded-[20px] shadow-lg p-4 sm:p-6 md:p-8 mt-4 sm:mt-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 mb-4 sm:mb-6">
+                  <div className="border border-[#C4C4C4] p-4 rounded-lg">
+                    <div className="flex items-center justify-between mb-2">
+                      <h3 className="text-base sm:text-lg text-[#202020] font-medium">
+                        Coordonnées
+                      </h3>
+                      {isEditing.personalInfo ? (
+                        <div className="flex space-x-2">
+                          <button
+                            className="text-white bg-[#7A20DA] py-2 px-4 cursor-pointer text-sm rounded"
+                            onClick={() => handleSubmit("personalInfo")}
+                            disabled={isLoading.personalInfo}
+                          >
+                            {isLoading.personalInfo ? "Chargement..." : "Sauvegarder"}
+                          </button>
+                          <button
+                            className="text-white bg-red-600 py-2 px-4 cursor-pointer text-sm rounded"
+                            onClick={() => handleCancel("personalInfo")}
+                            disabled={isLoading.personalInfo}
+                          >
+                            Annuler
+                          </button>
+                        </div>
+                      ) : (
+                        <button
+                          className="text-gray-500 cursor-pointer hover:text-gray-700"
+                          onClick={() => handleEdit("personalInfo")}
+                        >
+                          <svg
+                            width="20"
+                            height="20"
+                            className="sm:w-[30px] sm:h-[30px]"
+                            viewBox="0 0 48 48"
+                            fill="none"
+                            xmlns="http://www.w3.org/2000/svg"
+                          >
+                            <g clipPath="url(#clip0_63_2714)">
+                              <path
+                                d="M46.5905 7.44979L40.5438 1.35719C40.1132 0.924994 39.6011 0.582506 39.0373 0.349543C38.4734 0.11658 37.8689 -0.00221968 37.2589 2.47574e-06C36.6489 -0.0023045 36.0446 0.116393 35.4809 0.349223C34.9172 0.582053 34.4052 0.924387 33.9747 1.35641L4.29448 31.0296C4.14808 31.1767 4.04322 31.3599 3.99055 31.5606L0.0923061 46.5402C0.0474052 46.7126 0.0426373 46.8931 0.078334 47.0676C0.114031 47.2422 0.18925 47.4062 0.298235 47.5472C0.40722 47.6882 0.547051 47.8023 0.707009 47.8808C0.866967 47.9593 1.04279 48.0001 1.22096 48C1.32281 48.0003 1.42424 47.9869 1.52256 47.9603L16.4113 43.9712C16.6093 43.9184 16.7899 43.8141 16.9344 43.6688L46.5874 14.0166C47.4558 13.1447 47.9437 11.9645 47.9445 10.734C47.9452 9.50343 47.4587 8.32266 46.5913 7.44979H46.5905ZM30.0594 8.56369L33.89 12.3943L10.597 35.6873L6.76401 31.8544L30.0594 8.56369ZM5.60114 44.4523L3.57001 42.4212L5.73095 34.1187L13.8539 42.2409L5.60114 44.4523ZM16.1058 41.1962L12.2456 37.336L35.5387 14.043L39.3988 17.9031L16.1058 41.1962ZM44.9348 12.3671L41.0483 16.2537L31.7096 6.91421L35.6203 3.00432C35.8345 2.78991 36.089 2.62004 36.3691 2.5045C36.6493 2.38896 36.9496 2.33006 37.2526 2.33117C37.5555 2.32967 37.8558 2.38818 38.1359 2.50331C38.4161 2.61845 38.6707 2.78794 38.885 3.00199L44.9325 9.09459C45.364 9.52973 45.606 10.1177 45.606 10.7304C45.606 11.3432 45.364 11.9312 44.9325 12.3663L44.9348 12.3671Z"
+                                fill="#0C2C67"
+                              />
+                            </g>
+                            <defs>
+                              <clipPath id="clip0_63_2714">
+                                <rect width="48" height="48" fill="white" />
+                              </clipPath>
+                            </defs>
+                          </svg>
+                        </button>
+                      )}
+                    </div>
+                    {isEditing.personalInfo && (
+                      <div className="space-y-4">
+                        <input
+                          type="text"
+                          name="firstName"
+                          value={formData.firstName || ""}
+                          onChange={handleChange}
+                          className="w-full border-gray-100 p-2 border rounded"
+                          placeholder="Prénom"
+                        />
+                        <input
+                          type="text"
+                          name="lastName"
+                          value={formData.lastName || ""}
+                          onChange={handleChange}
+                          className="w-full border-gray-100 p-2 border rounded"
+                          placeholder="Nom"
+                        />
+                        <input
+                          type="email"
+                          name="email"
+                          value={formData.email || ""}
+                          onChange={handleChange}
+                          className="w-full p-2 border-gray-100 border rounded"
+                          placeholder="Email"
+                        />
+                        <input
+                          type="text"
+                          name="phone"
+                          value={formData.phone || ""}
+                          onChange={handleChange}
+                          className="w-full border-gray-100 p-2 border rounded"
+                          placeholder="Téléphone"
+                        />
+                        <input
+                          type="text"
+                          name="alternanceSearch[location]"
+                          value={formData.alternanceSearch?.location || ""}
+                          onChange={handleChange}
+                          className="w-full border-gray-100 p-2 border rounded"
+                          placeholder="Localisation"
+                        />
+                      </div>
+                    )}
+                    {!isEditing.personalInfo && (
+                      <div>
+                        <p className="text-gray-700">
+                          {profile.firstName} {profile.lastName}
+                        </p>
+                        <p className="text-gray-700">{profile.email}</p>
+                        <p className="text-gray-700">{profile.phone}</p>
+                        <p className="text-gray-700">
+                          {profile.alternanceSearch?.location}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                  <div className="border border-[#C4C4C4] p-4 rounded-lg">
+                    <div className="flex items-center justify-between mb-2">
+                      <h3 className="text-base sm:text-lg text-[#202020] font-medium">
+                        Recherche d`alternance
+                      </h3>
+                      {isEditing.alternanceSearch ? (
+                        <div className="flex space-x-2">
+                          <button
+                            className="text-white bg-[#7A20DA] py-2 px-4 cursor-pointer text-sm rounded"
+                            onClick={() => handleSubmit("alternanceSearch")}
+                            disabled={isLoading.alternanceSearch}
+                          >
+                            {isLoading.alternanceSearch ? "Chargement..." : "Sauvegarder"}
+                          </button>
+                          <button
+                            className="text-white bg-red-600 py-2 px-4 cursor-pointer text-sm rounded"
+                            onClick={() => handleCancel("alternanceSearch")}
+                            disabled={isLoading.alternanceSearch}
+                          >
+                            Annuler
+                          </button>
+                        </div>
+                      ) : (
+                        <button
+                          className="text-gray-500 cursor-pointer hover:text-gray-700"
+                          onClick={() => handleEdit("alternanceSearch")}
+                        >
+                          <svg
+                            width="20"
+                            height="20"
+                            className="sm:w-[30px] sm:h-[30px]"
+                            viewBox="0 0 48 48"
+                            fill="none"
+                            xmlns="http://www.w3.org/2000/svg"
+                          >
+                            <g clipPath="url(#clip0_63_2714)">
+                              <path
+                                d="M46.5905 7.44979L40.5438 1.35719C40.1132 0.924994 39.6011 0.582506 39.0373 0.349543C38.4734 0.11658 37.8689 -0.00221968 37.2589 2.47574e-06C36.6489 -0.0023045 36.0446 0.116393 35.4809 0.349223C34.9172 0.582053 34.4052 0.924387 33.9747 1.35641L4.29448 31.0296C4.14808 31.1767 4.04322 31.3599 3.99055 31.5606L0.0923061 46.5402C0.0474052 46.7126 0.0426373 46.8931 0.078334 47.0676C0.114031 47.2422 0.18925 47.4062 0.298235 47.5472C0.40722 47.6882 0.547051 47.8023 0.707009 47.8808C0.866967 47.9593 1.04279 48.0001 1.22096 48C1.32281 48.0003 1.42424 47.9869 1.52256 47.9603L16.4113 43.9712C16.6093 43.9184 16.7899 43.8141 16.9344 43.6688L46.5874 14.0166C47.4558 13.1447 47.9437 11.9645 47.9445 10.734C47.9452 9.50343 47.4587 8.32266 46.5913 7.44979H46.5905ZM30.0594 8.56369L33.89 12.3943L10.597 35.6873L6.76401 31.8544L30.0594 8.56369ZM5.60114 44.4523L3.57001 42.4212L5.73095 34.1187L13.8539 42.2409L5.60114 44.4523ZM16.1058 41.1962L12.2456 37.336L35.5387 14.043L39.3988 17.9031L16.1058 41.1962ZM44.9348 12.3671L41.0483 16.2537L31.7096 6.91421L35.6203 3.00432C35.8345 2.78991 36.089 2.62004 36.3691 2.5045C36.6493 2.38896 36.9496 2.33006 37.2526 2.33117C37.5555 2.32967 37.8558 2.38818 38.1359 2.50331C38.4161 2.61845 38.6707 2.78794 38.885 3.00199L44.9325 9.09459C45.364 9.52973 45.606 10.1177 45.606 10.7304C45.606 11.3432 45.364 11.9312 44.9325 12.3663L44.9348 12.3671Z"
+                                fill="#0C2C67"
+                              />
+                            </g>
+                            <defs>
+                              <clipPath id="clip0_63_2714">
+                                <rect width="48" height="48" fill="white" />
+                              </clipPath>
+                            </defs>
+                          </svg>
+                        </button>
+                      )}
+                    </div>
+                    {isEditing.alternanceSearch && (
+                      <div className="space-y-4">
+                        <input
+                          type="text"
+                          name="alternanceSearch[sector]"
+                          value={formData.alternanceSearch?.sector || ""}
+                          onChange={handleChange}
+                          className="w-full border-gray-100 p-2 border rounded"
+                          placeholder="Secteur"
+                        />
+                        <input
+                          type="text"
+                          name="alternanceSearch[level]"
+                          value={formData.alternanceSearch?.level || ""}
+                          onChange={handleChange}
+                          className="w-full border-gray-100 p-2 border rounded"
+                          placeholder="Niveau"
+                        />
+                        <input
+                          type="text"
+                          name="alternanceSearch[contracttype]"
+                          value={formData.alternanceSearch?.contracttype || ""}
+                          onChange={handleChange}
+                          className="w-full border-gray-100 p-2 border rounded"
+                          placeholder="Type de contrat"
+                        />
+                      </div>
+                    )}
+                    {!isEditing.alternanceSearch && (
+                      <div>
+                        <p className="text-gray-700">
+                          {profile.alternanceSearch?.sector}
+                        </p>
+                        <p className="text-gray-700">
+                          {profile.alternanceSearch?.level}
+                        </p>
+                        <p className="text-gray-700">
+                          {profile.alternanceSearch?.contracttype}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="border border-[#C4C4C4] p-4 rounded-lg h-[400px] sm:h-[600px]">
+                    <div className="w-full h-full rounded-[15px] relative overflow-hidden">
+                      {profile.videoUrl ? (
+                        <video
+                          controls
+                          className="w-full h-full object-cover"
+                          src={profile.videoUrl}
+                        >
+                          Votre navigateur ne prend pas en charge la vidéo.
+                        </video>
+                      ) : (
+                        <div className="w-full h-full bg-gray-200 flex items-center justify-center text-[#616161]">
+                          Aucune vidéo disponible
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="border border-[#C4C4C4] p-4 rounded-lg h-[400px] sm:h-[600px]">
+                    <iframe
+                      src={`https://docs.google.com/gview?url=${encodeURIComponent(
+                        profile.cvUrl || ""
+                      )}&embedded=true`}
+                      className="w-full h-full"
+                      title="CV du candidat"
+                    />
+                  </div>
+                </div>
+
+                <div className="mt-4 sm:mt-6 border border-[#C4C4C4] p-4 rounded-lg">
+                  <h3 className="text-base sm:text-lg font-semibold mb-4">
+                    Mes documents
+                  </h3>
+                  <div className="space-y-4">
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 rounded-lg">
+                      <span>CV</span>
+                      <div className="flex space-x-2 mt-2 sm:mt-0">
+                        {!isEditing.cv && profile.cvUrl && (
+                          <button
+                            onClick={handleDownloadCv}
+                            className="bg-[#7A20DA] text-white cursor-pointer px-4 sm:px-6 py-2 rounded-[5px] hover:bg-purple-700 transition duration-200 flex items-center"
+                            disabled={isLoading.downloadCv}
+                          >
+                            {isLoading.downloadCv ? (
+                              <svg className="animate-spin h-5 w-5 mr-2 text-white" viewBox="0 0 24 24">
+                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                              </svg>
+                            ) : null}
+                            Télécharger
+                          </button>
+                        )}
+                        {!isEditing.cv && (
+                          <button
+                            className="border-[#7A20DA] cursor-pointer border bg-white text-[#7A20DA] px-6 sm:px-8 py-2 rounded-[5px]"
+                            onClick={() => handleEdit("cv")}
+                          >
+                            Modifier
+                          </button>
+                        )}
+                        {isEditing.cv && (
+                          <div className="flex space-x-2">
+                            <input
+                              type="file"
+                              accept="application/pdf"
+                              onChange={(e) => handleFileChange(e, "cv")}
+                              className="hidden"
+                              id="cvUpload"
+                              disabled={isLoading.cv || isLoading.uploadCv}
+                            />
+                            <label
+                              htmlFor="cvUpload"
+                              className="bg-[#7A20DA] cursor-pointer text-white px-4 sm:px-6 py-2 rounded-[5px] hover:bg-purple-700 transition duration-200 flex items-center"
+                            >
+                              {isLoading.uploadCv ? (
+                                <>
+                                  <svg className="animate-spin h-5 w-5 mr-2 text-white" viewBox="0 0 24 24">
+                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                  </svg>
+                                  Chargement...
+                                </>
+                              ) : (
+                                "Télécharger nouveau CV"
+                              )}
+                            </label>
+                            <button
+                              className="border-[#7A20DA] border cursor-pointer bg-white text-[#7A20DA] px-6 sm:px-8 py-2 rounded-[5px]"
+                              onClick={() => handleSubmit("cv")}
+                              disabled={isLoading.cv || !formData.cv}
+                            >
+                              {isLoading.cv ? "Chargement..." : "Sauvegarder"}
+                            </button>
+                            <button
+                              className="border-[#7A20DA] border cursor-pointer bg-white text-[#7A20DA] px-6 sm:px-8 py-2 rounded-[5px]"
+                              onClick={() => handleCancel("cv")}
+                              disabled={isLoading.cv}
+                            >
+                              Annuler
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 rounded-lg">
+                      <span>Video</span>
+                      <div className="flex space-x-2 mt-2 sm:mt-0">
+                        {!isEditing.video && profile.videoUrl && (
+                          <button
+                            onClick={handleDownloadVideo}
+                            className="bg-[#7A20DA] text-white cursor-pointer px-4 sm:px-6 py-2 rounded-[5px] hover:bg-purple-700 transition duration-200 flex items-center"
+                            disabled={isLoading.downloadVideo}
+                          >
+                            {isLoading.downloadVideo ? (
+                              <svg className="animate-spin h-5 w-5 mr-2 text-white" viewBox="0 0 24 24">
+                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                              </svg>
+                            ) : null}
+                            Télécharger
+                          </button>
+                        )}
+                        {!isEditing.video && (
+                          <button
+                            className="border-[#7A20DA] cursor-pointer border bg-white text-[#7A20DA] px-6 sm:px-8 py-2 rounded-[5px]"
+                            onClick={() => handleEdit("video")}
+                          >
+                            Modifier
+                          </button>
+                        )}
+                        {isEditing.video && (
+                          <div className="flex space-x-2">
+                            <input
+                              type="file"
+                              accept="video/*"
+                              onChange={(e) => handleFileChange(e, "video")}
+                              className="hidden"
+                              id="videoUpload"
+                              disabled={isLoading.video || isLoading.uploadVideo}
+                            />
+                            <label
+                              htmlFor="videoUpload"
+                              className="bg-[#7A20DA] cursor-pointer text-white px-4 sm:px-6 py-2 rounded-[5px] hover:bg-purple-700 transition duration-200 flex items-center"
+                            >
+                              {isLoading.uploadVideo ? (
+                                <>
+                                  <svg className="animate-spin h-5 w-5 mr-2 text-white" viewBox="0 0 24 24">
+                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                  </svg>
+                                  Chargement...
+                                </>
+                              ) : (
+                                "Télécharger nouvelle vidéo"
+                              )}
+                            </label>
+                            <button
+                              className="border-[#7A20DA] border cursor-pointer bg-white text-[#7A20DA] px-6 sm:px-8 py-2 rounded-[5px]"
+                              onClick={() => handleSubmit("video")}
+                              disabled={isLoading.video || !formData.video}
+                            >
+                              {isLoading.video ? "Chargement..." : "Sauvegarder"}
+                            </button>
+                            <button
+                              className="border-[#7A20DA] border cursor-pointer bg-white text-[#7A20DA] px-6 sm:px-8 py-2 rounded-[5px]"
+                              onClick={() => handleCancel("video")}
+                              disabled={isLoading.video}
+                            >
+                              Annuler
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                  {successMessage && (
+                    <p className="text-green-600 mt-4">{successMessage}</p>
+                  )}
+                  {error && <p className="text-red-500 mt-2">{error}</p>}
+                </div>
               </div>
-            ) : (
-              <div className=""></div>
             )}
           </div>
-
-          {activeTab === "profile" && (
-            <div className="bg-white rounded-[20px] shadow-lg p-4 sm:p-6 md:p-8 mt-4 sm:mt-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 mb-4 sm:mb-6">
-                <div className="border border-[#C4C4C4] p-4 rounded-lg">
-                  <div className="flex items-center justify-between mb-2">
-                    <h3 className="text-base sm:text-lg text-[#202020] font-medium">
-                      Coordonnées
-                    </h3>
-                    {isEditing.personalInfo ? (
-                      <div className="flex space-x-2">
-                        <button
-                          className="text-white bg-[#7A20DA] py-2 px-4 cursor-pointer text-sm rounded"
-                          onClick={() => handleSubmit("personalInfo")}
-                          disabled={isLoading.personalInfo}
-                        >
-                          {isLoading.personalInfo
-                            ? "Chargement..."
-                            : "Sauvegarder"}
-                        </button>
-                        <button
-                          className="text-white bg-red-600 py-2 px-4 cursor-pointer text-sm rounded"
-                          onClick={() => handleCancel("personalInfo")}
-                          disabled={isLoading.personalInfo}
-                        >
-                          Annuler
-                        </button>
-                      </div>
-                    ) : (
-                      <button
-                        className="text-gray-500 hover:text-gray-700"
-                        onClick={() => handleEdit("personalInfo")}
-                      >
-                        <svg
-                          width="20"
-                          height="20"
-                          className="sm:w-[30px] sm:h-[30px]"
-                          viewBox="0 0 48 48"
-                          fill="none"
-                          xmlns="http://www.w3.org/2000/svg"
-                        >
-                          <g clipPath="url(#clip0_63_2714)">
-                            <path
-                              d="M46.5905 7.44979L40.5438 1.35719C40.1132 0.924994 39.6011 0.582506 39.0373 0.349543C38.4734 0.11658 37.8689 -0.00221968 37.2589 2.47574e-06C36.6489 -0.0023045 36.0446 0.116393 35.4809 0.349223C34.9172 0.582053 34.4052 0.924387 33.9747 1.35641L4.29448 31.0296C4.14808 31.1767 4.04322 31.3599 3.99055 31.5606L0.0923061 46.5402C0.0474052 46.7126 0.0426373 46.8931 0.078334 47.0676C0.114031 47.2422 0.18925 47.4062 0.298235 47.5472C0.40722 47.6882 0.547051 47.8023 0.707009 47.8808C0.866967 47.9593 1.04279 48.0001 1.22096 48C1.32281 48.0003 1.42424 47.9869 1.52256 47.9603L16.4113 43.9712C16.6093 43.9184 16.7899 43.8141 16.9344 43.6688L46.5874 14.0166C47.4558 13.1447 47.9437 11.9645 47.9445 10.734C47.9452 9.50343 47.4587 8.32266 46.5913 7.44979H46.5905ZM30.0594 8.56369L33.89 12.3943L10.597 35.6873L6.76401 31.8544L30.0594 8.56369ZM5.60114 44.4523L3.57001 42.4212L5.73095 34.1187L13.8539 42.2409L5.60114 44.4523ZM16.1058 41.1962L12.2456 37.336L35.5387 14.043L39.3988 17.9031L16.1058 41.1962ZM44.9348 12.3671L41.0483 16.2537L31.7096 6.91421L35.6203 3.00432C35.8345 2.78991 36.089 2.62004 36.3691 2.5045C36.6493 2.38896 36.9496 2.33006 37.2526 2.33117C37.5555 2.32967 37.8558 2.38818 38.1359 2.50331C38.4161 2.61845 38.6707 2.78794 38.885 3.00199L44.9325 9.09459C45.364 9.52973 45.606 10.1177 45.606 10.7304C45.606 11.3432 45.364 11.9312 44.9325 12.3663L44.9348 12.3671Z"
-                              fill="#0C2C67"
-                            />
-                          </g>
-                          <defs>
-                            <clipPath id="clip0_63_2714">
-                              <rect width="48" height="48" fill="white" />
-                            </clipPath>
-                          </defs>
-                        </svg>
-                      </button>
-                    )}
-                  </div>
-                  {isEditing.personalInfo && (
-                    <div className="space-y-4">
-                      <input
-                        type="text"
-                        name="firstName"
-                        value={formData.firstName || ""}
-                        onChange={handleChange}
-                        className="w-full border-gray-100 p-2 border rounded"
-                        placeholder="Prénom"
-                      />
-                      <input
-                        type="text"
-                        name="lastName"
-                        value={formData.lastName || ""}
-                        onChange={handleChange}
-                        className="w-full border-gray-100 p-2 border rounded"
-                        placeholder="Nom"
-                      />
-                      <input
-                        type="email"
-                        name="emailpro"
-                        value={formData.emailpro || ""}
-                        onChange={handleChange}
-                        className="w-full p-2 border-gray-100 border rounded"
-                        placeholder="Email"
-                      />
-                      <input
-                        type="text"
-                        name="phone"
-                        value={formData.phone || ""}
-                        onChange={handleChange}
-                        className="w-full border-gray-100 p-2 border rounded"
-                        placeholder="Téléphone"
-                      />
-                    </div>
-                  )}
-                  {!isEditing.personalInfo && (
-                    <div>
-                      <p className="text-gray-700">
-                        {profile.firstName} {profile.lastName}
-                      </p>
-                      <p className="text-gray-700">{profile.emailpro}</p>
-                      <p className="text-gray-700">{profile.phone}</p>
-                    </div>
-                  )}
-                </div>
-                <div className="border border-[#C4C4C4] p-4 rounded-lg">
-                  <div className="flex items-center justify-between mb-2">
-                    <h3 className="text-base sm:text-lg text-[#202020] font-medium">
-                      Lieu
-                    </h3>
-                    {isEditing.alternanceSearch ? (
-                      <div className="flex space-x-2">
-                        <button
-                          className="text-white bg-[#7A20DA] py-2 px-4 cursor-pointer text-sm rounded"
-                          onClick={() => handleSubmit("alternanceSearch")}
-                          disabled={isLoading.alternanceSearch}
-                        >
-                          {isLoading.alternanceSearch
-                            ? "Chargement..."
-                            : "Sauvegarder"}
-                        </button>
-                        <button
-                          className="text-white bg-red-600 py-2 px-4 cursor-pointer text-sm rounded"
-                          onClick={() => handleCancel("alternanceSearch")}
-                          disabled={isLoading.alternanceSearch}
-                        >
-                          Annuler
-                        </button>
-                      </div>
-                    ) : (
-                      <button
-                        className="text-gray-500 hover:text-gray-700"
-                        onClick={() => handleEdit("alternanceSearch")}
-                      >
-                        <svg
-                          width="20"
-                          height="20"
-                          className="sm:w-[30px] sm:h-[30px]"
-                          viewBox="0 0 48 48"
-                          fill="none"
-                          xmlns="http://www.w3.org/2000/svg"
-                        >
-                          <g clipPath="url(#clip0_63_2714)">
-                            <path
-                              d="M46.5905 7.44979L40.5438 1.35719C40.1132 0.924994 39.6011 0.582506 39.0373 0.349543C38.4734 0.11658 37.8689 -0.00221968 37.2589 2.47574e-06C36.6489 -0.0023045 36.0446 0.116393 35.4809 0.349223C34.9172 0.582053 34.4052 0.924387 33.9747 1.35641L4.29448 31.0296C4.14808 31.1767 4.04322 31.3599 3.99055 31.5606L0.0923061 46.5402C0.0474052 46.7126 0.0426373 46.8931 0.078334 47.0676C0.114031 47.2422 0.18925 47.4062 0.298235 47.5472C0.40722 47.6882 0.547051 47.8023 0.707009 47.8808C0.866967 47.9593 1.04279 48.0001 1.22096 48C1.32281 48.0003 1.42424 47.9869 1.52256 47.9603L16.4113 43.9712C16.6093 43.9184 16.7899 43.8141 16.9344 43.6688L46.5874 14.0166C47.4558 13.1447 47.9437 11.9645 47.9445 10.734C47.9452 9.50343 47.4587 8.32266 46.5913 7.44979H46.5905ZM30.0594 8.56369L33.89 12.3943L10.597 35.6873L6.76401 31.8544L30.0594 8.56369ZM5.60114 44.4523L3.57001 42.4212L5.73095 34.1187L13.8539 42.2409L5.60114 44.4523ZM16.1058 41.1962L12.2456 37.336L35.5387 14.043L39.3988 17.9031L16.1058 41.1962ZM44.9348 12.3671L41.0483 16.2537L31.7096 6.91421L35.6203 3.00432C35.8345 2.78991 36.089 2.62004 36.3691 2.5045C36.6493 2.38896 36.9496 2.33006 37.2526 2.33117C37.5555 2.32967 37.8558 2.38818 38.1359 2.50331C38.4161 2.61845 38.6707 2.78794 38.885 3.00199L44.9325 9.09459C45.364 9.52973 45.606 10.1177 45.606 10.7304C45.606 11.3432 45.364 11.9312 44.9325 12.3663L44.9348 12.3671Z"
-                              fill="#0C2C67"
-                            />
-                          </g>
-                          <defs>
-                            <clipPath id="clip0_63_2714">
-                              <rect width="48" height="48" fill="white" />
-                            </clipPath>
-                          </defs>
-                        </svg>
-                      </button>
-                    )}
-                  </div>
-                  {isEditing.alternanceSearch && (
-                    <div className="space-y-4">
-                      <input
-                        type="text"
-                        name="alternanceSearch[sector]"
-                        value={formData.alternanceSearch?.sector || ""}
-                        onChange={handleChange}
-                        className="w-full border-gray-100 p-2 border rounded"
-                        placeholder="Secteur"
-                      />
-                      <input
-                        type="text"
-                        name="alternanceSearch[location]"
-                        value={formData.alternanceSearch?.location || ""}
-                        onChange={handleChange}
-                        className="w-full border-gray-100 p-2 border rounded"
-                        placeholder="Localisation"
-                      />
-                    </div>
-                  )}
-                  {!isEditing.alternanceSearch && (
-                    <div>
-                      <p className="text-gray-700">
-                        {profile.alternanceSearch?.sector}
-                      </p>
-                      <p className="text-gray-700">
-                        {profile.alternanceSearch?.location}
-                      </p>
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              <div className="mt-4 sm:mt-6 border border-[#C4C4C4] p-4 rounded-lg">
-                <h3 className="text-base sm:text-lg font-semibold mb-4">
-                  Mes documents
-                </h3>
-                <div className="space-y-4">
-                  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 rounded-lg">
-                    <span>CV</span>
-                    <div className="flex space-x-2 mt-2 sm:mt-0">
-                      <input
-                        type="file"
-                        accept="application/pdf"
-                        onChange={(e) => handleFileChange(e, "cv")}
-                        className="hidden"
-                        id="cvUpload"
-                        disabled={isLoading.cv}
-                      />
-                      <label
-                        htmlFor="cvUpload"
-                        className="bg-[#7A20DA] cursor-pointer border border-[#7A20DA] text-white px-4 sm:px-6 py-2 rounded-[5px]"
-                      >
-                        Télécharger
-                      </label>
-                      {isEditing.cv ? (
-                        <>
-                          <button
-                            className="border-[#7A20DA] border bg-white text-[#7A20DA] px-6 sm:px-8 py-2 rounded-[5px]"
-                            onClick={() => handleSubmit("cv")}
-                            disabled={isLoading.cv}
-                          >
-                            {isLoading.cv ? "Chargement..." : "Sauvegarder"}
-                          </button>
-                          <button
-                            className="border-[#7A20DA] border bg-white text-[#7A20DA] px-6 sm:px-8 py-2 rounded-[5px]"
-                            onClick={() => handleCancel("cv")}
-                            disabled={isLoading.cv}
-                          >
-                            Annuler
-                          </button>
-                        </>
-                      ) : (
-                        <button
-                          className="border-[#7A20DA] cursor-pointer border bg-white text-[#7A20DA] px-6 sm:px-8 py-2 rounded-[5px]"
-                          onClick={() => handleEdit("cv")}
-                        >
-                          Modifier
-                        </button>
-                      )}
-                    </div>
-                  </div>
-
-                  <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 rounded-lg">
-                    <span>Video</span>
-                    <div className="flex space-x-2 mt-2 sm:mt-0">
-                      <input
-                        type="file"
-                        accept="video/*"
-                        onChange={(e) => handleFileChange(e, "video")}
-                        className="hidden"
-                        id="videoUpload"
-                        disabled={isLoading.video}
-                      />
-                      <label
-                        htmlFor="videoUpload"
-                        className="bg-[#7A20DA] cursor-pointer border border-[#7A20DA] text-white px-4 sm:px-6 py-2 rounded-[5px]"
-                      >
-                        Télécharger
-                      </label>
-                      {isEditing.video ? (
-                        <>
-                          <button
-                            className="border-[#7A20DA] border bg-white text-[#7A20DA] px-6 sm:px-8 py-2 rounded-[5px]"
-                            onClick={() => handleSubmit("video")}
-                            disabled={isLoading.video}
-                          >
-                            {isLoading.video ? "Chargement..." : "Sauvegarder"}
-                          </button>
-                          <button
-                            className="border-[#7A20DA] border bg-white text-[#7A20DA] px-6 sm:px-8 py-2 rounded-[5px]"
-                            onClick={() => handleCancel("video")}
-                            disabled={isLoading.video}
-                          >
-                            Annuler
-                          </button>
-                        </>
-                      ) : (
-                        <button
-                          className="border-[#7A20DA] cursor-pointer border bg-white text-[#7A20DA] px-6 sm:px-8 py-2 rounded-[5px]"
-                          onClick={() => handleEdit("video")}
-                        >
-                          Modifier
-                        </button>
-                      )}
-                    </div>
-                  </div>
-                </div>
-                {successMessage && (
-                  <p className="text-green-600 mt-4">{successMessage}</p>
-                )}
-              </div>
-            </div>
-          )}
-                    </div>
-
         </div>
       </div>
       <Footer />

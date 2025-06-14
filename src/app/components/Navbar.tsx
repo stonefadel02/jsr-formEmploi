@@ -67,7 +67,7 @@ export default function Navbar() {
                  <Link href="/pages/paiement" className="text-[#501891] hover:text-gray-600 font-medium text-[14px] sm:text-[15px] ">
                   Paiement
                 </Link>
-                <Link href="/pages/contact" className="text-[#501891] hover:text-gray-600 font-medium text-[14px] sm:text-[15px] ">
+                <Link target="_blank"  rel="noopener noreferrer" href="https://www.jsr-formemploi.com/%C3%A0-propos" className="text-[#501891] hover:text-gray-600 font-medium text-[14px] sm:text-[15px] ">
                   Nous contacter
                 </Link>
               </div>
@@ -83,7 +83,7 @@ export default function Navbar() {
           {!isLoggedIn ? (
             <div className="hidden md:flex items-center space-x-2 sm:space-x-3 lg:space-x-4">
               <Link
-                href="/components/register"
+                href="/pages/inscription"
                 className="bg-[#501891] text-white px-2 sm:px-4 py-1 sm:py-2 rounded-[5px] hover:bg-white hover:text-[#501891] hover:border border-[#501891] transition duration-200 font-medium text-[12px] sm:text-[12px]"
               >
                 Inscription
@@ -148,7 +148,7 @@ export default function Navbar() {
                 <Link href="/pages/tarifs" className="text-[#501891] hover:text-gray-600 font-medium text-[14px] sm:text-[15px] ">
                   Nos Tarifs
                 </Link>
-                <Link href="/pages/contact" className="text-[#501891] hover:text-gray-600 font-medium text-[14px] sm:text-[15px] ">
+                 <Link target="_blank"  rel="noopener noreferrer" href="https://www.jsr-formemploi.com/%C3%A0-propos" className="text-[#501891] hover:text-gray-600 font-medium text-[14px] sm:text-[15px] ">
                   Nous contacter
                 </Link>
               </div>
@@ -158,7 +158,7 @@ export default function Navbar() {
             {!isLoggedIn ? (
               <div className="mt-2 space-y-2 bg-white p-2 rounded-md shadow-lg">
                 <Link
-                  href="/components/register"
+                  href="/pages/inscription"
                   className="block bg-[#501891] text-white px-2 py-1 rounded-[5px] hover:bg-white hover:text-[#501891] hover:border border-[#501891] transition duration-200 font-medium text-sm text-center"
                 >
                   Inscription

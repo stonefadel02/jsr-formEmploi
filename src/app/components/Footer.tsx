@@ -41,28 +41,13 @@ export default function Footer() {
               </li>
               <li>
                 <Link
-                  href="/profils-entreprises"
-                  className="hover:text-[#501891] transition duration-200"
-                >
-                  Profils d’entreprises
-                </Link>
-              </li>
-              <li>
-                <Link
                   href="/redaction-cv"
                   className="hover:text-[#501891] transition duration-200"
                 >
                   Rédaction de CV
                 </Link>
               </li>
-              <li>
-                <Link
-                  href="/aide"
-                  className="hover:text-[#501891] transition duration-200"
-                >
-                  Aide
-                </Link>
-              </li>
+            
             </ul>
           </div>
 
@@ -86,12 +71,12 @@ export default function Footer() {
                   Je suis recruteur
                 </Link>
               </li>
-              <li>
+               <li>
                 <Link
-                  href="/partager-offres"
+                  href="/pages/acceuil_recruteur"
                   className="hover:text-[#501891] transition duration-200"
                 >
-                  Partager les offres d’emploi
+                  Conseil recrutement
                 </Link>
               </li>
             </ul>
@@ -111,7 +96,8 @@ export default function Footer() {
               </li>
               <li>
                 <Link
-                  href="/pages/contact"
+                  target="_blank"  rel="noopener noreferrer"
+                  href="https://www.jsr-formemploi.com/ecrivez-nous"
                   className="hover:text-[#501891] transition duration-200"
                 >
                   Contacts
@@ -123,6 +109,14 @@ export default function Footer() {
                   className="hover:text-[#501891] transition duration-200"
                 >
                   Paiement
+                </Link>
+              </li>
+                <li>
+                <Link
+                  href="/aide"
+                  className="hover:text-[#501891] transition duration-200"
+                >
+                  FAQ
                 </Link>
               </li>
             </ul>
@@ -225,7 +219,7 @@ export default function Footer() {
         </div>
 
         {/* Copyright (en dessous du trait, aligné avec la colonne Candidat) */}
-        <a href="https://honadi.com/" className="text-[#8F8F8F] text-[14px]  pt-4 ml-0 md:ml-[25%] text-left">
+        <a href="https://honadi.com/" target="_blank"  rel="noopener noreferrer" className="text-[#8F8F8F] text-[14px]  pt-4 ml-0 md:ml-[25%] text-left">
           ©2025 JSR | Powered by HONADI
         </a>
       </div>
