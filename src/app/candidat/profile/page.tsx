@@ -123,11 +123,11 @@ export default function Profile() {
     const formDataToSend = new FormData();
     if (section === "personalInfo" || section === "alternanceSearch") {
       allowedFields.forEach((field) => {
-        if (formData[field]) {
-          if (field === "alternanceSearch" && typeof formData[field] === "object") {
-            formDataToSend.append(field, JSON.stringify(formData[field]));
+        if (formData[field as keyof ICandidat]) {
+          if (field === "alternanceSearch" && typeof formData[field as keyof ICandidat] === "object") {
+            formDataToSend.append(field, JSON.stringify(formData[field as keyof ICandidat]));
           } else {
-            formDataToSend.append(field, formData[field] as string);
+            formDataToSend.append(field, formData[field as keyof ICandidat] as string);
           }
         }
       });
@@ -182,12 +182,12 @@ export default function Profile() {
     setSuccessMessage(null);
   };
 
-  const allowedFields = [
+  const allowedFields: (keyof ICandidat)[] = [
     "firstName",
     "lastName",
     "email",
     "phone",
-    "localisation",
+    "location",
     "alternanceSearch",
   ];
 
