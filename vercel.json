@@ -2,7 +2,7 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "functions": {
     "api/admin/subscriptions/subscription-check/route.ts": {
-      "runtime": "edge"
+      "runtime": "edge@1.0.0" 
     }
   },
   "crons": [
