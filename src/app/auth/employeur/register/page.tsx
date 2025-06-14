@@ -53,7 +53,7 @@ export default function Login() {
         sameSite: "Lax",
       });
       // Rediriger vers une page après connexion (exemple)
-      window.location.href = "/auth/login";
+      window.location.href = "/employeur/candidats";
     } catch (err: unknown) {
       if (err instanceof Error) {
         setError("Cet email est déjà utilisé.");

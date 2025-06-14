@@ -1,8 +1,19 @@
 "use client";
 
 import Image from "next/image";
+import Cookies from "js-cookie";
+import { JwtPayload } from "jsonwebtoken";
+import jwt from "jsonwebtoken";
 
 export default function Entete() {
+
+  const token = Cookies.get("token");
+  let decoded: JwtPayload | null = null;
+  if (token) {
+    decoded = jwt.decode(token) as JwtPayload | null;
+  }
+  console.log("Decoded token:", decoded);
+
   return (
     <>
     
@@ -33,7 +44,7 @@ export default function Entete() {
               </div>
               <div className="flex gap-2 items-center space-x-4">
                 <span className="text-sm font-bold text-[#8929E0]">
-                  Administrateur@gmail.com
+                  {decoded?.email}
                 </span>
                 <Image
                   src="/admin-icon.png" // Remplace par ton icône d'admin si disponible
