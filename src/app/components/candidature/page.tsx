@@ -41,6 +41,8 @@ export default function Candidature() {
     router.push(`/employeur/candidats/${candidatId}`);
   };
   const deleteCandidat = async (id: string) => {
+    const confirmRenouvellement = window.confirm("Êtes-vous sûr de vouloir faire cette action ?");
+    if (!confirmRenouvellement) return;
     try {
       const token = Cookies.get('token');
       const response = await fetch(`/api/admin/candidats/${id}`,
@@ -173,7 +175,7 @@ export default function Candidature() {
                 <tbody>
                   {candidatures.map((candidature: ICandidat) => (
                     <tr key={candidature._id.toString()} className="border-b text-[#4C4C4C] border-gray-200 odd:bg-white even:bg-[#F6F6F6]">
-                      <td className="py-6 px-6">A. {candidature.firstName}</td>
+                      <td className="py-6 px-6">{candidature.lastName?.charAt(0)}. {candidature.firstName}</td>
                       <td className="py-6 px-6">{candidature.alternanceSearch?.sector}</td>
                       <td className="py-6 px-6">{candidature.createdAt ? new Date(candidature.createdAt).toLocaleDateString() : "Date non disponible"}</td>
                       <td className="py-6 px-6">En cours</td>
