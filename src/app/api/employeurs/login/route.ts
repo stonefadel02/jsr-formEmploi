@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import EmployerModelPromise from '@/models/Employer';
+import SubscriptionModelPromise from '@/models/Subscription';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { IEmployer } from '@/lib/types';
@@ -14,6 +15,7 @@ export async function POST(req: NextRequest) {
     }
 
     const EmployerModel = await EmployerModelPromise;
+    const SubscriptionModel = await SubscriptionModelPromise;
 
     const employer = await EmployerModel.findOne({ email }) as IEmployer;
     if (!employer) {
@@ -27,8 +29,18 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ message: 'Mot de passe invalide.' }, { status: 401 });
     }
 
+    // 🔍 Récupération de l'abonnement
+    const subscription = await SubscriptionModel.findOne({ employerId: employer._id });
+
+    // 🔐 Création du token avec isActive & isTrial
     const token = jwt.sign(
-      { id: employer._id, email: employer.email, role: employer.role },
+      {
+        id: employer._id,
+        email: employer.email,
+        role: employer.role,
+        isActive: subscription?.isActive,
+        isTrial: subscription?.isTrial,
+      },
       process.env.JWT_SECRET!,
       { expiresIn: '7d' }
     );
@@ -40,6 +52,8 @@ export async function POST(req: NextRequest) {
         id: employer._id,
         companyName: employer.companyName,
         email: employer.email,
+        isActive: subscription?.isActive,
+        isTrial: subscription?.isTrial,
       },
     }, { status: 200 });
   } catch (error) {

@@ -17,6 +17,7 @@ export default function Profile() {
     alternanceSearch: false,
     cv: false,
     video: false,
+    photo: false,
   });
   const [formData, setFormData] = useState<Partial<ICandidat>>({});
   const [error, setError] = useState<string | null>(null);
@@ -29,6 +30,7 @@ export default function Profile() {
     downloadVideo: false,
     uploadCv: false, // Nouvel état pour le loader du téléversement CV
     uploadVideo: false, // Nouvel état pour le loader du téléversement vidéo
+    photo: false,
   });
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
@@ -108,7 +110,7 @@ export default function Profile() {
     }
   };
 
-  const handleSubmit = async (section: string) => {
+  const handleSubmit = async (section: string, file?: File) => {
     setIsLoading((prev) => ({ ...prev, [section]: true }));
     setSuccessMessage(null);
     const token = Cookies.get("token");
@@ -136,6 +138,10 @@ export default function Profile() {
     if (section === "video" && formData.video) {
       formDataToSend.append("video", formData.video);
     }
+    if (section === "photo" && file) {
+      formDataToSend.append("photo", file);
+      alert("Photo mise à jour, veuillez recharger la page pour voir les changements.");
+    }
 
     try {
       const res = await fetch("/api/candidats/candidature", {
@@ -153,8 +159,10 @@ export default function Profile() {
           section === "cv"
             ? "Téléchargement du CV réussi !"
             : section === "video"
-            ? "Téléchargement de la vidéo réussi !"
-            : "Modification réussie !"
+              ? "Téléchargement de la vidéo réussi !"
+              : section === "photo"
+                ? "Téléchargement de la photo réussi !"
+                : "Modification réussie !"
         );
         setError(null);
       } else {
@@ -267,6 +275,8 @@ export default function Profile() {
     );
   }
 
+  console.log("profile", profile, "token", Cookies.get("token"));
+  
   return (
     <>
       <Navbar />
@@ -275,11 +285,10 @@ export default function Profile() {
           <div className="bg-white/15">
             <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-4">
               <button
-                className={`px-4 sm:px-10 py-2 sm:py-4 text-base sm:text-[20px] font-extrabold ${
-                  activeTab === "profile"
-                    ? "bg-white/15 text-white font-extrabold"
-                    : "text-white"
-                }`}
+                className={`px-4 sm:px-10 py-2 sm:py-4 text-base sm:text-[20px] font-extrabold ${activeTab === "profile"
+                  ? "bg-white/15 text-white font-extrabold"
+                  : "text-white"
+                  }`}
                 onClick={() => setActiveTab("profile")}
               >
                 Mon profil
@@ -300,8 +309,48 @@ export default function Profile() {
               {activeTab === "profile" ? (
                 <div className="flex flex-col sm:flex-row items-center justify-between">
                   <div className="flex items-center">
-                    <div className="w-12 sm:w-16 h-12 sm:h-16 bg-[#7A20DA] text-white flex items-center justify-center rounded-full mr-4">
-                      mD
+                    <div className="relative w-12 sm:w-16 h-12 sm:h-16 bg-[#7A20DA] text-white flex items-center justify-center rounded-full mr-4 cursor-pointer group">
+                      {/* Image de profil ou placeholder */}
+                      <img
+                        src={profile.photoUrl || "/avatar.png"}
+                        className="absolute inset-0 w-full h-full object-cover rounded-full"
+                      />
+
+                      
+
+                      {/* Input file masqué avec une icône cliquable */}
+                      <label
+                        htmlFor="photoUpload"
+                        className="absolute bottom-0 right-0 bg-white text-[#7A20DA] rounded-full p-1 cursor-pointer"
+                      >
+                        <svg
+                          className="w-3.5 h-3.5"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                          xmlns="http://www.w3.org/2000/svg"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth="3"
+                            d="M12 4v16m8-8H4"
+                          />
+                        </svg>
+                      </label>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) {
+                            handleSubmit("photo", file);
+                          }
+                        }}
+                        className="hidden"
+                        id="photoUpload"
+                        disabled={isLoading?.photo}
+                      />
                     </div>
                     <div>
                       <h2 className="text-2xl sm:text-[30px] font-bold">

@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
 import Navbar from "@/app/components/Navbar";
-import Footer from "@/app/components/footer/page";
+import Footer from "@/app/components/Footer";
 import Image from "next/image";
 import axios from "axios";
 import Cookies from "js-cookie";
@@ -21,6 +21,7 @@ type Candidate = {
   email?: string;
   videoUrl?: string;
   cvUrl?: string;
+  photoUrl?: string;
   skills?: string[];
   alternanceSearch?: AlternanceSearch;
 };
@@ -133,8 +134,8 @@ export default function CandidateProfile() {
             <div className="max-w-[400px] flex flex-col items-center bg-white rounded-[20px] p-4 sm:p-6 md:p-10 space-y-4">
               {/* Photo de profil */}
               <div className="w-20 h-20 sm:w-28 sm:h-28 overflow-hidden rounded-full bg-gray-200">
-                <Image
-                  src="/user.png"
+                <img
+                  src={candidat.photoUrl || "/user.png"}
                   alt="profil"
                   width={150}
                   height={150}
