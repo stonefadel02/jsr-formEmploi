@@ -1,14 +1,14 @@
 {
+  "$schema": "https://openapi.vercel.sh/vercel.json",
   "functions": {
     "api/admin/subscriptions/subscription-check/route.ts": {
       "runtime": "edge"
     }
   },
-  "schedules": [
+  "crons": [
     {
-      "path": "api/admin/subscriptions/subscription-check",
-      "schedule": "0 3 * * *",
-      "cron": true
+      "path": "/api/admin/subscriptions/subscription-check",
+      "schedule": "0 3 * * *"
     }
   ]
 }
