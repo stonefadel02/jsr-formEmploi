@@ -48,6 +48,8 @@ export function middleware(req: NextRequest) {
     console.log("Erreur décodage token :", error);
     return NextResponse.redirect(new URL("/auth/login", req.url));
   }
+  const isActive = decoded?.isActive;
+  const isTrial = decoded?.isTrial;
 
 
   // ✅ Interdire l’accès aux pages d’auth si déjà connecté → rediriger vers le bon dashboard
@@ -76,6 +78,10 @@ export function middleware(req: NextRequest) {
 
   if (url.startsWith("/candidat") && role !== "candidat" && role !== "employeur") {
     return NextResponse.redirect(new URL("/unauthorized", req.url));
+  }
+
+  if (url === "/employeur/candidats" && !isActive && !isTrial) {
+    return NextResponse.redirect(new URL("/pages/tarifs", req.url));
   }
 
   return NextResponse.next();

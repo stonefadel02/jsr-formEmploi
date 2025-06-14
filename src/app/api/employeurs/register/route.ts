@@ -38,7 +38,7 @@ export async function POST(req: NextRequest) {
       plan: 'Gratuit',
       startDate: new Date(),
       endDate: new Date(new Date().setMonth(new Date().getMonth() + 2)),
-      isTrial: true,
+      isTrial: false,
       isActive: false, 
       price: 0
     });

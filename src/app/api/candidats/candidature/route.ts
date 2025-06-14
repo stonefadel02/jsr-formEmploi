@@ -1,4 +1,4 @@
-import { getServerSession } from "next-auth";
+// import { getServerSession } from "next-auth";
 ;
 import jwt from "jsonwebtoken";
 import { NextRequest, NextResponse } from "next/server";
@@ -16,12 +16,12 @@ const allowedFields = [
 export async function PUT(req: NextRequest) {
   try {
     // Authentification
-    const session = await getServerSession(authOptions);
+    // const session = await getServerSession(authOptions);
     let email = "";
 
-    if (session?.user?.email) {
-      email = session.user.email;
-    } else {
+    // if (session?.user?.email) {
+    //   email = session.user.email;
+    // } else {
       const token = req.cookies.get('token')?.value;
       if (!token) {
         return NextResponse.json({ error: "Token manquant" }, { status: 401 });
@@ -33,7 +33,7 @@ export async function PUT(req: NextRequest) {
       } catch {
         return NextResponse.json({ error: "Token invalide" }, { status: 403 });
       }
-    }
+    // }
 
     // Extraction des données multipart/form-data
     const formData = await req.formData();
@@ -61,6 +61,14 @@ export async function PUT(req: NextRequest) {
       videoUrl = await uploadToCloudinary(videoBuffer, 'candidats/videos');
     }
 
+    // Upload de la photo
+    let photoUrl = candidat.photoUrl;
+    const photoFile = formData.get('photo') as File | null;
+    if (photoFile) {
+      const photoBuffer = Buffer.from(await photoFile.arrayBuffer());
+      photoUrl = await uploadToCloudinary(photoBuffer, 'candidats/photos');
+    }
+
     // Mise à jour des champs autorisés
     allowedFields.forEach((field) => {
       const value = formData.get(field);
@@ -86,6 +94,7 @@ export async function PUT(req: NextRequest) {
     // Mise à jour des URLs si modifiées
     candidat.cvUrl = cvUrl;
     candidat.videoUrl = videoUrl;
+    candidat.photoUrl = photoUrl;
 
     await candidat.save();
 

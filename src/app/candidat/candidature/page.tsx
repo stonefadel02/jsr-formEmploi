@@ -74,6 +74,23 @@ export default function Candidature() {
       sector: formData.sector,
       level: formData.level,
     };
+
+    if (
+      !alternanceSearch.location ||
+      !alternanceSearch.contracttype ||
+      !alternanceSearch.sector ||
+      !alternanceSearch.level || alternanceSearch.location === "" ||
+      alternanceSearch.contracttype === "" ||
+      alternanceSearch.sector === "" ||
+      alternanceSearch.level === "" ||
+      alternanceSearch.contracttype === "Sélectionnez un type" ||
+      alternanceSearch.sector === "Sélectionnez un secteur" ||
+      alternanceSearch.level === "Sélectionnez un niveau"
+    ) {
+      alert("Veuillez remplir tous les champs liés à votre recherche d'alternance.");
+      return; // Stoppe l'exécution ici
+    }
+
     data.append("alternanceSearch", JSON.stringify(alternanceSearch));
 
     if (formData.cvFile) data.append("cv", formData.cvFile);
@@ -90,6 +107,8 @@ export default function Candidature() {
       });
 
       const result = await res.json();
+      console.log(data, result);
+
 
       if (res.ok) {
         alert("Candidature soumise avec succès !");
@@ -195,31 +214,39 @@ export default function Candidature() {
                     <label className="text-[#4C4C4C] text-sm sm:text-base md:text-[16px]" htmlFor="sector">
                       Secteur <span className="text-[#FF0000]"> *</span>
                     </label>
-                    <input
-                      type="text"
+                    <select
                       name="sector"
                       id="sector"
                       value={formData.sector}
                       onChange={handleChange}
-                      placeholder="Ex: Informatique"
-                      className="mt-1 sm:mt-2 block mb-2 w-full px-3 sm:px-4 py-2 sm:py-2 border text-gray-700 border-[#C4C4C4] rounded-[15px] placeholder-[#D9D9D9] focus:ring-purple-900 focus:border-purple-900"
                       required
-                    />
+                      className="mt-1 sm:mt-2 block mb-2 w-full px-3 sm:px-4 py-2 sm:py-2 border text-gray-700 border-[#C4C4C4] rounded-[15px] placeholder-[#D9D9D9] focus:ring-purple-900 focus:border-purple-900"
+                    >
+                      <option value="">Sélectionnez un secteur</option>
+                      <option value="Informatique">Informatique</option>
+                      <option value="Marketing">Marketing</option>
+                      <option value="Développement">Développement</option>
+                    </select>
                   </div>
                   <div>
                     <label className="text-[#4C4C4C] text-sm sm:text-base md:text-[16px]" htmlFor="contracttype">
                       Type de contrat <span className="text-[#FF0000]"> *</span>
                     </label>
-                    <input
-                      type="text"
+                    <select
                       name="contracttype"
                       id="contracttype"
                       value={formData.contracttype}
                       onChange={handleChange}
-                      placeholder="Ex: Alternance"
-                      className="mt-1 sm:mt-2 block mb-2 w-full px-3 sm:px-4 py-2 sm:py-2 border text-gray-700 border-[#C4C4C4] rounded-[15px] placeholder-[#D9D9D9] focus:ring-purple-900 focus:border-purple-900"
                       required
-                    />
+                      className="mt-1 sm:mt-2 block mb-2 w-full px-3 sm:px-4 py-2 sm:py-2 border text-gray-700 border-[#C4C4C4] rounded-[15px] placeholder-[#D9D9D9] focus:ring-purple-900 focus:border-purple-900"
+                    >
+                      <option value="">Sélectionnez un type</option>
+                      <option value="Alternance">Alternance</option>
+                      <option value="CDI">CDI</option>
+                      <option value="CDD">CDD</option>
+                      <option value="Stage académique">Stage académique</option>
+                      <option value="Stage professionnel">Stage professionnel</option>
+                    </select>
                   </div>
                   <div>
                     <label className="text-[#4C4C4C] text-sm sm:text-base md:text-[16px]" htmlFor="location">
@@ -240,16 +267,22 @@ export default function Candidature() {
                     <label className="text-[#4C4C4C] text-sm sm:text-base md:text-[16px]" htmlFor="level">
                       Niveau d’étude <span className="text-[#FF0000]"> *</span>
                     </label>
-                    <input
-                      type="text"
+                    <select
                       name="level"
                       id="level"
                       value={formData.level}
                       onChange={handleChange}
-                      placeholder="Ex: Bac+3"
-                      className="mt-1 sm:mt-2 block mb-2 w-full px-3 sm:px-4 py-2 sm:py-2 border text-gray-700 border-[#C4C4C4] rounded-[15px] placeholder-[#D9D9D9] focus:ring-purple-900 focus:border-purple-900"
                       required
-                    />
+                      className="mt-1 sm:mt-2 block mb-2 w-full px-3 sm:px-4 py-2 sm:py-2 border text-gray-700 border-[#C4C4C4] rounded-[15px] placeholder-[#D9D9D9] focus:ring-purple-900 focus:border-purple-900"
+                    >
+                      <option value="">Sélectionnez un niveau</option>
+                      <option value="Bac+1">Bac+1</option>
+                      <option value="Bac+2">Bac+2</option>
+                      <option value="Bac+3">Bac+3</option>
+                      <option value="Bac+4">Bac+4</option>
+                      <option value="Bac+5">Bac+5</option>
+                      <option value="Master">Master</option>
+                    </select>
                   </div>
                 </>
               )}

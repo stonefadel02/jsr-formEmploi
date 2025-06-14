@@ -1,0 +1,9 @@
+{
+    "functions": {
+      "api/admin/subscriptions/subscription-check/route.ts": {
+        "runtime": "edge",
+        "schedule": "0 3 * * *"
+      }
+    }
+  }
+  

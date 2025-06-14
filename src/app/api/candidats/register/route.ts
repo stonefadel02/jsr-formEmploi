@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import CandidatModelPromise from '@/models/Candidats';
+import { sendRegistrationEmail } from "@/lib/mailer";
 
 
 export async function POST(req: NextRequest) {
@@ -30,12 +31,15 @@ export async function POST(req: NextRequest) {
       password: passwordHash, // nom de champ cohérent
       status: 'Validé'
     });
+    await sendRegistrationEmail(candidat.email, candidat.firstName || "Mr/Mme");
 
     const token = jwt.sign(
       { id: candidat._id, email: candidat.email, role: candidat.role },
       process.env.JWT_SECRET!,
       { expiresIn: '7d' }
     );
+    console.log(candidat);
+    
 
     console.log('Candidat inscrit avec succès');
 
