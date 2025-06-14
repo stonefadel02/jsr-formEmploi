@@ -1,9 +1,14 @@
 {
-    "functions": {
-      "api/admin/subscriptions/subscription-check/route.ts": {
-        "runtime": "edge",
-        "schedule": "0 3 * * *"
-      }
+  "functions": {
+    "api/admin/subscriptions/subscription-check/route.ts": {
+      "runtime": "edge"
     }
-  }
-  
+  },
+  "schedules": [
+    {
+      "path": "api/admin/subscriptions/subscription-check",
+      "schedule": "0 3 * * *",
+      "cron": true
+    }
+  ]
+}
