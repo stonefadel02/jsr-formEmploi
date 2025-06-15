@@ -3,6 +3,7 @@ import jwt from "jsonwebtoken";
 
 const publicRoutes = [
   "/",
+  "/pages/paiement",
   "/pages/inscription",
   "/pages/contact",
   "/pages/acceuil",

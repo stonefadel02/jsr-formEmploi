@@ -19,7 +19,9 @@ export default function Candidature() {
     cvFile: null as File | null,
     videoFile: null as File | null,
   });
-  const [loading, setLoading] = useState(false); // Nouvel état pour le loader
+  const [loading, setLoading] = useState(false); // Loader pour la soumission
+  const [fileMessage, setFileMessage] = useState<string | null>(null); // Message de confirmation
+  const [videoUploading, setVideoUploading] = useState(false); // Loader spécifique pour la vidéo
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -48,10 +50,26 @@ export default function Candidature() {
       return;
     }
 
-    setFormData((prev) => ({
-      ...prev,
-      [type === "cv" ? "cvFile" : "videoFile"]: file,
-    }));
+    if (type === "video") {
+      setVideoUploading(true); // Active le loader pour la vidéo
+      // Simule un délai de traitement (remplace par une logique réelle si nécessaire)
+      setTimeout(() => {
+        setFormData((prev) => ({
+          ...prev,
+          [type === "cv" ? "cvFile" : "videoFile"]: file,
+        }));
+        setFileMessage(`${type === "cv" ? "CV" : "Vidéo"} sélectionné avec succès !`);
+        setVideoUploading(false); // Désactive le loader après le délai
+        setTimeout(() => setFileMessage(null), 3000); // Cache le message après 3 secondes
+      }, 1000); // Délai de 1 seconde
+    } else {
+      setFormData((prev) => ({
+        ...prev,
+        [type === "cv" ? "cvFile" : "videoFile"]: file,
+      }));
+      setFileMessage(`${type === "cv" ? "CV" : "Vidéo"} sélectionné avec succès !`);
+      setTimeout(() => setFileMessage(null), 3000); // Cache le message après 3 secondes
+    }
   };
 
   const handleNext = (e: React.FormEvent) => {
@@ -79,7 +97,8 @@ export default function Candidature() {
       !alternanceSearch.location ||
       !alternanceSearch.contracttype ||
       !alternanceSearch.sector ||
-      !alternanceSearch.level || alternanceSearch.location === "" ||
+      !alternanceSearch.level ||
+      alternanceSearch.location === "" ||
       alternanceSearch.contracttype === "" ||
       alternanceSearch.sector === "" ||
       alternanceSearch.level === "" ||
@@ -108,7 +127,6 @@ export default function Candidature() {
 
       const result = await res.json();
       console.log(data, result);
-
 
       if (res.ok) {
         alert("Candidature soumise avec succès !");
@@ -333,6 +351,9 @@ export default function Candidature() {
                       />
                     </label>
                   </div>
+                  {fileMessage && (
+                    <p className="text-green-600 text-center text-xs sm:text-sm mt-2">{fileMessage}</p>
+                  )}
                   <p className="text-[#616161] text-center text-xs sm:text-[14px] mt-1 sm:mt-2">
                     Les types de fichiers pris en charge sont uniquement pdf
                     (Taille max. : 5 MB)
@@ -383,12 +404,21 @@ export default function Candidature() {
                         onChange={(e) => handleFileChange(e, "video")}
                         className="hidden"
                         required
+                        disabled={videoUploading} // Désactive l'input pendant le chargement
                       />
                     </label>
                   </div>
+                  {videoUploading && (
+                    <div className="flex justify-center mt-2">
+                      <div className="w-6 h-6 border-4 border-t-[#7A20DA] border-t-transparent rounded-full animate-spin"></div>
+                    </div>
+                  )}
+                  {fileMessage && (
+                    <p className="text-green-600 text-center text-xs sm:text-sm mt-2">{fileMessage}</p>
+                  )}
                   <p className="text-[#616161] text-center text-xs sm:text-[14px] mt-1 sm:mt-2">
                     Les types de fichiers pris en charge sont uniquement
-                    MP4/WebM (Taille max. : 5 MB) {/* Correction de 1 MB à 5 MB pour cohérence */}
+                    MP4/WebM (Taille max. : 5 MB)
                   </p>
                 </>
               )}
