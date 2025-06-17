@@ -13,11 +13,11 @@ export default function AcceuilRecruteur() {
       <div className="min-h-screen bg-[url('/background.png')] bg-cover bg-center bg-no-repeat relative flex items-center justify-center px-4 sm:px-6 lg:px-8">
         {/* Overlay sombre pour lisibilité */}
         <div className="absolute inset-0 bg-black/10"></div>
-        <div className="max-w-6xl px-4 md:px-16 w-full mt-10 sm:mt-20 md:mt-40 relative z-10 text-left">
+        <div className="max-w-7xl w-full mt-10 sm:mt-20 md:mt-40 relative z-10 text-left">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 md:gap-8 items-start">
             {/* Contenu texte et bouton (gauche) */}
             <div className="text-white">
-              <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-6xl font-bold mb-2 sm:mb-4">
+              <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-7xl font-bold mb-2 sm:mb-4">
                 Trouvez des talents qualifiés en quelques clics.
               </h1>
               <p className="text-sm sm:text-base md:text-md py-2 sm:py-4 md:py-6 mb-2 sm:mb-4">

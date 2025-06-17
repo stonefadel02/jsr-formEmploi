@@ -43,7 +43,7 @@ export default function Login() {
                 <button
                   key={roleText}
                   onClick={() => setSelected(roleText)}
-                  className={`rounded-[15px] font-semibold cursor-pointer px-11 py-3 transition ${
+                  className={`rounded-[15px] font-semibold cursor-pointer px-6 py-2 md:px-11 md:py-3 transition ${
                     selected === roleText
                       ? "bg-[#7A20DA] text-white"
                       : "border border-[#7A20DA] text-[#7A20DA]"
