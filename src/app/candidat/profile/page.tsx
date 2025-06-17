@@ -95,17 +95,25 @@ export default function Profile() {
   ) => {
     const file = e.target.files?.[0];
     if (file) {
-      setIsLoading((prev) => ({ ...prev, [`upload${field.charAt(0).toUpperCase() + field.slice(1)}`]: true }));
+      setIsLoading((prev) => ({
+        ...prev,
+        [`upload${field.charAt(0).toUpperCase() + field.slice(1)}`]: true,
+      }));
       try {
         setFormData((prev) => ({ ...prev, [field]: file }));
         // Simuler un délai de traitement (remplace par une logique réelle si nécessaire)
         await new Promise((resolve) => setTimeout(resolve, 1000)); // 1 seconde de délai
-        setSuccessMessage(`${field === "cv" ? "CV" : "Vidéo"} sélectionné avec succès !`);
+        setSuccessMessage(
+          `${field === "cv" ? "CV" : "Vidéo"} sélectionné avec succès !`
+        );
       } catch (err) {
         console.error(`Erreur lors de la sélection du ${field}:`, err);
         setError(`Erreur lors de la sélection du ${field}.`);
       } finally {
-        setIsLoading((prev) => ({ ...prev, [`upload${field.charAt(0).toUpperCase() + field.slice(1)}`]: false }));
+        setIsLoading((prev) => ({
+          ...prev,
+          [`upload${field.charAt(0).toUpperCase() + field.slice(1)}`]: false,
+        }));
       }
     }
   };
@@ -124,10 +132,19 @@ export default function Profile() {
     if (section === "personalInfo" || section === "alternanceSearch") {
       allowedFields.forEach((field) => {
         if (formData[field as keyof ICandidat]) {
-          if (field === "alternanceSearch" && typeof formData[field as keyof ICandidat] === "object") {
-            formDataToSend.append(field, JSON.stringify(formData[field as keyof ICandidat]));
+          if (
+            field === "alternanceSearch" &&
+            typeof formData[field as keyof ICandidat] === "object"
+          ) {
+            formDataToSend.append(
+              field,
+              JSON.stringify(formData[field as keyof ICandidat])
+            );
           } else {
-            formDataToSend.append(field, formData[field as keyof ICandidat] as string);
+            formDataToSend.append(
+              field,
+              formData[field as keyof ICandidat] as string
+            );
           }
         }
       });
@@ -140,7 +157,9 @@ export default function Profile() {
     }
     if (section === "photo" && file) {
       formDataToSend.append("photo", file);
-      alert("Photo mise à jour, veuillez recharger la page pour voir les changements.");
+      alert(
+        "Photo mise à jour, veuillez recharger la page pour voir les changements."
+      );
     }
 
     try {
@@ -159,10 +178,10 @@ export default function Profile() {
           section === "cv"
             ? "Téléchargement du CV réussi !"
             : section === "video"
-              ? "Téléchargement de la vidéo réussi !"
-              : section === "photo"
-                ? "Téléchargement de la photo réussi !"
-                : "Modification réussie !"
+            ? "Téléchargement de la vidéo réussi !"
+            : section === "photo"
+            ? "Téléchargement de la photo réussi !"
+            : "Modification réussie !"
         );
         setError(null);
       } else {
@@ -208,7 +227,10 @@ export default function Profile() {
       const url = window.URL.createObjectURL(new Blob([response.data]));
       const link = document.createElement("a");
       link.href = url;
-      link.setAttribute("download", `CV_${profile.firstName}_${profile.lastName}.pdf`);
+      link.setAttribute(
+        "download",
+        `CV_${profile.firstName}_${profile.lastName}.pdf`
+      );
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
@@ -238,7 +260,10 @@ export default function Profile() {
       const url = window.URL.createObjectURL(new Blob([response.data]));
       const link = document.createElement("a");
       link.href = url;
-      link.setAttribute("download", `Video_${profile.firstName}_${profile.lastName}.mp4`);
+      link.setAttribute(
+        "download",
+        `Video_${profile.firstName}_${profile.lastName}.mp4`
+      );
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
@@ -276,7 +301,7 @@ export default function Profile() {
   }
 
   console.log("profile", profile, "token", Cookies.get("token"));
-  
+
   return (
     <>
       <Navbar />
@@ -285,10 +310,11 @@ export default function Profile() {
           <div className="bg-white/15">
             <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-4">
               <button
-                className={`px-4 sm:px-10 py-2 sm:py-4 text-base sm:text-[20px] font-extrabold ${activeTab === "profile"
-                  ? "bg-white/15 text-white font-extrabold"
-                  : "text-white"
-                  }`}
+                className={`px-4 sm:px-10 py-2 sm:py-4 text-base sm:text-[20px] font-extrabold ${
+                  activeTab === "profile"
+                    ? "bg-white/15 text-white font-extrabold"
+                    : "text-white"
+                }`}
                 onClick={() => setActiveTab("profile")}
               >
                 Mon profil
@@ -315,8 +341,6 @@ export default function Profile() {
                         src={profile.photoUrl || "/avatar.png"}
                         className="absolute inset-0 w-full h-full object-cover rounded-full"
                       />
-
-                      
 
                       {/* Input file masqué avec une icône cliquable */}
                       <label
@@ -382,7 +406,9 @@ export default function Profile() {
                             onClick={() => handleSubmit("personalInfo")}
                             disabled={isLoading.personalInfo}
                           >
-                            {isLoading.personalInfo ? "Chargement..." : "Sauvegarder"}
+                            {isLoading.personalInfo
+                              ? "Chargement..."
+                              : "Sauvegarder"}
                           </button>
                           <button
                             className="text-white bg-red-600 py-2 px-4 cursor-pointer text-sm rounded"
@@ -489,7 +515,9 @@ export default function Profile() {
                             onClick={() => handleSubmit("alternanceSearch")}
                             disabled={isLoading.alternanceSearch}
                           >
-                            {isLoading.alternanceSearch ? "Chargement..." : "Sauvegarder"}
+                            {isLoading.alternanceSearch
+                              ? "Chargement..."
+                              : "Sauvegarder"}
                           </button>
                           <button
                             className="text-white bg-red-600 py-2 px-4 cursor-pointer text-sm rounded"
@@ -571,11 +599,12 @@ export default function Profile() {
                   </div>
 
                   <div className="border border-[#C4C4C4] p-4 rounded-lg h-[400px] sm:h-[600px]">
-                    <div className="w-full h-full rounded-[15px] relative overflow-hidden">
+                    <div className="w-full  rounded-[15px] relative overflow-hidden">
                       {profile.videoUrl ? (
                         <video
                           controls
-                          className="w-full h-full object-cover"
+                          className="w-full h-auto max-h-full object-contain rotate-0" // Ajustement pour paysage
+                          style={{ aspectRatio: "16 / 9" }} // Ratio 16:9 pour paysage
                           src={profile.videoUrl}
                         >
                           Votre navigateur ne prend pas en charge la vidéo.
@@ -614,9 +643,23 @@ export default function Profile() {
                             disabled={isLoading.downloadCv}
                           >
                             {isLoading.downloadCv ? (
-                              <svg className="animate-spin h-5 w-5 mr-2 text-white" viewBox="0 0 24 24">
-                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                              <svg
+                                className="animate-spin h-5 w-5 mr-2 text-white"
+                                viewBox="0 0 24 24"
+                              >
+                                <circle
+                                  className="opacity-25"
+                                  cx="12"
+                                  cy="12"
+                                  r="10"
+                                  stroke="currentColor"
+                                  strokeWidth="4"
+                                ></circle>
+                                <path
+                                  className="opacity-75"
+                                  fill="currentColor"
+                                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                                ></path>
                               </svg>
                             ) : null}
                             Télécharger
@@ -646,9 +689,23 @@ export default function Profile() {
                             >
                               {isLoading.uploadCv ? (
                                 <>
-                                  <svg className="animate-spin h-5 w-5 mr-2 text-white" viewBox="0 0 24 24">
-                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                  <svg
+                                    className="animate-spin h-5 w-5 mr-2 text-white"
+                                    viewBox="0 0 24 24"
+                                  >
+                                    <circle
+                                      className="opacity-25"
+                                      cx="12"
+                                      cy="12"
+                                      r="10"
+                                      stroke="currentColor"
+                                      strokeWidth="4"
+                                    ></circle>
+                                    <path
+                                      className="opacity-75"
+                                      fill="currentColor"
+                                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                                    ></path>
                                   </svg>
                                   Chargement...
                                 </>
@@ -685,9 +742,23 @@ export default function Profile() {
                             disabled={isLoading.downloadVideo}
                           >
                             {isLoading.downloadVideo ? (
-                              <svg className="animate-spin h-5 w-5 mr-2 text-white" viewBox="0 0 24 24">
-                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                              <svg
+                                className="animate-spin h-5 w-5 mr-2 text-white"
+                                viewBox="0 0 24 24"
+                              >
+                                <circle
+                                  className="opacity-25"
+                                  cx="12"
+                                  cy="12"
+                                  r="10"
+                                  stroke="currentColor"
+                                  strokeWidth="4"
+                                ></circle>
+                                <path
+                                  className="opacity-75"
+                                  fill="currentColor"
+                                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                                ></path>
                               </svg>
                             ) : null}
                             Télécharger
@@ -709,7 +780,9 @@ export default function Profile() {
                               onChange={(e) => handleFileChange(e, "video")}
                               className="hidden"
                               id="videoUpload"
-                              disabled={isLoading.video || isLoading.uploadVideo}
+                              disabled={
+                                isLoading.video || isLoading.uploadVideo
+                              }
                             />
                             <label
                               htmlFor="videoUpload"
@@ -717,9 +790,23 @@ export default function Profile() {
                             >
                               {isLoading.uploadVideo ? (
                                 <>
-                                  <svg className="animate-spin h-5 w-5 mr-2 text-white" viewBox="0 0 24 24">
-                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                  <svg
+                                    className="animate-spin h-5 w-5 mr-2 text-white"
+                                    viewBox="0 0 24 24"
+                                  >
+                                    <circle
+                                      className="opacity-25"
+                                      cx="12"
+                                      cy="12"
+                                      r="10"
+                                      stroke="currentColor"
+                                      strokeWidth="4"
+                                    ></circle>
+                                    <path
+                                      className="opacity-75"
+                                      fill="currentColor"
+                                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                                    ></path>
                                   </svg>
                                   Chargement...
                                 </>
@@ -732,7 +819,9 @@ export default function Profile() {
                               onClick={() => handleSubmit("video")}
                               disabled={isLoading.video || !formData.video}
                             >
-                              {isLoading.video ? "Chargement..." : "Sauvegarder"}
+                              {isLoading.video
+                                ? "Chargement..."
+                                : "Sauvegarder"}
                             </button>
                             <button
                               className="border-[#7A20DA] border cursor-pointer bg-white text-[#7A20DA] px-6 sm:px-8 py-2 rounded-[5px]"

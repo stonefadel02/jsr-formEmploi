@@ -64,9 +64,7 @@ export default function Navbar() {
                 <Link href="/pages/tarifs" className="text-[#501891] hover:text-gray-600 font-medium text-[14px] sm:text-[15px] ">
                   Nos Tarifs
                 </Link>
-                 <Link href="/pages/paiement" className="text-[#501891] hover:text-gray-600 font-medium text-[14px] sm:text-[15px] ">
-                  Paiement
-                </Link>
+               
                 <Link target="_blank"  rel="noopener noreferrer" href="https://www.jsr-formemploi.com/%C3%A0-propos" className="text-[#501891] hover:text-gray-600 font-medium text-[14px] sm:text-[15px] ">
                   Nous contacter
                 </Link>
@@ -131,24 +129,19 @@ export default function Navbar() {
         {isOpen && (
           <div className="md:hidden mt-2">
             {!isLoggedIn ? (
-              <div className="space-y-2 bg-white p-2 rounded-md shadow-lg">
-                <Link href="/" className="block text-[#501891] hover:text-gray-600 py-1 font-medium text-sm">
-                  Offres d’emploi
-                </Link>
-                <Link href="/formations" className="block text-[#501891] hover:text-gray-600 py-1 font-medium text-sm">
-                  Accès recruteurs
-                </Link>
+              <div className="space-y-2  p-2 ">
+                
 
-                <Link href="/pages/acceuil" className="  text-[#501891] hover:text-gray-600 font-medium text-[14px] sm:text-[15px] ">
+                <Link href="/pages/acceuil" className="  block text-[#501891] hover:text-gray-600 font-medium  sm:text-[15px] ">
                   Je suis candidat
                 </Link>
-                <Link href="/pages/acceuil_recruteur" className="text-[#501891] hover:text-gray-600 font-medium text-[14px] sm:text-[15px] ">
+                <Link href="/pages/acceuil_recruteur" className="block text-[#501891] hover:text-gray-600 font-medium  sm:text-[15px] ">
                   Je suis recruteur
                 </Link>
-                <Link href="/pages/tarifs" className="text-[#501891] hover:text-gray-600 font-medium text-[14px] sm:text-[15px] ">
+                <Link href="/pages/tarifs" className="block text-[#501891] hover:text-gray-600 font-medium  sm:text-[15px] ">
                   Nos Tarifs
                 </Link>
-                 <Link target="_blank"  rel="noopener noreferrer" href="https://www.jsr-formemploi.com/%C3%A0-propos" className="text-[#501891] hover:text-gray-600 font-medium text-[14px] sm:text-[15px] ">
+                 <Link target="_blank"  rel="noopener noreferrer" href="https://www.jsr-formemploi.com/%C3%A0-propos" className="block text-[#501891] hover:text-gray-600 font-medium  sm:text-[15px] ">
                   Nous contacter
                 </Link>
               </div>
@@ -156,10 +149,10 @@ export default function Navbar() {
 
             </div>)}
             {!isLoggedIn ? (
-              <div className="mt-2 space-y-2 bg-white p-2 rounded-md shadow-lg">
+              <div className="mt-2 space-x-4 flex bg-white p-2 rounded-md shadow-lg">
                 <Link
                   href="/pages/inscription"
-                  className="block bg-[#501891] text-white px-2 py-1 rounded-[5px] hover:bg-white hover:text-[#501891] hover:border border-[#501891] transition duration-200 font-medium text-sm text-center"
+                  className="block bg-[#501891] text-white px-2 py-1 border-1 rounded-[5px] hover:bg-white hover:text-[#501891] hover:border border-[#501891] transition duration-200 font-medium text-sm text-center"
                 >
                   Inscription
                 </Link>

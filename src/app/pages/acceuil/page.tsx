@@ -106,24 +106,20 @@ export default function Acceuil() {
           <div className="grid grid-cols-1  md:grid-cols-2 gap-8 items-center">
             {/* Contenu texte et bouton (gauche) */}
             <div className="text-white">
-              <h1 className="text-4xl md:text-7xl font-bold mb-4">
+              <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-7xl font-bold mb-4">
                 Rejoignez les talents de demain avec JSR.
               </h1>
               <p className="text-base md:text-lg py-6 mb-6">
-                Depuis 1994, nous connectons les talents aux meilleures
+                Nous connectons les talents aux meilleures
                 opportunités professionnelles.
               </p>
            <div className="flex space-x-4">
-               <Link href={"/employeur/candidats"}>
+               <Link href={"/candidature/candidature"}>
               <button className="bg-white text-[#501891] px-18 py-3 rounded-[10px] font-medium hover:bg-gray-100 transition duration-200 cursor-pointer">
-                Recruter
+                Candidater
               </button>
               </Link>
-                <Link href={"/candidature/candidature"}>
-              <button className=" text-white border-white border px-18 py-3 rounded-[10px] font-medium transition duration-200 cursor-pointer">
-                Candidater 
-              </button>
-              </Link>
+               
            </div>
             </div>
 

@@ -103,14 +103,7 @@ export default function Footer() {
                   Contacts
                 </Link>
               </li>
-              <li>
-                <Link
-                  href="/pages/paiement"
-                  className="hover:text-[#501891] transition duration-200"
-                >
-                  Paiement
-                </Link>
-              </li>
+            
                 <li>
                 <Link
                   href="/aide"
