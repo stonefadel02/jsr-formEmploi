@@ -319,16 +319,7 @@ export default function Profile() {
               >
                 Mon profil
               </button>
-              {/* <button
-                className={`px-4 sm:px-6 py-2 sm:py-2 font-extrabold text-base sm:text-[20px] ${
-                  activeTab === "tracking"
-                    ? "bg-white/15 text-white font-extrabold"
-                    : "text-white"
-                }`}
-                onClick={() => setActiveTab("tracking")}
-              >
-                Details
-              </button> */}
+            
             </div>
 
             <div className="bg-white rounded-[20px] shadow-lg p-4 sm:p-6 md:p-8 mt-2 sm:mt-0">
@@ -382,6 +373,26 @@ export default function Profile() {
                       </h2>
                       <h2 className="text-lg sm:text-xl font-sans">
                         {profile.lastName}
+                      </h2>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div className="">les details</div>
+              )}
+            </div>
+
+            <div className="bg-white rounded-[20px] shadow-lg p-4 sm:p-6 md:p-8 mt-2 sm:mt-10">
+              {activeTab === "profile" ? (
+                <div className="flex flex-col sm:flex-row items-center justify-between">
+                  <div className="flex items-center">
+                 
+                    <div>
+                      <h2 className="text-2xl sm:text-[30px] font-bold">
+                       🔥 Le Créatif
+                      </h2>
+                      <h2 className="text-lg sm:text-xl font-sans">
+                        Tu as une imagination débordante et tu aimes proposer des idées. Tu t’exprimes avec originalité et énergie.
                       </h2>
                     </div>
                   </div>
@@ -598,8 +609,8 @@ export default function Profile() {
                     )}
                   </div>
 
-                  <div className="border border-[#C4C4C4] p-4 rounded-lg h-[400px] sm:h-[600px]">
-                    <div className="w-full  rounded-[15px] relative overflow-hidden">
+                  <div className="border border-[#C4C4C4] p-4 rounded-lg h-[400px] sm:h-auto">
+                    <div className="w-full   rounded-[15px] relative overflow-hidden">
                       {profile.videoUrl ? (
                         <video
                           controls
