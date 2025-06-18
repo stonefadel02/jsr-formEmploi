@@ -46,6 +46,19 @@ export interface ICandidat extends Document {
   updatedAt?: Date;
 }
 
+export interface IPersonalityTestResult {
+  candidateId: Types.ObjectId;
+  answers: string[];
+  resultType: string;
+  summary: {
+    emoji: string;
+    description: string;
+  };
+  createdAt?: Date;
+  updatedAt?: Date;
+}
+
+
 export interface ISubscription {
   employerId: {
     companyName?: string;
