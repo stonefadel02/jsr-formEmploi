@@ -7,9 +7,9 @@ export const questions = [
         { text: "Celui qui lance les idées...", profile: "Le Créatif" },
         { text: "Celui qui structure...", profile: "Le Leader" },
         { text: "Celui qui observe...", profile: "L’Analytique" },
-        { text: "Celui qui rassure...", profile: "Le Soutien" },
+        { text: "Celui qui rassure...", profile: "Le Bienveillant" },
         { text: "Celui qui s’adapte...", profile: "Le Discret" },
-        { text: "Celui qui met l’ambiance...", profile: "L’Énergique" },
+        { text: "Celui qui met l’ambiance...", profile: "Le Spontané" },
       ],
     },
     {
@@ -18,9 +18,9 @@ export const questions = [
         { text: "Tu fonces avec créativité", profile: "Le Créatif" },
         { text: "Tu établis une méthode claire", profile: "Le Leader" },
         { text: "Tu veux comprendre tous les détails", profile: "L’Analytique" },
-        { text: "Tu cherches à coopérer", profile: "Le Soutien" },
+        { text: "Tu cherches à coopérer", profile: "Le Bienveillant" },
         { text: "Tu t’adaptes sans stress", profile: "Le Discret" },
-        { text: "Tu improvises et trouves sur le moment", profile: "L’Énergique" },
+        { text: "Tu improvises et trouves sur le moment", profile: "Le Spontané" },
       ],
     },
     {
@@ -29,9 +29,9 @@ export const questions = [
         { text: "La liberté de proposer...", profile: "Le Créatif" },
         { text: "Un cadre clair avec des responsabilités", profile: "Le Leader" },
         { text: "La précision, les défis techniques", profile: "L’Analytique" },
-        { text: "L’ambiance bienveillante", profile: "Le Soutien" },
+        { text: "L’ambiance bienveillante", profile: "Le Bienveillant" },
         { text: "Pouvoir apprendre sans pression", profile: "Le Discret" },
-        { text: "La variété, les échanges, le fun", profile: "L’Énergique" },
+        { text: "La variété, les échanges, le fun", profile: "Le Spontané" },
       ],
     },
     {
@@ -40,9 +40,9 @@ export const questions = [
         { text: "Créatif(ve) et plein(e) d’idées", profile: "Le Créatif" },
         { text: "Fiable et structuré(e)", profile: "Le Leader" },
         { text: "Posé(e) et intelligent(e)", profile: "L’Analytique" },
-        { text: "Attentionné(e) et sympa", profile: "Le Soutien" },
+        { text: "Attentionné(e) et sympa", profile: "Le Bienveillant" },
         { text: "Calme et adaptable", profile: "Le Discret" },
-        { text: "Drôle et sociable", profile: "L’Énergique" },
+        { text: "Drôle et sociable", profile: "Le Spontané" },
       ],
     },
     {
@@ -51,9 +51,9 @@ export const questions = [
         { text: "Créatif et stimulant", profile: "Le Créatif" },
         { text: "Organisé et fonctionnel", profile: "Le Leader" },
         { text: "Calme et propice à la réflexion", profile: "L’Analytique" },
-        { text: "Chaleureux et collaboratif", profile: "Le Soutien" },
+        { text: "Chaleureux et collaboratif", profile: "Le Bienveillant" },
         { text: "Simple et sans pression", profile: "Le Discret" },
-        { text: "Vivace et dynamique", profile: "L’Énergique" },
+        { text: "Vivace et dynamique", profile: "Le Spontané" },
       ],
     },
     {
@@ -62,9 +62,9 @@ export const questions = [
         { text: "Créer, proposer, exprimer", profile: "Le Créatif" },
         { text: "Gérer, diriger, organiser", profile: "Le Leader" },
         { text: "Comprendre, creuser, résoudre", profile: "L’Analytique" },
-        { text: "Aider, soutenir, collaborer", profile: "Le Soutien" },
+        { text: "Aider, soutenir, collaborer", profile: "Le Bienveillant" },
         { text: "Observer, écouter, apprendre", profile: "Le Discret" },
-        { text: "Improviser, rire, connecter", profile: "L’Énergique" },
+        { text: "Improviser, rire, connecter", profile: "Le Spontané" },
       ],
     },
   ];
@@ -85,7 +85,7 @@ export const questions = [
       description:
         "Tu aimes comprendre, analyser, résoudre. Tu trouves de la satisfaction dans les défis logiques.",
     },
-    "Le Soutien": {
+    "Le Bienveillant": {
       emoji: "\ud83d\udc91",
       description:
         "Tu es bienveillant et à l’écoute. Tu valorises l’entraide et le travail d’équipe.",
@@ -95,7 +95,7 @@ export const questions = [
       description:
         "Tu es calme, adaptable et préfères apprendre à ton rythme sans pression.",
     },
-    "L’Énergique": {
+    "Le Spontané": {
       emoji: "\ud83c\udf1f",
       description:
         "Tu es sociable et dynamique. Tu aimes l’échange, le mouvement et la bonne humeur.",

@@ -7,11 +7,25 @@ import { ICandidat } from "@/lib/types";
 import Cookies from "js-cookie";
 import { useRouter } from "next/navigation";
 import axios from "axios";
+export interface Personnality {
+  resultType?: string; // Added resultType to the summary type
+  summary?: {
+    emoji?: string;
+    description?: string;
+  };
+}
 
 export default function Profile() {
   const [activeTab, setActiveTab] = useState<"profile" | "tracking">("profile");
   const router = useRouter();
   const [profile, setProfile] = useState<ICandidat | null>(null);
+  const [personality, setPersonality] = useState<Personnality>({
+    resultType: "",
+    summary: {
+      emoji: "",
+      description: "",
+    },
+  });
   const [isEditing, setIsEditing] = useState<{ [key: string]: boolean }>({
     personalInfo: false,
     alternanceSearch: false,
@@ -52,6 +66,9 @@ export default function Profile() {
         const data = await res.json();
         if (data.candidat) {
           setProfile(data.candidat);
+          if (data.personalityTestResult) {
+            setPersonality(data.personalityTestResult);
+          }
           setFormData(data.candidat);
         } else {
           setError("Candidat introuvable");
@@ -389,10 +406,10 @@ export default function Profile() {
                  
                     <div>
                       <h2 className="text-2xl sm:text-[30px] font-bold">
-                       🔥 Le Créatif
+                       {personality.summary?.emoji} {personality.resultType || "Profil de personnalité"}  
                       </h2>
                       <h2 className="text-lg sm:text-xl font-sans">
-                        Tu as une imagination débordante et tu aimes proposer des idées. Tu t’exprimes avec originalité et énergie.
+                      {personality.summary?.description || "Description du profil de personnalité"}
                       </h2>
                     </div>
                   </div>

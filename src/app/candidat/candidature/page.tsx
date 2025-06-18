@@ -130,7 +130,7 @@ export default function Candidature() {
 
       if (res.ok) {
         alert("Candidature soumise avec succès !");
-        router.push("/candidat/profile");
+        router.push("/candidat/test-de-personnalite");
       } else {
         alert(`Erreur: ${result.error}`);
       }

@@ -1,81 +1,84 @@
+
 "use client";
 
 import Footer from "@/app/components/Footer";
 import Navbar from "@/app/components/Navbar";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 export default function PersonalityTest() {
+  const router = useRouter(); // Pour la redirection vers le profil
   const questions = [
     {
       id: 1,
       text: "En groupe, tu es plutôt :",
       options: [
-        { value: "Créatif", label: "Celui qui lance les idées et motive tout le monde" },
-        { value: "Leader", label: "Celui qui structure, planifie et prend le lead" },
-        { value: "Analytique", label: "Celui qui observe, analyse et résout les problèmes" },
-        { value: "Bienveillant", label: "Celui qui rassure, soutient et écoute" },
-        { value: "Discret", label: "Celui qui s’adapte à tout et reste discret" },
-        { value: "Spontané", label: "Celui qui met l’ambiance et aime faire rire" },
+        { value: "Le Créatif", label: "Celui qui lance les idées et motive tout le monde" },
+        { value: "Le Leader", label: "Celui qui structure, planifie et prend le lead" },
+        { value: "L'Analytique", label: "Celui qui observe, analyse et résout les problèmes" },
+        { value: "Le Bienveillant", label: "Celui qui rassure, soutient et écoute" },
+        { value: "Le Discret", label: "Celui qui s’adapte à tout et reste discret" },
+        { value: "Le Spontané", label: "Celui qui met l’ambiance et aime faire rire" },
       ],
     },
     {
       id: 2,
       text: "Face à un nouveau projet :",
       options: [
-        { value: "Créatif", label: "Tu fonces avec créativité et enthousiasme" },
-        { value: "Leader", label: "Tu établis une méthode claire avant d’agir" },
-        { value: "Analytique", label: "Tu veux comprendre tous les détails d’abord" },
-        { value: "Bienveillant", label: "Tu cherches à coopérer et à faire plaisir à tout le monde" },
-        { value: "Discret", label: "Tu t’adaptes à ce qu’on attend de toi, sans stress" },
-        { value: "Spontané", label: "Tu improvises et trouves des solutions sur le moment" },
+        { value: "Le Créatif", label: "Tu fonces avec créativité et enthousiasme" },
+        { value: "Le Leader", label: "Tu établis une méthode claire avant d’agir" },
+        { value: "L'Analytique", label: "Tu veux comprendre tous les détails d’abord" },
+        { value: "Le Bienveillant", label: "Tu cherches à coopérer et à faire plaisir à tout le monde" },
+        { value: "Le Discret", label: "Tu t’adaptes à ce qu’on attend de toi, sans stress" },
+        { value: "Le Spontané", label: "Tu improvises et trouves des solutions sur le moment" },
       ],
     },
     {
       id: 3,
       text: "Ce que tu apprécies le plus dans un travail :",
       options: [
-        { value: "Créatif", label: "La liberté de proposer des idées nouvelles" },
-        { value: "Leader", label: "Un cadre clair avec des responsabilités" },
-        { value: "Analytique", label: "La précision, les défis techniques" },
-        { value: "Bienveillant", label: "L’ambiance bienveillante et la cohésion d’équipe" },
-        { value: "Discret", label: "Pouvoir apprendre tranquillement sans pression" },
-        { value: "Spontané", label: "La variété, les échanges, le fun" },
+        { value: "Le Créatif", label: "La liberté de proposer des idées nouvelles" },
+        { value: "Le Leader", label: "Un cadre clair avec des responsabilités" },
+        { value: "L'Analytique", label: "La précision, les défis techniques" },
+        { value: "Le Bienveillant", label: "L’ambiance bienveillante et la cohésion d’équipe" },
+        { value: "Le Discret", label: "Pouvoir apprendre tranquillement sans pression" },
+        { value: "Le Spontané", label: "La variété, les échanges, le fun" },
       ],
     },
     {
       id: 4,
       text: "Tes amis diraient que tu es :",
       options: [
-        { value: "Créatif", label: "Créatif(ve) et plein(e) d’idées" },
-        { value: "Leader", label: "Fiable et structuré(e)" },
-        { value: "Analytique", label: "Posé(e) et intelligent(e)" },
-        { value: "Bienveillant", label: "Attentionné(e) et sympa" },
-        { value: "Discret", label: "Calme et adaptable" },
-        { value: "Spontané", label: "Drôle et sociable" },
+        { value: "Le Créatif", label: "Créatif(ve) et plein(e) d’idées" },
+        { value: "Le Leader", label: "Fiable et structuré(e)" },
+        { value: "L'Analytique", label: "Posé(e) et intelligent(e)" },
+        { value: "Le Bienveillant", label: "Attentionné(e) et sympa" },
+        { value: "Le Discret", label: "Calme et adaptable" },
+        { value: "Le Spontané", label: "Drôle et sociable" },
       ],
     },
     {
       id: 5,
       text: "Dans ton espace de travail idéal :",
       options: [
-        { value: "Créatif", label: "Il y a des murs pour écrire tes idées" },
-        { value: "Leader", label: "Tout est bien organisé et fonctionnel" },
-        { value: "Analytique", label: "C’est calme, propice à la réflexion" },
-        { value: "Bienveillant", label: "C’est accueillant, avec de bonnes relations" },
-        { value: "Discret", label: "C’est simple et sans pression" },
-        { value: "Spontané", label: "C’est vivant, dynamique, stimulant" },
+        { value: "Le Créatif", label: "Il y a des murs pour écrire tes idées" },
+        { value: "Le Leader", label: "Tout est bien organisé et fonctionnel" },
+        { value: "L'Analytique", label: "C’est calme, propice à la réflexion" },
+        { value: "Le Bienveillant", label: "C’est accueillant, avec de bonnes relations" },
+        { value: "Le Discret", label: "C’est simple et sans pression" },
+        { value: "Le Spontané", label: "C’est vivant, dynamique, stimulant" },
       ],
     },
     {
       id: 6,
       text: "Tu te sens bien quand tu peux :",
       options: [
-        { value: "Créatif", label: "Créer, proposer, exprimer" },
-        { value: "Leader", label: "Gérer, diriger, organiser" },
-        { value: "Analytique", label: "Comprendre, creuser, résoudre" },
-        { value: "Bienveillant", label: "Aider, soutenir, collaborer" },
-        { value: "Discret", label: "Observer, écouter, apprendre à ton rythme" },
-        { value: "Spontané", label: "Improviser, rire, connecter avec les gens" },
+        { value: "Le Créatif", label: "Créer, proposer, exprimer" },
+        { value: "Le Leader", label: "Gérer, diriger, organiser" },
+        { value: "L'Analytique", label: "Comprendre, creuser, résoudre" },
+        { value: "Le Bienveillant", label: "Aider, soutenir, collaborer" },
+        { value: "Le Discret", label: "Observer, écouter, apprendre à ton rythme" },
+        { value: "Le Spontané", label: "Improviser, rire, connecter avec les gens" },
       ],
     },
   ];
@@ -83,25 +86,56 @@ export default function PersonalityTest() {
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [answers, setAnswers] = useState<{ [key: number]: string }>({});
   const [loading, setLoading] = useState(false);
-  const [showPopup, setShowPopup] = useState(false); // État pour afficher le popup
+  const [showPopup, setShowPopup] = useState(false);
+  const [result, setResult] = useState<{ resultType: string; emoji: string; description: string } | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   const handleOptionChange = (value: string) => {
     setAnswers((prev) => ({ ...prev, [currentQuestion]: value }));
   };
 
-  const handleNext = () => {
+  const handleNext = async () => {
     if (currentQuestion < questions.length - 1) {
       setCurrentQuestion((prev) => prev + 1);
     } else {
       setLoading(true);
-      // Calcul du profil dominant
-      const profileCounts = { Créatif: 0, Leader: 0, Analytique: 0, Bienveillant: 0, Discret: 0, Spontané: 0 };
-      Object.values(answers).forEach((answer) => profileCounts[answer]++);
-      const dominantProfile = Object.keys(profileCounts).reduce((a, b) => profileCounts[a] > profileCounts[b] ? a : b);
-      console.log("Profil dominant :", dominantProfile);
-      setLoading(false);
-      setShowPopup(true); // Afficher le popup après soumission
+      setError(null);
+
+      try {
+        // Préparer les réponses sous forme de tableau
+        const answersArray = questions.map((_, index) => answers[index] || "");
+
+        // Envoyer les réponses à l'API
+        const response = await fetch("/api/candidats/personnality/submit", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          credentials: "include", // Inclut le cookie avec le token
+          body: JSON.stringify({
+            answers: answersArray,
+          }),
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.message || "Erreur lors de la soumission.");
+        }
+
+        // Stocker le résultat pour l'afficher dans le popup
+        setResult(data.result);
+        setShowPopup(true);
+        console.log(answers, answersArray);
+      } catch (err) {
+        console.error("Erreur lors de la soumission :", err);
+        setError(err.message || "Une erreur est survenue. Veuillez réessayer.");
+      } finally {
+        setLoading(false);
+      }
+      
     }
+    
   };
 
   const handleBack = () => {
@@ -112,14 +146,14 @@ export default function PersonalityTest() {
 
   const handleClosePopup = () => {
     setShowPopup(false);
+    setResult(null);
   };
 
   const handleProfileAccess = () => {
-    // Logique pour accéder au profil (par exemple, rediriger)
-    console.log("Accéder au profil");
-    setShowPopup(false);
-    // Exemple : router.push('/profile');
+    // Rediriger vers la page de profil
+    router.push("/candidat/profile");
   };
+  
 
   return (
     <>
@@ -157,6 +191,9 @@ export default function PersonalityTest() {
                   {option.label}
                 </label>
               ))}
+              {error && (
+                <p className="text-red-500 text-center mt-4">{error}</p>
+              )}
               <div className="flex space-x-4 mt-6">
                 <button
                   onClick={handleBack}
@@ -170,15 +207,19 @@ export default function PersonalityTest() {
                   className="w-full bg-[#7A20DA] cursor-pointer text-white py-2 rounded-lg font-semibold hover:bg-purple-700 transition duration-200 disabled:opacity-50"
                   disabled={!answers[currentQuestion] || loading}
                 >
-                  {currentQuestion === questions.length - 1 ? "Submit" : "Suivant"}
+                  {loading
+                    ? "Chargement..."
+                    : currentQuestion === questions.length - 1
+                    ? "Soumettre"
+                    : "Suivant"}
                 </button>
               </div>
             </div>
           </div>
         </div>
       </div>
-      {showPopup && (
-        <div className="fixed inset-0 bg-[#383838]/80  flex items-center justify-center z-50">
+      {showPopup && result && (
+        <div className="fixed inset-0 bg-[#383838]/80 flex items-center justify-center z-50">
           <div className="bg-white py-10 p-6 rounded-lg shadow-lg w-full max-w-xl relative">
             <button
               onClick={handleClosePopup}
@@ -200,13 +241,12 @@ export default function PersonalityTest() {
               </svg>
             </button>
             <div className="text-left mb-4">
-              <p className=" text-xl font-bold text-left mb-4">🔥 Le Créatif</p>
-              <p className="text-gray-600">
-                Tu es une personne débordante de créativité, qui propose des idées nouvelles et inspire les autres. Ton énergie et ton imagination sont tes atouts principaux.
+              <p className="text-xl font-bold text-left mb-4">
+                {result.emoji} {result.resultType}
               </p>
+              <p className="text-gray-600">{result.description}</p>
             </div>
             <div className="flex justify-center space-x-4">
-             
               <button
                 onClick={handleProfileAccess}
                 className="bg-[#7A20DA] text-white font-bold py-2 w-full px-4 rounded-lg hover:bg-purple-700"
