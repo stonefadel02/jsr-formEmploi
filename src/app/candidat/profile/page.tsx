@@ -336,7 +336,6 @@ export default function Profile() {
               >
                 Mon profil
               </button>
-            
             </div>
 
             <div className="bg-white rounded-[20px] shadow-lg p-4 sm:p-6 md:p-8 mt-2 sm:mt-0">
@@ -401,17 +400,133 @@ export default function Profile() {
 
             <div className="bg-white rounded-[20px] shadow-lg p-4 sm:p-6 md:p-8 mt-2 sm:mt-10">
               {activeTab === "profile" ? (
-                <div className="flex flex-col sm:flex-row items-center justify-between">
-                  <div className="flex items-center">
-                 
+                <div className="flex flex-col sm:flex-row items-center ">
+                  <div className="flex justify-between space-x-72  items-center">
                     <div>
-                      <h2 className="text-2xl sm:text-[30px] font-bold">
-                       {personality.summary?.emoji} {personality.resultType || "Profil de personnalité"}  
+                      <h2 className="text-xl   sm:text-[27px] font-bold">
+                        {personality.summary?.emoji}{" "}
+                        {personality.resultType || "Profil de personnalité"}
                       </h2>
-                      <h2 className="text-lg sm:text-xl font-sans">
-                      {personality.summary?.description || "Description du profil de personnalité"}
+                      <h2 className="text-md ml-2 text-[#4C4C4C] sm:text-lg font-sans">
+                        {personality.summary?.description ||
+                          "Description du profil de personnalité"}
                       </h2>
                     </div>
+                    <svg
+                      width="50"
+                      height="50"
+                      viewBox="0 0 50 50"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <g clip-path="url(#clip0_1070_451)">
+                        <path
+                          d="M24.9688 14.0996L17.0762 18.4726V27.2185L24.9688 31.5913L32.8613 27.2185V18.4726L24.9688 14.0996Z"
+                          fill="#7899D8"
+                        />
+                        <path
+                          d="M17.0762 27.2183L24.9647 31.5889V22.8453L17.0762 18.4746V27.2183Z"
+                          fill="#7899D8"
+                        />
+                        <path
+                          d="M17.0723 18.4726L24.9648 22.8455L32.8574 18.4726L24.9648 14.0996L17.0723 18.4726Z"
+                          fill="white"
+                        />
+                        <path
+                          d="M31.6999 36.3868C36.5783 33.9318 39.9256 28.8805 39.9256 23.0467C39.9256 14.8631 33.3395 8.21783 25.1786 8.12213C16.8963 8.02496 10.0742 14.7639 10.0742 23.0468C10.0742 28.8806 13.4216 33.9319 18.2999 36.3869"
+                          stroke="#0C2C67"
+                          stroke-width="2"
+                          stroke-miterlimit="10"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                        />
+                        <path
+                          d="M18.2988 40.5177V42.3232C18.2988 46.0234 21.2985 49.0231 24.9988 49.0231C28.6991 49.0231 31.6988 46.0234 31.6988 42.3231V40.5176"
+                          stroke="#0C2C67"
+                          stroke-width="2"
+                          stroke-miterlimit="10"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                        />
+                        <path
+                          d="M25 4.11885V0.976562"
+                          stroke="#0C2C67"
+                          stroke-width="2"
+                          stroke-miterlimit="10"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                        />
+                        <path
+                          d="M11.6165 9.6624L9.39453 7.44043"
+                          stroke="#0C2C67"
+                          stroke-width="2"
+                          stroke-miterlimit="10"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                        />
+                        <path
+                          d="M6.07197 23.0469H2.92969"
+                          stroke="#0C2C67"
+                          stroke-width="2"
+                          stroke-miterlimit="10"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                        />
+                        <path
+                          d="M11.6165 36.4307L9.39453 38.6526"
+                          stroke="#0C2C67"
+                          stroke-width="2"
+                          stroke-miterlimit="10"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                        />
+                        <path
+                          d="M38.3828 9.6624L40.6048 7.44043"
+                          stroke="#0C2C67"
+                          stroke-width="2"
+                          stroke-miterlimit="10"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                        />
+                        <path
+                          d="M43.9277 23.0469H47.07"
+                          stroke="#0C2C67"
+                          stroke-width="2"
+                          stroke-miterlimit="10"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                        />
+                        <path
+                          d="M38.3828 36.4307L40.6048 38.6526"
+                          stroke="#0C2C67"
+                          stroke-width="2"
+                          stroke-miterlimit="10"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                        />
+                        <path
+                          d="M32.8091 40.4612H17.2145C16.1047 40.4612 15.2051 39.5616 15.2051 38.4519C15.2051 37.3421 16.1047 36.4424 17.2145 36.4424H32.809C33.9188 36.4424 34.8185 37.342 34.8185 38.4519C34.8185 39.5616 33.9188 40.4612 32.8091 40.4612Z"
+                          stroke="#0C2C67"
+                          stroke-width="2"
+                          stroke-miterlimit="10"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                        />
+                        <path
+                          d="M24.9688 14.0996L17.0762 18.4726V27.2185L24.9688 31.5913L32.8613 27.2185V18.4726L24.9688 14.0996Z"
+                          stroke="#0C2C67"
+                          stroke-width="2"
+                          stroke-miterlimit="10"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                        />
+                      </g>
+                      <defs>
+                        <clipPath id="clip0_1070_451">
+                          <rect width="50" height="50" fill="white" />
+                        </clipPath>
+                      </defs>
+                    </svg>
                   </div>
                 </div>
               ) : (

@@ -1,4 +1,3 @@
-
 "use client";
 
 import Footer from "@/app/components/Footer";
@@ -133,9 +132,7 @@ export default function PersonalityTest() {
       } finally {
         setLoading(false);
       }
-      
     }
-    
   };
 
   const handleBack = () => {
@@ -153,7 +150,6 @@ export default function PersonalityTest() {
     // Rediriger vers la page de profil
     router.push("/candidat/profile");
   };
-  
 
   return (
     <>
@@ -164,8 +160,12 @@ export default function PersonalityTest() {
             <span className="absolute top-[-20px] right-[80px] bg-[#7A20DA] text-white px-5 py-4 rounded-full text-[19px] font-bold">
               0{currentQuestion + 1}
             </span>
-            <h2 className="text-2xl sm:text-3xl font-bold mt-10 text-center text-[#222] mb-6">
-              Test de personnalité
+            <h2 className="text-2xl sm:text-3xl px-2 font-bold mt-10 text-left text-[#222] mb-6">
+              Test de personnalité certifié
+              <br />
+              <span className="text-[16px] text-[#4C4C4C] ">
+                Validé par une experte en bilan d’orientation et compétences
+              </span>
             </h2>
             <div className="p-4">
               <p className="text-lg sm:text-xl font-semibold mb-4">
@@ -249,7 +249,7 @@ export default function PersonalityTest() {
             <div className="flex justify-center space-x-4">
               <button
                 onClick={handleProfileAccess}
-                className="bg-[#7A20DA] text-white font-bold py-2 w-full px-4 rounded-lg hover:bg-purple-700"
+                className="bg-[#7A20DA] text-white cursor-pointer font-bold py-2 w-full px-4 rounded-lg hover:bg-purple-700"
               >
                 Accéder au profil
               </button>
