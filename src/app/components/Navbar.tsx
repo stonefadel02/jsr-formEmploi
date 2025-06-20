@@ -112,8 +112,19 @@ export default function Navbar() {
             <div className="hidden md:flex items-center space-x-2 sm:space-x-3 lg:space-x-4">
               {isCandidat && (
                 <Link href="/candidat/profile" className="text-[#501891] hover:text-gray-600">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6 sm:w-7 sm:h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M5.121 17.804A9.006 9.006 0 0112 15c2.25 0 4.293.832 5.879 2.204M15 10a3 3 0 11-6 0 3 3 0 016 0z" />
+                  <svg
+                    className="w-8 h-8 mr-1"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zm6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                    />
                   </svg>
                 </Link>
               )}
@@ -189,9 +200,20 @@ export default function Navbar() {
               <div className="flex flex-col space-y-2 p-2 items-center space-x-2 sm:space-x-3 lg:space-x-4">
                 {isCandidat && (
                   <Link href="/candidat/profile" className="block text-[#501891] hover:text-gray-600 font-medium sm:text-[15px] flex items-center gap-2 mt-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M5.121 17.804A9.006 9.006 0 0112 15c2.25 0 4.293.832 5.879 2.204M15 10a3 3 0 11-6 0 3 3 0 016 0z" />
-                    </svg>
+                   <svg
+                    className="w-7 h-7 mr-1"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zm6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                    />
+                  </svg>
                     Mon Profil
                   </Link>
                 )}
