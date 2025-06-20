@@ -186,7 +186,7 @@ export default function Navbar() {
                 </Link>
               </div>
             ) : (
-              <div className="hidden md:flex items-center space-x-2 sm:space-x-3 lg:space-x-4">
+              <div className="flex flex-col space-y-2 p-2 items-center space-x-2 sm:space-x-3 lg:space-x-4">
                 {isCandidat && (
                   <Link href="/candidat/profile" className="block text-[#501891] hover:text-gray-600 font-medium sm:text-[15px] flex items-center gap-2 mt-2">
                     <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
