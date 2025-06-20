@@ -72,7 +72,7 @@ export default function Login() {
       <div className="min-h-screen bg-[#F6F6F6] flex items-center justify-center p-4">
         <div className="mt-32">
           <div className="bg-white p-10 rounded-[15px] shadow-md w-full max-w-2xl">
-            <h2 className="text-[25px] font-bold text-left text-black mb-6">
+            <h2 className="md:text-[25px] te font-bold text-left text-black mb-6">
               Inscription Employeur
             </h2>
             {error && (

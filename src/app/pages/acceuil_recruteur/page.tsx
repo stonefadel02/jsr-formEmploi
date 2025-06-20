@@ -21,7 +21,7 @@ export default function AcceuilRecruteur() {
                 Trouvez des talents qualifiés en quelques clics.
               </h1>
               <p className="text-sm sm:text-base md:text-md py-2 sm:py-4 md:py-6 mb-2 sm:mb-4">
-                Accédez à une base de candidats ciblés – 2 mois d’essai gratuits.
+                Accédez à une base de candidats ciblés – 1 mois d’essai gratuits.
               </p>
               <Link href={"/employeur/candidats"}>
                 <button className="bg-white text-[#501891] text-[15px] px-4 sm:px-6 py-2 sm:py-3 rounded-[10px] font-medium hover:bg-gray-100 transition duration-200 cursor-pointer">
@@ -68,7 +68,7 @@ export default function AcceuilRecruteur() {
                 />
                 <div className="border-t-[2px] border-[#ECECEC] my-2 sm:my-4"></div>
                 <h3 className="text-center py-4 sm:py-6 md:py-10 text-[14px] sm:text-[16px] md:text-[18px] text-[#4C4C4C] font-semibold text-lg px-2 sm:px-4">
-                  2 mois d`accès gratuit à l`inscription
+                  1 mois d`accès gratuit à l`inscription
                 </h3>
               </div>
             </div>
