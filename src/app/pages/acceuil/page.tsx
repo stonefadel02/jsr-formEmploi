@@ -114,7 +114,7 @@ export default function Acceuil() {
                 opportunités professionnelles.
               </p>
            <div className="flex space-x-4">
-               <Link href={"/candidature/candidature"}>
+               <Link href={"/candidat/candidature"}>
               <button className="bg-white text-[#501891] px-18 py-3 rounded-[10px] font-medium hover:bg-gray-100 transition duration-200 cursor-pointer">
                 Candidater
               </button>
