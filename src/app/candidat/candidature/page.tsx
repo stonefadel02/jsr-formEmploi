@@ -145,8 +145,8 @@ export default function Candidature() {
   return (
     <>
       <Navbar />
-      <div className="min-h-screen bg-[#F6F6F6] flex items-center justify-center p-2 sm:p-4">
-        <div className="mt-12 sm:mt-16 md:mt-24 w-full max-w-sm sm:max-w-md md:max-w-lg">
+      <div className="min-h-screen  bg-[#F6F6F6] flex  justify-center p-2 sm:p-4">
+        <div className="mt-32 sm:mt-16 md:mt-24 w-full max-w-sm sm:max-w-md md:max-w-lg">
           <div className="bg-white p-4 sm:p-6 md:p-8 rounded-[15px] shadow-md">
             {/* Titre et contenu de l'étape */}
             <form

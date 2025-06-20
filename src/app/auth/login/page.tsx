@@ -31,8 +31,8 @@ export default function Login() {
     <>
       <Navbar />
       <div className="min-h-screen bg-[#F6F6F6] flex items-center justify-center p-4">
-        <div className="mt-32 w-full max-w-lg">
-          <div className="bg-white p-10 rounded-[15px] shadow-md">
+        <div className="sm:mt-32 w-full max-w-lg">
+          <div className="bg-white sm:p-10 p-6 rounded-[15px] shadow-md">
             <h2 className="text-[25px] font-bold text-left text-black mb-6">
               Connexion
             </h2>
@@ -43,7 +43,7 @@ export default function Login() {
                 <button
                   key={roleText}
                   onClick={() => setSelected(roleText)}
-                  className={`rounded-[15px] font-semibold cursor-pointer px-6 py-2 md:px-11 md:py-3 transition ${
+                  className={`rounded-[15px] font-semibold sm:text-sm text-[14px] cursor-pointer px-6 py-3 md:px-11 md:py-3 transition ${
                     selected === roleText
                       ? "bg-[#7A20DA] text-white"
                       : "border border-[#7A20DA] text-[#7A20DA]"
@@ -76,7 +76,7 @@ export default function Login() {
                 ) : (
                   <>
                     <Image src="/Google.svg" alt="Google" width={24} height={24} />
-                    <span className="font-extrabold text-[18px]">
+                    <span className="font-extrabold sm:text-[18px]">
                       Se connecter avec Google
                     </span>
                   </>

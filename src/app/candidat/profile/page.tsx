@@ -398,16 +398,16 @@ export default function Profile() {
               )}
             </div>
 
-            <div className="bg-white rounded-[20px] shadow-lg p-4 sm:p-6 md:p-8 mt-2 sm:mt-10">
+            <div className="bg-white rounded-[20px] shadow-lg p-6 sm:p-6 md:p-8 mt-4 sm:mt-10">
               {activeTab === "profile" ? (
-                <div className="flex flex-col sm:flex-row items-center ">
-                  <div className="flex justify-between space-x-72  items-center">
+                <div className="flex  flex-row items-center ">
+                  <div className="flex justify-between space-x-4 sm:space-x-[850px] items-center">
                     <div>
-                      <h2 className="text-xl   sm:text-[27px] font-bold">
+                      <h2 className="text-[17px]   sm:text-[27px] font-bold">
                         {personality.summary?.emoji}{" "}
                         {personality.resultType || "Profil de personnalité"}
                       </h2>
-                      <h2 className="text-md ml-2 text-[#4C4C4C] sm:text-lg font-sans">
+                      <h2 className="text-[14px] sm:ml-2 text-[#4C4C4C] sm:text-lg font-sans">
                         {personality.summary?.description ||
                           "Description du profil de personnalité"}
                       </h2>
@@ -538,12 +538,12 @@ export default function Profile() {
               <div className="bg-white rounded-[20px] shadow-lg p-4 sm:p-6 md:p-8 mt-4 sm:mt-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 mb-4 sm:mb-6">
                   <div className="border border-[#C4C4C4] p-4 rounded-lg">
-                    <div className="flex items-center justify-between mb-2">
+                    <div className="flex sm:space-x-0 space-x-20 items-center justify-between mb-2">
                       <h3 className="text-base sm:text-lg text-[#202020] font-medium">
                         Coordonnées
                       </h3>
                       {isEditing.personalInfo ? (
-                        <div className="flex space-x-2">
+                        <div className="sm:flex sm:space-x-2 sm:space-y-0 space-y-2">
                           <button
                             className="text-white bg-[#7A20DA] py-2 px-4 cursor-pointer text-sm rounded"
                             onClick={() => handleSubmit("personalInfo")}
@@ -554,7 +554,7 @@ export default function Profile() {
                               : "Sauvegarder"}
                           </button>
                           <button
-                            className="text-white bg-red-600 py-2 px-4 cursor-pointer text-sm rounded"
+                            className="text-white bg-red-600 py-2 sm:px-4 px-8 cursor-pointer text-sm rounded"
                             onClick={() => handleCancel("personalInfo")}
                             disabled={isLoading.personalInfo}
                           >
@@ -647,12 +647,12 @@ export default function Profile() {
                     )}
                   </div>
                   <div className="border border-[#C4C4C4] p-4 rounded-lg">
-                    <div className="flex items-center justify-between mb-2">
+                    <div className="flex sm:space-x-0 space-x-20 items-center justify-between mb-2">
                       <h3 className="text-base sm:text-lg text-[#202020] font-medium">
                         Recherche d`alternance
                       </h3>
                       {isEditing.alternanceSearch ? (
-                        <div className="flex space-x-2">
+                        <div className="sm:flex sm:space-x-2 sm:space-y-0 space-y-2">
                           <button
                             className="text-white bg-[#7A20DA] py-2 px-4 cursor-pointer text-sm rounded"
                             onClick={() => handleSubmit("alternanceSearch")}
@@ -663,7 +663,7 @@ export default function Profile() {
                               : "Sauvegarder"}
                           </button>
                           <button
-                            className="text-white bg-red-600 py-2 px-4 cursor-pointer text-sm rounded"
+                            className="text-white bg-red-600 py-2 sm:px-4 px-8 cursor-pointer text-sm rounded"
                             onClick={() => handleCancel("alternanceSearch")}
                             disabled={isLoading.alternanceSearch}
                           >
@@ -741,7 +741,7 @@ export default function Profile() {
                     )}
                   </div>
 
-                  <div className="border border-[#C4C4C4] p-4 rounded-lg h-[400px] sm:h-auto">
+                  <div className="border border-[#C4C4C4] p-4 rounded-lg  sm:h-auto">
                     <div className="w-full   rounded-[15px] relative overflow-hidden">
                       {profile.videoUrl ? (
                         <video
@@ -772,9 +772,7 @@ export default function Profile() {
                 </div>
 
                 <div className="mt-4 sm:mt-6 border border-[#C4C4C4] p-4 rounded-lg">
-                  <h3 className="text-base sm:text-lg font-semibold mb-4">
-                    Mes documents
-                  </h3>
+                  <h3 className="text-lg font-semibold mb-4">Mes documents</h3>
                   <div className="space-y-4">
                     <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 rounded-lg">
                       <span>CV</span>
@@ -817,7 +815,7 @@ export default function Profile() {
                           </button>
                         )}
                         {isEditing.cv && (
-                          <div className="flex space-x-2">
+                          <div className="sm:flex space-y-2 sm:space-y-0 sm:space-x-2">
                             <input
                               type="file"
                               accept="application/pdf"
@@ -857,7 +855,7 @@ export default function Profile() {
                               )}
                             </label>
                             <button
-                              className="border-[#7A20DA] border cursor-pointer bg-white text-[#7A20DA] px-6 sm:px-8 py-2 rounded-[5px]"
+                              className="border-[#7A20DA] border cursor-pointer bg-white text-[#7A20DA] px-4 sm:px-8 py-2 mr-2  rounded-[5px]"
                               onClick={() => handleSubmit("cv")}
                               disabled={isLoading.cv || !formData.cv}
                             >
@@ -916,7 +914,7 @@ export default function Profile() {
                           </button>
                         )}
                         {isEditing.video && (
-                          <div className="flex space-x-2">
+                          <div className="sm:flex space-y-2 sm:space-y-0 sm:space-x-2">
                             <input
                               type="file"
                               accept="video/*"
@@ -958,7 +956,7 @@ export default function Profile() {
                               )}
                             </label>
                             <button
-                              className="border-[#7A20DA] border cursor-pointer bg-white text-[#7A20DA] px-6 sm:px-8 py-2 rounded-[5px]"
+                              className="border-[#7A20DA] border cursor-pointer bg-white text-[#7A20DA]  px-4 sm:px-8 py-2 mr-2 rounded-[5px]"
                               onClick={() => handleSubmit("video")}
                               disabled={isLoading.video || !formData.video}
                             >

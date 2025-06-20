@@ -71,7 +71,7 @@ export default function Login() {
       <Navbar />
       <div className="min-h-screen bg-[#F6F6F6] flex items-center justify-center p-4">
         <div className="mt-32">
-          <div className="bg-white p-10 rounded-[15px] shadow-md w-full max-w-2xl">
+          <div className="bg-white sm:p-10 p-6 rounded-[15px] shadow-md w-full max-w-2xl">
             <h2 className="md:text-[25px] te font-bold text-left text-black mb-6">
               Inscription Employeur
             </h2>
@@ -88,7 +88,7 @@ export default function Login() {
             <form onSubmit={handleSubmit} className="space-y-6">
               <div>
                 <label
-                  className="text-black mt-4 font-light text-[18px]"
+                  className="text-black mt-4 font-light sm:text-[18px]"
                   htmlFor=""
                 >
                   Nom de l’entreprise
@@ -106,7 +106,7 @@ export default function Login() {
               </div>
               <div>
                 <label
-                  className="text-black mt-4 font-light text-[18px]"
+                  className="text-black mt-4 font-light sm:text-[18px]"
                   htmlFor=""
                 >
                   Email
@@ -124,7 +124,7 @@ export default function Login() {
               </div>
               <div className="">
                 <label
-                  className="text-black mt-4 font-light text-[18px]"
+                  className="text-black mt-4 font-light sm:text-[18px]"
                   htmlFor=""
                 >
                   Mot de passe
@@ -144,7 +144,7 @@ export default function Login() {
               {/* Nouvelle section : Bannière de notification */}
               <div className="flex">
                 <div className="bg-[#7A20DA] w-4 border-[#7A20DA] rounded-l-[15px] border-[1px]"></div>
-                <div className="bg-[#F4E9FF] py-8 px-10 rounded-r-[15px] flex items-center justify-start">
+                <div className="bg-[#F4E9FF] py-4 px-5 sm:py-8 sm:px-10 rounded-r-[15px] flex items-center justify-start">
                   <p className="text-sm text-[#7A20DA] sm:text-base">
                     🎁 1 mois d’accès gratuits à l’inscription. Ensuite, un
                     abonnement sera requis pour continuer à accéder aux
@@ -184,7 +184,7 @@ export default function Login() {
                   height={24}
                   className="h-5 w-5"
                 />
-                <span className="font-extrabold text-[18px]">
+                <span className="font-extrabold sm:text-[18px]">
                   Se connecter avec Google
                 </span>
               </button>

@@ -156,11 +156,11 @@ export default function PersonalityTest() {
       <Navbar />
       <div className="min-h-screen bg-[#F6F6F6] flex items-center justify-center px-4 sm:px-6 lg:px-8 py-4 sm:py-8">
         <div className="w-full max-w-md sm:max-w-lg">
-          <div className="bg-white rounded-[20px] mt-32 shadow-lg p-6 relative border border-[#7A20DA] border-t-0 border-l-0 border-b-0">
+          <div className="bg-white rounded-[20px] mt-32 shadow-lg sm:p-6 p-4 relative border border-[#7A20DA] border-t-0 border-l-0 border-b-0">
             <span className="absolute top-[-20px] right-[80px] bg-[#7A20DA] text-white px-5 py-4 rounded-full text-[19px] font-bold">
               0{currentQuestion + 1}
             </span>
-            <h2 className="text-2xl sm:text-3xl px-2 font-bold mt-10 text-left text-[#222] mb-6">
+            <h2 className="text-xl sm:text-3xl px-2 font-bold mt-10 text-left text-[#222] mb-6">
               Test de personnalité certifié
               <br />
               <span className="text-[16px] text-[#4C4C4C] ">
@@ -174,7 +174,7 @@ export default function PersonalityTest() {
               {questions[currentQuestion].options.map((option) => (
                 <label
                   key={option.value}
-                  className={`block p-3 mb-2 text-[#4C4C4C] rounded-lg border border-gray-200 cursor-pointer ${
+                  className={`block sm:p-3 p-2 mb-2 text-[#4C4C4C] rounded-lg border border-gray-200 cursor-pointer ${
                     answers[currentQuestion] === option.value
                       ? "bg-purple-100 border-2 border-[#7A20DA]"
                       : "hover:bg-gray-50"
@@ -219,8 +219,8 @@ export default function PersonalityTest() {
         </div>
       </div>
       {showPopup && result && (
-        <div className="fixed inset-0 bg-[#383838]/80 flex items-center justify-center z-50">
-          <div className="bg-white py-10 p-6 rounded-lg shadow-lg w-full max-w-xl relative">
+        <div className="fixed inset-0 bg-[#383838]/80 flex  items-center justify-center z-50">
+          <div className="bg-white py-10 p-6 m-6 rounded-lg shadow-lg w-full max-w-xl relative">
             <button
               onClick={handleClosePopup}
               className="absolute top-2 right-2 cursor-pointer text-gray-500 hover:text-gray-700"

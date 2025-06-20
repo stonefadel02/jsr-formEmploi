@@ -69,9 +69,9 @@ export default function Register() {
     <>
       <Navbar />
       <div className="min-h-screen bg-[#F6F6F6] flex items-center justify-center p-4">
-        <div className="mt-32">
-          <div className="bg-white p-10 rounded-[15px] shadow-md w-full max-w-lg">
-            <h2 className="text-[25px] font-semibold text-left text-black mb-6">
+        <div className="sm:mt-32">
+          <div className="bg-white sm:p-10 p-6 rounded-[15px] shadow-md w-full max-w-lg">
+            <h2 className="sm:text-[25px] text-[20px] font-semibold text-left text-black mb-6">
               Créer un compte avec votre email
             </h2>
             {error && (
@@ -93,7 +93,7 @@ export default function Register() {
                   value={formData.email}
                   onChange={handleChange}
                   placeholder="example@gmail.com"
-                  className="mt-1 block w-full px-4 py-3 border text-gray-600 border-[#C4C4C4] rounded-[15px] placeholder-[#D9D9D9] focus:ring-purple-900 focus:border-purple-900"
+                  className="mt-1 block w-full px-4 sm:py-3 py-3 border text-gray-600 border-[#C4C4C4] rounded-[15px] placeholder-[#D9D9D9] focus:ring-purple-900 focus:border-purple-900"
                   required
                 />
               </div>
@@ -108,14 +108,14 @@ export default function Register() {
                   id="password"
                   value={formData.password}
                   onChange={handleChange}
-                  className="mt-2 block w-full px-4 py-3 border border-[#C4C4C4] text-gray-700 rounded-[15px] placeholder-[#D9D9D9] focus:ring-purple-900 focus:border-purple-900"
+                  className="mt-2 block w-full px-4 py-3  border border-[#C4C4C4] text-gray-700 rounded-[15px] placeholder-[#D9D9D9] focus:ring-purple-900 focus:border-purple-900"
                   required
                 />
               </div>
 
               <button
                 type="submit"
-                className="w-full font-extrabold bg-[#7A20DA] cursor-pointer text-white py-3 px-4 rounded-lg hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 transition duration-200 disabled:opacity-50"
+                className="w-full font-extrabold bg-[#7A20DA] cursor-pointer text-white py-3  px-4 rounded-lg hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 transition duration-200 disabled:opacity-50"
                 disabled={loading} // Désactive le bouton pendant le chargement
               >
                 {loading ? (
@@ -135,7 +135,7 @@ export default function Register() {
               <button
                 type="button"
                 onClick={() => router.push("/auth/redirect?userType=candidat")}
-                className="w-full bg-white border cursor-pointer border-[#C4C4C4] text-gray-700 py-3 px-4 rounded-lg hover:bg-gray-50 flex items-center justify-center gap-4"
+                className="w-full bg-white border cursor-pointer border-[#C4C4C4] text-gray-700 sm:py-3 py-2 px-4 rounded-lg hover:bg-gray-50 flex items-center justify-center gap-4"
               >
                 <Image
                   src="/Google.svg"
@@ -144,7 +144,7 @@ export default function Register() {
                   height={24}
                   className="h-5 w-5"
                 />
-                <span className="font-extrabold text-[18px]">
+                <span className="font-extrabold sm:text-[18px]">
                   Se connecter avec Google
                 </span>
               </button>
