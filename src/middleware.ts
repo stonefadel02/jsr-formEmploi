@@ -64,9 +64,9 @@ export function middleware(req: NextRequest) {
     let dashboardRoute = "/dashboard";
 
     switch (role) {
-      // case "admin":
-      //   dashboardRoute = "/dashboard/admin";
-      //   break;
+      case "admin":
+        dashboardRoute = "/dashboard/admin";
+        break;
       case "employeur":
         dashboardRoute = "/dashboard/employeur";
         break;
@@ -91,9 +91,9 @@ export function middleware(req: NextRequest) {
     return NextResponse.redirect(new URL("/unauthorized", req.url));
   }
 
-  // if (url.startsWith("/admin") && role !== "admin") {
-  //   return NextResponse.redirect(new URL("/unauthorized", req.url));
-  // }
+  if (url.startsWith("/admin") && role !== "admin") {
+    return NextResponse.redirect(new URL("/unauthorized", req.url));
+  }
 
   // ✅ Vérification de l'état de l'abonnement pour les employeurs
   if (role === "employeur" && isActive === false && isTrial === false) {
