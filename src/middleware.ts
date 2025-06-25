@@ -36,32 +36,37 @@ export function middleware(req: NextRequest) {
   }
 
   let role: string | null = null;
+  let isActive: boolean | undefined = undefined;
+  let isTrial: boolean | undefined = undefined;
+
   interface JwtPayload {
     role?: string;
+    isActive?: boolean;
+    isTrial?: boolean;
     [key: string]: unknown;
   }
+
   let decoded: JwtPayload | null = null;
   try {
     decoded = jwt.decode(token) as JwtPayload | null;
-    if (decoded && typeof decoded === "object" && "role" in decoded) {
+    if (decoded && typeof decoded === "object") {
       role = decoded.role as string;
+      isActive = decoded.isActive;
+      isTrial = decoded.isTrial;
     }
   } catch (error) {
     console.log("Erreur décodage token :", error);
     return NextResponse.redirect(new URL("/auth/login", req.url));
   }
-  const isActive = decoded?.isActive;
-  const isTrial = decoded?.isTrial;
-
 
   // ✅ Interdire l’accès aux pages d’auth si déjà connecté → rediriger vers le bon dashboard
   if (publicRoutes.includes(url) && decoded) {
     let dashboardRoute = "/dashboard";
 
     switch (role) {
-      case "admin":
-        dashboardRoute = "/dashboard/admin";
-        break;
+      // case "admin":
+      //   dashboardRoute = "/dashboard/admin";
+      //   break;
       case "employeur":
         dashboardRoute = "/dashboard/employeur";
         break;
@@ -82,16 +87,26 @@ export function middleware(req: NextRequest) {
     return NextResponse.redirect(new URL("/unauthorized", req.url));
   }
 
-  if (url.startsWith("/candidat") && role !== "candidat") {
+  if (url.startsWith("/candidat") && role !== "candidat" && role !== "employeur" && role !== "admin") {
     return NextResponse.redirect(new URL("/unauthorized", req.url));
   }
 
-  if (url.startsWith("/admin") && role !== "admin") {
-    return NextResponse.redirect(new URL("/unauthorized", req.url));
+  // if (url.startsWith("/admin") && role !== "admin") {
+  //   return NextResponse.redirect(new URL("/unauthorized", req.url));
+  // }
+
+  // ✅ Vérification de l'état de l'abonnement pour les employeurs
+  if (role === "employeur" && isActive === false && isTrial === false) {
+    if (url === "/employeur/candidats" || url.startsWith("/employeur/candidats/")) {
+      return NextResponse.redirect(new URL("/pages/tarifs", req.url));
+    }
   }
 
-  if (url === "/employeur/candidats" && (isActive===false && isTrial===false)) {
-    return NextResponse.redirect(new URL("/pages/tarifs", req.url));
+  // ✅ Vérification de l'état de l'abonnement pour les candidats
+  if (role === "candidat" && isActive === false && isTrial === false) {
+    if (url === "/candidat/profile" || url.startsWith("/candidat/profile/")) {
+      return NextResponse.redirect(new URL("/pages/tarifs", req.url));
+    }
   }
 
   return NextResponse.next();

@@ -1,33 +1,39 @@
-// lib/cron.ts
 import cron from 'node-cron';
-import mongoose from 'mongoose';
 import SubscriptionPromiseModel from '@/models/Subscription';
 import { connectEmployersDb } from './mongodb';
 
 async function checkExpiredTrials() {
-  await connectEmployersDb()
+  if (process.env.NODE_ENV === 'production') {
+    console.log('[CRON] Désactivé en production, géré par Vercel.');
+    return;
+  }
 
-  const SubscriptionModel = await SubscriptionPromiseModel
+  await connectEmployersDb();
+  const SubscriptionModel = await SubscriptionPromiseModel;
 
-  const twoMonthsAgo = new Date();
-  twoMonthsAgo.setMonth(twoMonthsAgo.getMonth() - 2);
+  const now = new Date();
 
-  const expired = await SubscriptionModel.updateMany(
-    {
-      isActive: true,
-      isTrial: true,
-      createdAt: { $lte: twoMonthsAgo },
-    },
-    {
-      $set: { isActive: false, isTrial: false },
-    }
+  // 🔁 Fin de la période d’essai après 1 mois
+  const oneMonthAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+  const expiredTrials = await SubscriptionModel.updateMany(
+    { isTrial: true, createdAt: { $lte: oneMonthAgo } },
+    { $set: { isTrial: false } }
   );
 
-  console.log(`[CRON] ${expired.modifiedCount} abonnements expirés mis à jour`);
+  // 🔁 Fin de l'abonnement annuel
+  const expiredSubscriptions = await SubscriptionModel.updateMany(
+    { isActive: true, endDate: { $lte: now } },
+    { $set: { isActive: false } }
+  );
+
+  console.log(`[CRON] ${expiredTrials.modifiedCount} essais expirés mis à jour`);
+  console.log(`[CRON] ${expiredSubscriptions.modifiedCount} abonnements annuels expirés mis à jour`);
 }
 
-// Lance la tâche tous les jours à 00:00
+// Lance la tâche tous les jours à 00:00 (localement, pour tests)
 cron.schedule('0 0 * * *', () => {
-  console.log('[CRON] Vérification des abonnements...');
-  checkExpiredTrials();
+  console.log('[CRON] Vérification des abonnements (local)...');
+  checkExpiredTrials().catch((err) => console.error('[CRON] Erreur:', err));
+}, {
+  timezone: 'Africa/Lagos', // WAT
 });

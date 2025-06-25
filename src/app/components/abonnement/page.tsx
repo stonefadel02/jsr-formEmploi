@@ -2,19 +2,19 @@
 
 import { ISubscription } from "@/lib/types";
 import { useState, useEffect } from "react";
+
 export interface statsType {
   totalActifs: number;
   totalEssais: number;
   expirés: number;
   revenusMensuels: number;
 }
+
 interface ISubscriptionExtended extends ISubscription {
   companyName?: string;
 }
 
-
 export default function Abonnement() {
-
   const [subscriptions, setSubscriptions] = useState<ISubscriptionExtended[]>([]);
   const [stats, setStats] = useState<statsType | null>(null);
   const [loading, setLoading] = useState(true);
@@ -23,12 +23,27 @@ export default function Abonnement() {
   useEffect(() => {
     const fetchSubscriptions = async () => {
       try {
-        const response = await fetch("/api/admin/subscriptions"); // Remplace cette URL par celle de ton API
+        const response = await fetch("/api/admin/subscriptions");
         if (!response.ok) throw new Error("Erreur lors du chargement des données");
         const data = await response.json();
-        console.log(data)
-        setSubscriptions(data)
+        setSubscriptions(data);
+      } catch (err: unknown) {
+        if (err instanceof Error) {
+          setError(err.message);
+        } else {
+          setError("Une erreur est survenue");
+        }
+      } finally {
+        setLoading(false);
+      }
+    };
 
+    const fetchStats = async () => {
+      try {
+        const response = await fetch("/api/admin/subscriptions/stats");
+        if (!response.ok) throw new Error("Erreur lors du chargement des données");
+        const data = await response.json();
+        setStats(data);
       } catch (err: unknown) {
         if (err instanceof Error) {
           setError(err.message);
@@ -41,64 +56,94 @@ export default function Abonnement() {
     };
 
     fetchSubscriptions();
-  }, []);
-
-  useEffect(() => {
-    const fetchStats = async () => {
-      try {
-        const response = await fetch("/api/admin/subscriptions/stats"); // Remplace cette URL par celle de ton API
-        if (!response.ok) throw new Error("Erreur lors du chargement des données");
-        const data = await response.json();
-        console.log(data); // Pour vérifier la structure des données
-        setStats(data); // Assurez-vous que data.candidats est un tableau
-      } catch (err: unknown) {
-        if (err instanceof Error) {
-          setError(err.message);
-        } else {
-          setError("Une erreur est survenue");
-        }
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchStats();
   }, []);
 
-  const handleRenew = (employerId: String) => {
-    const confirmRenouvellement = window.confirm("Êtes-vous sûr de vouloir renouveler l'abonnement ?");
-    if (confirmRenouvellement) {
+const handleRenew = (employerId: string) => {
+  const confirmRenouvellement = window.confirm("Êtes-vous sûr de vouloir renouveler l'abonnement ?");
+  if (confirmRenouvellement) {
+    fetch(`/api/admin/subscriptions/${employerId}/renouveler`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    })
+      .then((response) => {
+        if (!response.ok) throw new Error("Erreur lors du renouvellement");
+        return response.json();
+      })
+      .then((data) => {
+        if (data.error) {
+          alert(`Erreur : ${data.error}`);
+        } else {
+          alert("Abonnement renouvelé avec succès !");
+          // Mise à jour de l'état après renouvellement (exemple)
+          setSubscriptions((prev) =>
+            prev.map((sub) =>
+              sub.employerId === employerId ? { ...sub, isActive: true } : sub
+            )
+          );
+        }
+      })
+      .catch((error) => {
+        console.error("Erreur lors du renouvellement :", error);
+        alert("Une erreur est survenue lors du renouvellement de l'abonnement.");
+      });
+  }
+};
+  const handleMarkAsPaid = (employerId: string) => {
+    const confirmPayment = window.confirm("Confirmez-vous le paiement de cet abonnement ?");
+    if (confirmPayment) {
       fetch(`/api/admin/subscriptions/${employerId}/renouveler`, {
         method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
       })
         .then((response) => response.json())
         .then((data) => {
           if (data.error) {
             alert(`Erreur : ${data.error}`);
           } else {
-            alert("Abonnement renouvelé avec succès !");
-            // Mettre à jour la liste des abonnements si nécessaire
+            alert("Abonnement marqué comme payé avec succès !");
+            setSubscriptions((prev) =>
+              prev.map((sub) =>
+                sub.employerId === employerId ? { ...sub, isActive: true, isTrial: false } : sub
+              )
+            );
+            updateStats();
           }
         })
         .catch((error) => {
-          console.error("Erreur lors du renouvellement :", error);
-          alert("Une erreur est survenue lors du renouvellement de l'abonnement.");
+          console.error("Erreur lors du marquage comme payé :", error);
+          alert("Une erreur est survenue lors du marquage de l'abonnement.");
         });
     }
-  }
+  };
 
+  const updateStats = () => {
+    if (subscriptions.length > 0) {
+      const newStats = {
+        totalActifs: subscriptions.filter((sub) => sub.isActive && !sub.isTrial).length,
+        totalEssais: subscriptions.filter((sub) => sub.isTrial && !sub.isActive).length,
+        expirés: subscriptions.filter((sub) => !sub.isActive && !sub.isTrial).length,
+        revenusMensuels: subscriptions.reduce((acc, sub) => {
+          if (sub.isActive && !sub.isTrial) {
+            const price = sub.plan === "Entreprise" ? 500 : sub.plan === "Essai" ? 0 : 200; // Exemple de prix
+            return acc + price;
+          }
+          return acc;
+        }, 0),
+      };
+      setStats(newStats);
+    }
+  };
+
+  useEffect(() => {
+    updateStats();
+  }, [subscriptions]);
 
   return (
     <>
-
-
-      {/* Contenu principal */}
       <div className="max-w-7xl w-full">
-
-        {/* Filtres */}
         <div className="rounded-[15px] bg-white p-10">
           <div className="flex items-center gap-4">
             <svg
@@ -129,18 +174,16 @@ export default function Abonnement() {
                 fill="#7A20DA"
               />
             </svg>
-
             <h1 className="text-2xl font-bold text-[#8929E0]">
               Statistiques Globales
             </h1>
           </div>
           <div className="border-[1px] my-4 border-[#8929E0]"></div>
           <h4 className="py-4">Statistiques des Abonnements</h4>
-          {/* Ajout des KPI */}
           <div className="flex flex-col sm:flex-row justify-between gap-4 mb-6">
-            <div className="flex w-1/4 ">
+            <div className="flex w-1/4">
               <div className="w-2 rounded-l-[20px] bg-[#2A9D8F]"></div>
-              <div className="bg-white rounded-r-[20px] p-4   shadow-md flex-1 text-center">
+              <div className="bg-white rounded-r-[20px] p-4 shadow-md flex-1 text-center">
                 <h3 className="text-[#4E4E4E] text-left font-semibold">
                   Abonnements Actifs
                 </h3>
@@ -161,12 +204,11 @@ export default function Abonnement() {
                 </div>
               </div>
             </div>
-
-            <div className="flex w-1/4 ">
+            <div className="flex w-1/4">
               <div className="w-2 rounded-l-[20px] bg-[#2A9D8F]"></div>
-              <div className="bg-white rounded-r-[20px] p-4   shadow-md flex-1 text-center">
+              <div className="bg-white rounded-r-[20px] p-4 shadow-md flex-1 text-center">
                 <h3 className="text-[#4E4E4E] text-left font-semibold">
-                  Périodes d`Essai Actives
+                  Périodes d'Essai Actives
                 </h3>
                 <div className="flex items-center py-4 justify-between">
                   <p className="text-4xl font-bold text-[#7A20DA]">{stats?.totalEssais}</p>
@@ -206,9 +248,9 @@ export default function Abonnement() {
                 </div>
               </div>
             </div>
-            <div className="flex w-1/4 ">
+            <div className="flex w-1/4">
               <div className="w-2 rounded-l-[20px] bg-[#2A9D8F]"></div>
-              <div className="bg-white rounded-r-[20px] p-4   shadow-md flex-1 text-center">
+              <div className="bg-white rounded-r-[20px] p-4 shadow-md flex-1 text-center">
                 <h3 className="text-[#4E4E4E] text-left font-semibold">
                   Abonnements Expirés
                 </h3>
@@ -225,27 +267,20 @@ export default function Abonnement() {
                       d="M31.5 0C14.1031 0 0 14.1031 0 31.5C0 48.8969 14.1031 63 31.5 63C48.8969 63 63 48.8969 63 31.5C63 14.1031 48.8969 0 31.5 0ZM42.5891 32.8933L27.2489 43.3362C26.7327 43.6875 26.0644 43.7247 25.5124 43.4328C24.9604 43.1407 24.615 42.5674 24.615 41.9429V21.0571C24.615 20.4326 24.9604 19.8593 25.5124 19.5672C26.0644 19.2753 26.7327 19.3123 27.2489 19.6638L42.5891 30.1067C43.0501 30.4206 43.3262 30.9422 43.3262 31.5C43.3262 32.0578 43.0503 32.5794 42.5891 32.8933Z"
                       fill="#FF0000"
                     />
-                    <rect
-                      x="17"
-                      y="17"
-                      width="29"
-                      height="29"
-                      rx="5"
-                      fill="white"
-                    />
+                    <rect x="17" y="17" width="29" height="29" rx="5" fill="white" />
                   </svg>
                 </div>
               </div>
             </div>
-            <div className="flex w-1/4 ">
+            <div className="flex w-1/4">
               <div className="w-2 rounded-l-[20px] bg-[#2A9D8F]"></div>
-              <div className="bg-white rounded-r-[20px] p-4   shadow-md flex-1 text-center">
+              <div className="bg-white rounded-r-[20px] p-4 shadow-md flex-1 text-center">
                 <h3 className="text-[#4E4E4E] text-left font-semibold">
                   Revenu Mensuel Estimé
                 </h3>
                 <div className="flex items-center py-4 justify-between">
                   <p className="text-4xl font-bold text-[#7A20DA]">
-                    {stats?.revenusMensuels}
+                    {stats?.revenusMensuels} €
                   </p>
                   <svg
                     width="33"
@@ -263,12 +298,9 @@ export default function Abonnement() {
               </div>
             </div>
           </div>
-          {/* Fin des KPI */}
           <div className="bg-white rounded-[20px] py-2 px-6 shadow-md border-[1px] border-[#C4C4C4] mb-6">
             <div className="flex flex-col sm:flex-row items-center justify-between space-y-4 sm:space-y-0 sm:space-x-4">
-              <h3 className="text-[#4E4E4E] font-semibold">
-                Type d’abonnement
-              </h3>
+              <h3 className="text-[#4E4E4E] font-semibold">Type d’abonnement</h3>
               <select
                 defaultValue=""
                 className="p-2 pr-6 border border-[#F1F1F1] text-[#4C4C4C] rounded-[15px] w-full sm:w-[250px]"
@@ -306,7 +338,6 @@ export default function Abonnement() {
             </div>
           </div>
 
-          {/* Tableau */}
           {loading && <p className="text-center text-gray-500">Chargement...</p>}
           {error && <p className="text-center text-red-500">{error}</p>}
 
@@ -316,26 +347,36 @@ export default function Abonnement() {
                 <thead>
                   <tr className="border-b border-gray-300">
                     <th className="py-6 px-6">Entreprise</th>
-                    <th className="py-6 px-6">Type d`abonnement</th>
+                    <th className="py-6 px-6">Type d’abonnement</th>
                     <th className="py-6 px-6">Date de début</th>
-                    <th className="py-6 px-6">Date d`expiration</th>
+                    <th className="py-6 px-6">Date d’expiration</th>
                     <th className="py-6 px-6">Statut</th>
                     <th className="py-6 px-6">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
                   {subscriptions.map((subscription: ISubscriptionExtended) => (
-                    <tr key={subscription.companyName} className="border-b text-[#4C4C4C] border-gray-200 odd:bg-white even:bg-[#F6F6F6]">
+                    <tr
+                      key={subscription.companyName}
+                      className="border-b text-[#4C4C4C] border-gray-200 odd:bg-white even:bg-[#F6F6F6]"
+                    >
                       <td className="py-6 px-6">
                         {subscription.companyName ?? "N/A"}
                       </td>
                       <td className="py-6 px-6">{subscription.plan}</td>
-                      <td className="py-6 px-6">{subscription.startDate ? new Date(subscription.startDate).toLocaleDateString('fr-FR') : "N/A"}</td>
-                      <td className="py-6 px-6">{subscription.endDate ? new Date(subscription.endDate).toLocaleDateString('fr-FR') : "N/A"}</td>
-                      <td className="py-6 px-6 text-[#2A9D8F]  ">
+                      <td className="py-6 px-6">
+                        {subscription.startDate
+                          ? new Date(subscription.startDate).toLocaleDateString("fr-FR")
+                          : "N/A"}
+                      </td>
+                      <td className="py-6 px-6">
+                        {subscription.endDate
+                          ? new Date(subscription.endDate).toLocaleDateString("fr-FR")
+                          : "N/A"}
+                      </td>
+                      <td className="py-6 px-6 text-[#2A9D8F]">
                         {subscription.isActive === true && (
                           <div className="flex items-center gap-2 text-green-600">
-                            {/* Icône Actif */}
                             <svg
                               width="18"
                               height="19"
@@ -368,7 +409,6 @@ export default function Abonnement() {
                             Actif
                           </div>
                         )}
-
                         {(subscription.isActive === false && subscription.isTrial === true) && (
                           <div className="flex items-center gap-2">
                             <svg
@@ -386,10 +426,7 @@ export default function Abonnement() {
                                 d="M10.3927 24.7186C10.1228 25.1814 10.1164 25.7148 10.3606 26.184C10.3735 26.2032 10.3799 26.2225 10.3927 26.2418C10.6691 26.7238 11.1511 27.0002 11.7103 27.0002H23.3045C23.8637 27.0002 24.3393 26.7238 24.6221 26.2418C24.8984 25.7598 24.8984 25.2071 24.6221 24.725L19.6604 16.1322L18.8249 14.6861C18.5486 14.2041 18.0665 13.9277 17.5074 13.9277C16.9483 13.9277 16.4727 14.2041 16.1899 14.6861L10.3927 24.7186ZM16.8004 18.1245H18.2144L18.5164 22.5977H16.4919L16.8004 18.1245ZM18.5421 25.4577H16.4727V23.941H18.5421V25.4577Z"
                                 fill="#EDC12E"
                               />
-                              <path
-                                d="M0 0H21.2861V1.43964H0V0Z"
-                                fill="#EDC12E"
-                              />
+                              <path d="M0 0H21.2861V1.43964H0V0Z" fill="#EDC12E" />
                               <path
                                 d="M19.6211 14.7749L20.2638 15.8868V2.0752H19.6211V14.7749Z"
                                 fill="#EDC12E"
@@ -410,7 +447,6 @@ export default function Abonnement() {
                             En essai
                           </div>
                         )}
-
                         {(subscription.isActive === false && subscription.isTrial === false) && (
                           <div className="flex items-center gap-2">
                             <svg
@@ -447,24 +483,13 @@ export default function Abonnement() {
                             Expiré
                           </div>
                         )}
-
                       </td>
                       <td className="py-6 px-6 flex space-x-2">
-                        {/* <button className="bg-purple-600 text-white px-2 py-1 rounded-md">
-                          Détails
-                        </button> */}
-                        {/* <button className="bg-purple-600 text-white px-2 py-1 rounded-md">
-                          Modifier
-                        </button>
-                        <button className="bg-red-600 text-white px-2 py-1 rounded-md">
-                          Annuler
-                        </button> */}
                         {(subscription.isActive === false && subscription.isTrial === false) && (
                           <button
-                          
-                            onClick={() => handleRenew(subscription.employerId?.toString())}
-
-                          className="bg-[#2A9D8F] flex items-center gap-1 text-white px-2 py-1 rounded-md">
+                            onClick={() => handleRenew(subscription.employerId?.toString() || "")}
+                            className="bg-[#2A9D8F] flex items-center gap-1 text-white px-2 py-1 rounded-md"
+                          >
                             <svg
                               width="20"
                               height="20"
@@ -480,11 +505,29 @@ export default function Abonnement() {
                             Renouveler
                           </button>
                         )}
-                        
+                        {(subscription.isActive === false && subscription.isTrial === true) && (
+                          <button
+                            onClick={() => handleMarkAsPaid(subscription.employerId?.toString() || "")}
+                            className="bg-[#4DD5FF] flex items-center gap-1 text-white px-2 py-1 rounded-md"
+                          >
+                            <svg
+                              width="20"
+                              height="20"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              xmlns="http://www.w3.org/2000/svg"
+                            >
+                              <path
+                                d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM17 13H13V17H11V13H7V11H11V7H13V11H17V13Z"
+                                fill="white"
+                              />
+                            </svg>
+                            Marquer comme payé
+                          </button>
+                        )}
                       </td>
                     </tr>
                   ))}
-
                 </tbody>
               </table>
             </div>
@@ -495,205 +538,6 @@ export default function Abonnement() {
           </button>
         </div>
       </div>
-      {/* <button className="bg-[#7A20DA] flex font-bold text-white px-4 items-center gap-1 py-1 rounded-[5px]">
-        <svg
-          width="20"
-          height="20"
-          viewBox="0 0 24 24"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <g clipPath="url(#clip0_63_3948)">
-            <path
-              d="M20.0685 8.16955C19.8341 7.93515 19.4541 7.93515 19.2197 8.16875L13.3413 14.048C13.1029 14.2784 13.0965 14.6584 13.3269 14.8968C13.5573 15.1352 13.9373 15.1416 14.1757 14.9112L14.1901 14.8968L20.0685 9.01835C20.3029 8.78395 20.3029 8.40395 20.0685 8.16955Z"
-              fill="white"
-            />
-            <path
-              d="M16.1282 9.18079C16.1282 8.19999 15.333 7.40479 14.3522 7.40479C13.3714 7.40479 12.5762 8.19999 12.5762 9.18079C12.5762 10.1616 13.3714 10.9568 14.3522 10.9568C15.3322 10.956 16.1274 10.1616 16.1282 9.18079ZM13.777 9.18159V9.18079C13.777 8.86239 14.0346 8.60479 14.353 8.60479C14.6714 8.60479 14.929 8.86239 14.929 9.18079C14.929 9.49919 14.6714 9.75679 14.353 9.75679C14.0354 9.75679 13.777 9.49999 13.777 9.18159Z"
-              fill="white"
-            />
-            <path
-              d="M19.0553 12.1079C18.0745 12.1079 17.2793 12.9031 17.2793 13.8839C17.2793 14.8647 18.0745 15.6599 19.0553 15.6599C20.0361 15.6599 20.8313 14.8647 20.8313 13.8839C20.8305 12.9039 20.0353 12.1095 19.0553 12.1079ZM19.6313 13.8839C19.6305 14.2015 19.3729 14.4591 19.0553 14.4591C18.7369 14.4591 18.4793 14.2015 18.4793 13.8831C18.4793 13.5647 18.7369 13.3071 19.0553 13.3071C19.3737 13.3071 19.6313 13.5655 19.6313 13.8839Z"
-              fill="white"
-            />
-            <path
-              d="M23.1295 3.02782C23.0455 2.19422 22.6319 1.42862 21.9799 0.902216C20.8607 -0.00578351 19.2679 -0.0385835 18.1119 0.822216L12.8159 4.75662C11.3031 5.87582 9.4719 6.48222 7.5903 6.48622H7.4919C7.1607 6.48622 6.8919 6.75502 6.8919 7.08622V15.3342L3.4967 15.0942C3.4887 15.0942 3.4815 15.0982 3.4743 15.0942C3.4671 15.0902 3.4607 15.0894 3.4535 15.0894H2.6535C2.0935 15.091 1.6391 14.6382 1.6375 14.0782V8.69982C1.6383 8.14142 2.0895 7.68862 2.6479 7.68622H3.4535C3.7847 7.68622 4.0535 7.41742 4.0535 7.08622C4.0535 6.75502 3.7847 6.48622 3.4535 6.48622H2.6471C1.4271 6.49022 0.4391 7.47982 0.4375 8.69982V14.0774C0.4391 15.2982 1.4295 16.2878 2.6503 16.2894H2.6719L1.7831 19.6078C1.5839 20.3438 1.9431 21.1166 2.6351 21.4374L7.3863 23.6534C8.1719 24.019 9.1047 23.679 9.4703 22.8934V22.8926C9.5087 22.8102 9.5399 22.7238 9.5639 22.6358L10.2551 20.023C10.4519 20.059 10.6519 20.0774 10.8519 20.0782C11.9719 20.0886 13.0327 19.5798 13.7263 18.7006L18.1111 21.9598C19.5087 22.999 21.4847 22.7078 22.5231 21.3102C22.8607 20.8566 23.0695 20.3198 23.1287 19.7574C23.7071 14.1958 23.7071 8.58942 23.1295 3.02782ZM8.3799 22.3854C8.2943 22.5694 8.0751 22.6486 7.8919 22.5622L3.1423 20.347C2.9807 20.2718 2.8967 20.091 2.9431 19.919L3.9031 16.3246L9.8767 16.751L8.3799 22.3854ZM10.8799 18.8774C10.7759 18.875 10.6719 18.8654 10.5687 18.8494L11.0559 17.0094C11.6607 17.271 12.2335 17.5998 12.7647 17.9894C12.3007 18.5534 11.6095 18.879 10.8799 18.8774ZM21.9351 19.6294L21.9375 19.6318C21.8255 20.7046 20.8639 21.4838 19.7911 21.371C19.4431 21.3342 19.1103 21.2054 18.8295 20.9966L13.5335 17.059C12.7151 16.4502 11.8079 15.971 10.8431 15.639C10.8191 15.631 10.7935 15.639 10.7687 15.6294C10.7423 15.6206 10.7159 15.6134 10.6887 15.6078L8.0927 15.4222V7.66542C10.0575 7.56462 11.9495 6.88782 13.5327 5.71982L18.8287 1.78302C19.6943 1.13902 20.9175 1.31902 21.5607 2.18462C21.7703 2.46622 21.8999 2.79982 21.9367 3.14942C22.5055 8.62782 22.5047 14.151 21.9351 19.6294Z"
-              fill="white"
-            />
-          </g>
-          <defs>
-            <clipPath id="clip0_63_3948">
-              <rect width="24" height="24" fill="white" />
-            </clipPath>
-          </defs>
-        </svg>
-        Promouvoir
-      </button>
-      <tr className="border-b border-gray-200 odd:bg-white even:bg-[#F6F6F6]">
-        <td className="py-6 px-6">Beta Industriel</td>
-        <td className="py-6 px-6">Essai 4</td>
-        <td className="py-6 px-6">15/05/2025</td>
-        <td className="py-6 px-6">15/06/2025</td>
-        <td className="py-6 px-6 text-[#EDC12E]">
-          <div className="flex items-center gap-2">
-            <svg
-              width="25"
-              height="27"
-              viewBox="0 0 25 27"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M9.60832 26.01H0V24.5703H9.74329C9.5312 25.0331 9.48621 25.5344 9.60832 26.01Z"
-                fill="#EDC12E"
-              />
-              <path
-                d="M10.3927 24.7186C10.1228 25.1814 10.1164 25.7148 10.3606 26.184C10.3735 26.2032 10.3799 26.2225 10.3927 26.2418C10.6691 26.7238 11.1511 27.0002 11.7103 27.0002H23.3045C23.8637 27.0002 24.3393 26.7238 24.6221 26.2418C24.8984 25.7598 24.8984 25.2071 24.6221 24.725L19.6604 16.1322L18.8249 14.6861C18.5486 14.2041 18.0665 13.9277 17.5074 13.9277C16.9483 13.9277 16.4727 14.2041 16.1899 14.6861L10.3927 24.7186ZM16.8004 18.1245H18.2144L18.5164 22.5977H16.4919L16.8004 18.1245ZM18.5421 25.4577H16.4727V23.941H18.5421V25.4577Z"
-                fill="#EDC12E"
-              />
-              <path
-                d="M0 0H21.2861V1.43964H0V0Z"
-                fill="#EDC12E"
-              />
-              <path
-                d="M19.6211 14.7749L20.2638 15.8868V2.0752H19.6211V14.7749Z"
-                fill="#EDC12E"
-              />
-              <path
-                d="M15.2015 5.48243C15.1436 6.69713 13.7554 8.03394 12.9392 8.72805C12.4764 9.11367 11.6152 9.88491 10.9725 10.8232V15.1807C11.6217 16.1191 12.4764 16.8903 12.9392 17.2759C13.1127 17.4237 13.3505 17.6294 13.6076 17.8801L13.2734 18.4585L12.1615 20.3737L11.7888 21.0164H6.42223C6.25513 21.0164 6.12017 20.8879 6.10089 20.7272C6.09446 20.6629 6.09446 20.5922 6.09446 20.528C6.1523 19.3133 7.5341 17.9765 8.35675 17.2823C8.81949 16.8967 9.68071 16.1255 10.3234 15.1872V10.8361C9.68071 9.89776 8.81949 9.12652 8.35675 8.74091C7.5341 8.04679 6.1523 6.70998 6.09446 5.49529C6.08803 5.43102 6.09446 5.36032 6.10089 5.29605C6.11374 5.12895 6.25513 5.00684 6.42223 5.00684H14.8737C15.0408 5.00684 15.1758 5.13538 15.1951 5.29605C15.2015 5.35389 15.2015 5.41816 15.2015 5.48243Z"
-                fill="#EDC12E"
-              />
-              <path
-                d="M11.9281 13.001C11.9281 13.9201 13.477 15.4112 14.0747 15.906C14.2226 16.0346 14.3704 16.1631 14.5118 16.2917L14.184 16.8637C14.0169 16.703 13.8434 16.5487 13.6634 16.3945C13.4256 16.1952 11.2854 14.3828 11.2854 13.001C11.2854 11.6192 13.4192 9.80684 13.6634 9.60118C15.3794 8.1294 16.3049 6.68976 16.3242 5.43007C16.337 4.58171 15.9514 4.04185 15.7779 3.84904H5.50759C5.33406 4.04185 4.94844 4.58171 4.96129 5.43007C4.98057 6.68976 5.90606 8.13583 7.62849 9.60118C7.86628 9.80041 10.0065 11.6128 10.0065 12.9946C10.0065 14.3764 7.87271 16.1888 7.62849 16.3945C5.91248 17.8663 4.987 19.3059 4.96772 20.5656C4.95487 21.4139 5.34048 21.9538 5.51401 22.1466H11.1312L10.7584 22.7893L10.1093 23.9205H5.05127V22.6029C4.8199 22.3459 4.30574 21.6517 4.3186 20.5784C4.33788 19.1002 5.30835 17.5321 7.21073 15.906C7.81487 15.4047 9.36377 13.9201 9.36377 13.001C9.36377 12.082 7.81487 10.5909 7.21716 10.0961C5.31478 8.47003 4.33788 6.89542 4.32502 5.42365C4.31217 4.34392 4.82633 3.65623 5.0577 3.39915V2.0752H16.2471V3.39915C16.4784 3.65623 16.9926 4.35034 16.9797 5.42365C16.9604 6.90185 15.99 8.47003 14.0876 10.0961C13.4835 10.5974 11.9281 12.082 11.9281 13.001Z"
-                fill="#EDC12E"
-              />
-              <path
-                d="M1.0293 2.0752H1.67199V23.9269H1.0293V2.0752Z"
-                fill="#EDC12E"
-              />
-            </svg>
-            En essai
-          </div>
-        </td>
-        <td className="py-6 px-6 flex space-x-2">
-          <button className="bg-[#F4E9FF] text-[#7A20DA] font-bold flex px-4 items-center gap-2 py-1 rounded-[5px]">
-            <svg
-              width="5"
-              height="14"
-              viewBox="0 0 7 16"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M2.23938 0.627251V15.3727C2.23938 15.6236 2.05277 15.8044 1.67954 15.9164C1.49893 15.9721 1.31274 16 1.11969 16L0.559846 15.9164C0.186186 15.8044 0 15.6236 0 15.3727V0.627251C0 0.37635 0.186615 0.195609 0.559846 0.0836335C0.740026 0.0278779 0.926641 0 1.11969 0L1.67954 0.0836335C2.05277 0.195145 2.23938 0.37635 2.23938 0.627251ZM7 0.627251V15.3727C7 15.6236 6.81339 15.8044 6.44016 15.9164C6.25955 15.9721 6.07336 16 5.88031 16L5.32046 15.9164C4.9468 15.8044 4.76062 15.6236 4.76062 15.3727V0.627251C4.76062 0.37635 4.94723 0.195609 5.32046 0.0836335C5.50064 0.0278779 5.68726 0 5.88031 0L6.44016 0.0836335C6.81339 0.195145 7 0.37635 7 0.627251Z"
-                fill="#7A20DA"
-              />
-            </svg>
-            Suspendre
-          </button>
-          <button className="bg-[#FF0000] text-white flex font-bold px-4 items-center gap-2 py-1 rounded-[5px]">
-            <svg
-              width="15"
-              height="15"
-              viewBox="0 0 22 22"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <g clipPath="url(#clip0_63_3945)">
-                <path
-                  d="M11 0C4.9347 0 0 4.93437 0 11C0 17.0656 4.93437 22 11 22C17.0656 22 22 17.0656 22 11C22 4.93437 17.0653 0 11 0ZM2.01471 11C2.01471 6.04548 6.04548 2.01471 11 2.01471C13.2323 2.01471 15.2759 2.83504 16.8491 4.18792L4.18792 16.8491C2.83504 15.2759 2.01471 13.2323 2.01471 11ZM11 19.9853C9.00275 19.9853 7.15626 19.3295 5.66269 18.2231L18.2227 5.66302C19.3292 7.1566 19.985 9.00308 19.985 11.0003C19.9853 15.9545 15.9545 19.9853 11 19.9853Z"
-                  fill="white"
-                />
-              </g>
-              <defs>
-                <clipPath id="clip0_63_3945">
-                  <rect width="22" height="22" fill="white" />
-                </clipPath>
-              </defs>
-            </svg>
-            Annuler
-          </button>
-          <button className="bg-[#F4E9FF] text-[#7A20DA] font-bold flex px-4 items-center gap-2 py-1 rounded-[5px]">
-            <svg
-              width="20"
-              height="20"
-              viewBox="0 0 23 23"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M11.5 0C5.16147 0 0 5.16147 0 11.5C0 17.8385 5.16147 23 11.5 23C17.8385 23 23 17.8385 23 11.5C23 5.16147 17.8385 0 11.5 0ZM10.8235 16.0797V15.3829C10.8235 15.0109 11.1279 14.7065 11.5 14.7065C11.8721 14.7065 12.1765 15.0109 12.1765 15.3829V16.0797C12.1765 16.4585 11.8721 16.7562 11.5 16.7562C11.1279 16.7562 10.8235 16.4585 10.8235 16.0797ZM12.1765 13.2047C12.1765 13.5768 11.8721 13.8812 11.5 13.8812C11.1279 13.8812 10.8235 13.5768 10.8235 13.2047V6.92029C10.8235 6.54147 11.1279 6.24382 11.5 6.24382C11.8721 6.24382 12.1765 6.54147 12.1765 6.92029V13.2047Z"
-                fill="#7A20DA"
-              />
-            </svg>
-            Détails
-          </button>
-        </td>
-      </tr>
-      <tr className="border-b border-gray-200 odd:bg-white even:bg-[#F6F6F6]">
-        <td className="py-6 px-6">Gamma Solutions</td>
-        <td className="py-6 px-6">Entreprise</td>
-        <td className="py-6 px-6">08/05/2025</td>
-        <td className="py-6 px-6">08/06/2025</td>
-
-        <td className="py-6 px-6 text-[#FF0000] ">
-          <div className="flex items-center gap-2">
-            <svg
-              width="18"
-              height="19"
-              viewBox="0 0 28 29"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <g clipPath="url(#clip0_63_3963)">
-                <path
-                  d="M28 14.4125C28 22.0394 21.7319 28.222 14 28.222C6.26801 28.222 0 22.0394 0 14.4125C0 6.78577 6.26801 0.603027 14 0.603027C21.7319 0.603027 28 6.78577 28 14.4125Z"
-                  fill="white"
-                />
-                <path
-                  fillRule="evenodd"
-                  clipRule="evenodd"
-                  d="M14 26.1506C20.5722 26.1506 25.9 20.8953 25.9 14.4125C25.9 7.92978 20.5722 2.67445 14 2.67445C7.42781 2.67445 2.1 7.92978 2.1 14.4125C2.1 20.8953 7.42781 26.1506 14 26.1506ZM14 28.222C21.7319 28.222 28 22.0394 28 14.4125C28 6.78577 21.7319 0.603027 14 0.603027C6.26801 0.603027 0 6.78577 0 14.4125C0 22.0394 6.26801 28.222 14 28.222Z"
-                  fill="#FF0000"
-                />
-                <path
-                  fillRule="evenodd"
-                  clipRule="evenodd"
-                  d="M9.336 9.21012C9.03037 8.92996 8.53484 8.92996 8.22922 9.21012C7.92359 9.49027 7.92359 9.94451 8.22922 10.2247L12.8932 14.5L8.22922 18.7754C7.92359 19.0556 7.92359 19.5097 8.22922 19.7899C8.53484 20.07 9.03037 20.07 9.336 19.7899L14 15.5146L18.6641 19.7899C18.9697 20.07 19.4651 20.07 19.7708 19.7899C20.0764 19.5097 20.0764 19.0556 19.7708 18.7754L15.1068 14.5L19.7708 10.2247C20.0764 9.94451 20.0764 9.49027 19.7708 9.21012C19.4651 8.92996 18.9697 8.92996 18.6641 9.21012L14 13.4854L9.336 9.21012Z"
-                  fill="#FF0000"
-                />
-              </g>
-              <defs>
-                <clipPath id="clip0_63_3963">
-                  <rect width="28" height="29" fill="white" />
-                </clipPath>
-              </defs>
-            </svg>
-            Expiré
-          </div>
-        </td>
-        <td className="py-6 px-6 flex space-x-2">
-
-          <button className="bg-[#2A9D8F] flex items-center gap-1 text-white px-2 py-1 rounded-md">
-            <svg
-              width="20"
-              height="20"
-              viewBox="0 0 24 24"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M11.5 1C9.22552 1 7.00211 1.67446 5.11095 2.9381C3.21978 4.20174 1.7458 5.99779 0.87539 8.09914C0.00498288 10.2005 -0.222756 12.5128 0.220974 14.7435C0.664704 16.9743 1.75997 19.0234 3.36828 20.6317C4.97658 22.24 7.02568 23.3353 9.25646 23.779C11.4872 24.2228 13.7995 23.995 15.9009 23.1246C18.0022 22.2542 19.7983 20.7802 21.0619 18.8891C22.3255 16.9979 23 14.7745 23 12.5C22.9989 9.45035 21.7869 6.52591 19.6305 4.36948C17.4741 2.21305 14.5497 1.0011 11.5 1ZM20.47 10.8133C20.5427 10.8825 20.6006 10.9658 20.6401 11.0581C20.6796 11.1503 20.7 11.2496 20.7 11.35C20.7 11.4504 20.6796 11.5497 20.6401 11.6419C20.6006 11.7342 20.5427 11.8175 20.47 11.8867L18.17 14.1867C18.1008 14.2594 18.0175 14.3172 17.9253 14.3568C17.833 14.3963 17.7337 14.4167 17.6333 14.4167C17.533 14.4167 17.4336 14.3963 17.3414 14.3568C17.2491 14.3172 17.1659 14.2594 17.0967 14.1867L14.7967 11.8867C14.6567 11.7438 14.5788 11.5516 14.5798 11.3516C14.5808 11.1516 14.6607 10.9601 14.8021 10.8187C14.9435 10.6773 15.135 10.5974 15.3349 10.5964C15.5349 10.5954 15.7272 10.6734 15.87 10.8133L16.8053 11.7333C16.6578 10.7159 16.221 9.76221 15.5469 8.98596C14.8728 8.2097 13.9897 7.64354 13.003 7.35489C12.0162 7.06625 10.9673 7.06727 9.9811 7.35785C8.99491 7.64843 8.11301 8.21632 7.44041 8.99389C6.7678 9.77146 6.33285 10.726 6.18733 11.7437C6.04181 12.7615 6.19185 13.7996 6.6196 14.7345C7.04735 15.6694 7.73478 16.4617 8.60003 17.017C9.46528 17.5723 10.4719 17.8672 11.5 17.8667C11.7033 17.8667 11.8983 17.9474 12.0421 18.0912C12.1859 18.235 12.2667 18.43 12.2667 18.6333C12.2667 18.8367 12.1859 19.0317 12.0421 19.1754C11.8983 19.3192 11.7033 19.4 11.5 19.4C10.1642 19.3995 8.85721 19.0113 7.73773 18.2825C6.61825 17.5537 5.7344 16.5155 5.19346 15.2941C4.65252 14.0727 4.47775 12.7206 4.69036 11.4018C4.90297 10.083 5.49382 8.85426 6.3912 7.86474C7.28858 6.87522 8.45389 6.16746 9.7457 5.82737C11.0375 5.48728 12.4003 5.52947 13.6686 5.94883C14.9368 6.3682 16.0561 7.1467 16.8906 8.18984C17.725 9.23298 18.2387 10.4959 18.3693 11.8253L19.3967 10.8133C19.4659 10.7406 19.5491 10.6828 19.6414 10.6432C19.7336 10.6037 19.833 10.5833 19.9333 10.5833C20.0337 10.5833 20.133 10.6037 20.2253 10.6432C20.3175 10.6828 20.4008 10.7406 20.47 10.8133Z"
-                fill="white"
-              />
-            </svg>
-            Renouveler
-          </button>
-          <button className="bg-red-600 text-white px-2 py-1 rounded-md">
-            Annuler
-          </button>
-        </td>
-      </tr> */}
     </>
   );
 }

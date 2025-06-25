@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 import jwt from "jsonwebtoken";
-import EmployerModelPromise from "@/models/Employer";
 import SubscriptionModelPromise from "@/models/Subscription";
 
 export async function PUT(

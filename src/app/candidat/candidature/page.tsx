@@ -1,8 +1,9 @@
 "use client";
-
-import { useState } from "react";
+import { searchDepartment, searchCity } from "france-cities-js";
+import { useState, useEffect } from "react";
 import Navbar from "@/app/components/Navbar";
 import { useRouter } from "next/navigation";
+import { Country, State } from "country-state-city";
 
 export default function Candidature() {
   const [step, setStep] = useState(1); // Gérer les étapes (1, 2, 3, 4)
@@ -13,7 +14,8 @@ export default function Candidature() {
     phone: "",
     adresse: "",
     sector: "",
-    location: "",
+    department: "", // Nouveau champ pour le département
+    city: "", // Nouveau champ pour la ville
     level: "",
     contracttype: "",
     cvFile: null as File | null,
@@ -23,11 +25,47 @@ export default function Candidature() {
   const [fileMessage, setFileMessage] = useState<string | null>(null); // Message de confirmation
   const [videoUploading, setVideoUploading] = useState(false); // Loader spécifique pour la vidéo
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  // Liste des départements français
+  const country = Country.getCountryByCode("FR"); // Code ISO pour la France
+  const departments = State.getStatesOfCountry(country?.isoCode ?? "FR").map(
+    (state) => ({
+      code: state.isoCode.split("-")[1], // Extraire le code numérique (ex. "75")
+      name: state.name,
+    })
+  );
+
+  const listDepartements = searchDepartment
+    .byName("", 200) // "" pour tous, limite 200 (départements français)
+    .map((d) => ({
+      code: d.code, // code du département, ex "75"
+      name: d.name, // nom du département, ex "Paris"
+    }));
+  const [cities, setCities] = useState<string[]>([]); // Liste des villes filtrée par département
+
+  // Mettre à jour les villes en fonction du département sélectionné
+  useEffect(() => {
+    if (formData.department) {
+      const cities = searchCity
+        .byDepartmentCode(formData.department, 1000) // Limite raisonnable à 1000
+        .map((c) => c.name);
+      console.log("Villes trouvées pour", formData.department, ":", cities); // Débogage
+      setCities(cities);
+      setFormData((prev) => ({ ...prev, city: "" }));
+    } else {
+      setCities([]);
+    }
+  }, [formData.department]);
+
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>, type: "cv" | "video") => {
+  const handleFileChange = (
+    e: React.ChangeEvent<HTMLInputElement>,
+    type: "cv" | "video"
+  ) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
@@ -37,9 +75,10 @@ export default function Candidature() {
       return;
     }
 
-    const allowedTypes = type === "cv"
-      ? ["application/pdf"]
-      : ["video/mp4", "video/quicktime", "video/x-matroska"];
+    const allowedTypes =
+      type === "cv"
+        ? ["application/pdf"]
+        : ["video/mp4", "video/quicktime", "video/x-matroska"];
 
     if (!allowedTypes.includes(file.type)) {
       alert(
@@ -51,24 +90,27 @@ export default function Candidature() {
     }
 
     if (type === "video") {
-      setVideoUploading(true); // Active le loader pour la vidéo
-      // Simule un délai de traitement (remplace par une logique réelle si nécessaire)
+      setVideoUploading(true);
       setTimeout(() => {
         setFormData((prev) => ({
           ...prev,
           [type === "cv" ? "cvFile" : "videoFile"]: file,
         }));
-        setFileMessage(`${type === "cv" ? "CV" : "Vidéo"} sélectionné avec succès !`);
-        setVideoUploading(false); // Désactive le loader après le délai
-        setTimeout(() => setFileMessage(null), 3000); // Cache le message après 3 secondes
-      }, 1000); // Délai de 1 seconde
+        setFileMessage(
+          `${type === "cv" ? "CV" : "Vidéo"} sélectionné avec succès !`
+        );
+        setVideoUploading(false);
+        setTimeout(() => setFileMessage(null), 3000);
+      }, 1000);
     } else {
       setFormData((prev) => ({
         ...prev,
         [type === "cv" ? "cvFile" : "videoFile"]: file,
       }));
-      setFileMessage(`${type === "cv" ? "CV" : "Vidéo"} sélectionné avec succès !`);
-      setTimeout(() => setFileMessage(null), 3000); // Cache le message après 3 secondes
+      setFileMessage(
+        `${type === "cv" ? "CV" : "Vidéo"} sélectionné avec succès !`
+      );
+      setTimeout(() => setFileMessage(null), 3000);
     }
   };
 
@@ -79,7 +121,7 @@ export default function Candidature() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true); // Active le loader
+    setLoading(true);
 
     const data = new FormData();
     data.append("firstName", formData.firstName);
@@ -87,7 +129,7 @@ export default function Candidature() {
     data.append("phone", formData.phone);
 
     const alternanceSearch = {
-      location: formData.location,
+      location: `${formData.department} - ${formData.city}`, // Concaténer département et ville
       contracttype: formData.contracttype,
       sector: formData.sector,
       level: formData.level,
@@ -106,8 +148,10 @@ export default function Candidature() {
       alternanceSearch.sector === "Sélectionnez un secteur" ||
       alternanceSearch.level === "Sélectionnez un niveau"
     ) {
-      alert("Veuillez remplir tous les champs liés à votre recherche d'alternance.");
-      return; // Stoppe l'exécution ici
+      alert(
+        "Veuillez remplir tous les champs liés à votre recherche d'alternance."
+      );
+      return;
     }
 
     data.append("alternanceSearch", JSON.stringify(alternanceSearch));
@@ -138,14 +182,14 @@ export default function Candidature() {
       console.error("Erreur lors de la soumission :", error);
       alert("Une erreur est survenue.");
     } finally {
-      setLoading(false); // Désactive le loader, même en cas d'erreur
+      setLoading(false);
     }
   };
 
   return (
     <>
       <Navbar />
-      <div className="min-h-screen  bg-[#F6F6F6] flex  justify-center p-2 sm:p-4">
+      <div className="min-h-screen bg-[#F6F6F6] flex justify-center p-2 sm:p-4">
         <div className="mt-32 sm:mt-16 md:mt-24 w-full max-w-sm sm:max-w-md md:max-w-lg">
           <div className="bg-white p-4 sm:p-6 md:p-8 rounded-[15px] shadow-md">
             {/* Titre et contenu de l'étape */}
@@ -160,7 +204,10 @@ export default function Candidature() {
                     Informations personnelles
                   </h2>
                   <div>
-                    <label className="text-[#4C4C4C] text-sm sm:text-base md:text-[16px]" htmlFor="lastName">
+                    <label
+                      className="text-[#4C4C4C] text-sm sm:text-base md:text-[16px]"
+                      htmlFor="lastName"
+                    >
                       Nom <span className="text-[#FF0000]"> *</span>
                     </label>
                     <input
@@ -175,7 +222,10 @@ export default function Candidature() {
                     />
                   </div>
                   <div>
-                    <label className="text-[#4C4C4C] text-sm sm:text-base md:text-[16px]" htmlFor="firstName">
+                    <label
+                      className="text-[#4C4C4C] text-sm sm:text-base md:text-[16px]"
+                      htmlFor="firstName"
+                    >
                       Prénom <span className="text-[#FF0000]"> *</span>
                     </label>
                     <input
@@ -190,7 +240,10 @@ export default function Candidature() {
                     />
                   </div>
                   <div>
-                    <label className="text-[#4C4C4C] text-sm sm:text-base md:text-[16px]" htmlFor="phone">
+                    <label
+                      className="text-[#4C4C4C] text-sm sm:text-base md:text-[16px]"
+                      htmlFor="phone"
+                    >
                       Téléphone <span className="text-[#FF0000]"> *</span>
                     </label>
                     <input
@@ -205,7 +258,10 @@ export default function Candidature() {
                     />
                   </div>
                   <div>
-                    <label className="text-[#4C4C4C] text-sm sm:text-base md:text-[16px]" htmlFor="adresse">
+                    <label
+                      className="text-[#4C4C4C] text-sm sm:text-base md:text-[16px]"
+                      htmlFor="adresse"
+                    >
                       Adresse <span className="text-[#FF0000]"> *</span>
                     </label>
                     <input
@@ -229,7 +285,10 @@ export default function Candidature() {
                     Recherche d’alternance
                   </h2>
                   <div>
-                    <label className="text-[#4C4C4C] text-sm sm:text-base md:text-[16px]" htmlFor="sector">
+                    <label
+                      className="text-[#4C4C4C] text-sm sm:text-base md:text-[16px]"
+                      htmlFor="sector"
+                    >
                       Secteur <span className="text-[#FF0000]"> *</span>
                     </label>
                     <select
@@ -241,13 +300,43 @@ export default function Candidature() {
                       className="mt-1 sm:mt-2 block mb-2 w-full px-3 sm:px-4 py-2 sm:py-2 border text-gray-700 border-[#C4C4C4] rounded-[15px] placeholder-[#D9D9D9] focus:ring-purple-900 focus:border-purple-900"
                     >
                       <option value="">Sélectionnez un secteur</option>
-                      <option value="Informatique">Informatique</option>
-                      <option value="Marketing">Marketing</option>
-                      <option value="Développement">Développement</option>
+                      <option value="Informatique et Technologies">
+                        Informatique et Technologies
+                      </option>
+                      <option value="Santé et Social">Santé et Social</option>
+                      <option value="Industrie et Construction">
+                        Industrie et Construction
+                      </option>
+                      <option value="Commerce et Vente">Commerce et Vente</option>
+                      <option value="Finance et Assurance">Finance et Assurance</option>
+                      <option value="Éducation et Formation">
+                        Éducation et Formation
+                      </option>
+                      <option value="Hôtellerie et Restauration">
+                        Hôtellerie et Restauration
+                      </option>
+                      <option value="Marketing et Communication">
+                        Marketing et Communication
+                      </option>
+                      <option value="Ressources Humaines et Administration">
+                        Ressources Humaines et Administration
+                      </option>
+                      <option value="Arts, Culture et Médias">
+                        Arts, Culture et Médias
+                      </option>
+                      <option value="Transport et Logistique">
+                        Transport et Logistique
+                      </option>
+                      <option value="Environnement et Développement Durable">
+                        Environnement et Développement Durable
+                      </option>
                     </select>
                   </div>
                   <div>
-                    <label className="text-[#4C4C4C] text-sm sm:text-base md:text-[16px]" htmlFor="contracttype">
+                    <label
+                      className="text-[#4C4C4C] text-sm sm:text-base md:text-[16px]"
+                      htmlFor="contracttype"
+                    >
                       Type de contrat <span className="text-[#FF0000]"> *</span>
                     </label>
                     <select
@@ -260,29 +349,61 @@ export default function Candidature() {
                     >
                       <option value="">Sélectionnez un type</option>
                       <option value="Alternance">Alternance</option>
-                      <option value="CDI">CDI</option>
-                      <option value="CDD">CDD</option>
-                      <option value="Stage académique">Stage académique</option>
-                      <option value="Stage professionnel">Stage professionnel</option>
+                      <option value="Stage académique">Stage</option>
                     </select>
                   </div>
                   <div>
-                    <label className="text-[#4C4C4C] text-sm sm:text-base md:text-[16px]" htmlFor="location">
-                      Localisation <span className="text-[#FF0000]"> *</span>
+                    <label
+                      className="text-[#4C4C4C] text-sm sm:text-base md:text-[16px]"
+                      htmlFor="department"
+                    >
+                      Département <span className="text-[#FF0000]"> *</span>
                     </label>
-                    <input
-                      type="text"
-                      name="location"
-                      id="location"
-                      value={formData.location}
+                    <select
+                      name="department"
+                      id="department"
+                      value={formData.department}
                       onChange={handleChange}
-                      placeholder="Ex: Paris"
-                      className="mt-1 sm:mt-2 block mb-2 w-full px-3 sm:px-4 py-2 sm:py-2 border text-gray-700 border-[#C4C4C4] rounded-[15px] placeholder-[#D9D9D9] focus:ring-purple-900 focus:border-purple-900"
                       required
-                    />
+                      className="mt-1 sm:mt-2 block mb-2 w-full px-3 sm:px-4 py-2 sm:py-2 border text-gray-700 border-[#C4C4C4] rounded-[15px] placeholder-[#D9D9D9] focus:ring-purple-900 focus:border-purple-900"
+                    >
+                      <option value="">Sélectionnez un département</option>
+                      {listDepartements.map((dept) => (
+                        <option key={dept.code} value={dept.code}>
+                          {dept.name} ({dept.code})
+                        </option>
+                      ))}
+                    </select>
                   </div>
                   <div>
-                    <label className="text-[#4C4C4C] text-sm sm:text-base md:text-[16px]" htmlFor="level">
+                    <label
+                      className="text-[#4C4C4C] text-sm sm:text-base md:text-[16px]"
+                      htmlFor="city"
+                    >
+                      Ville <span className="text-[#FF0000]"> *</span>
+                    </label>
+                    <select
+                      name="city"
+                      id="city"
+                      value={formData.city}
+                      onChange={handleChange}
+                      required
+                      className="mt-1 sm:mt-2 block mb-2 w-full px-3 sm:px-4 py-2 sm:py-2 border text-gray-700 border-[#C4C4C4] rounded-[15px] placeholder-[#D9D9D9] focus:ring-purple-900 focus:border-purple-900"
+                      disabled={!formData.department}
+                    >
+                      <option value="">Sélectionnez une ville</option>
+                      {cities.map((city) => (
+                        <option key={city} value={city}>
+                          {city}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <label
+                      className="text-[#4C4C4C] text-sm sm:text-base md:text-[16px]"
+                      htmlFor="level"
+                    >
                       Niveau d’étude <span className="text-[#FF0000]"> *</span>
                     </label>
                     <select
@@ -294,6 +415,9 @@ export default function Candidature() {
                       className="mt-1 sm:mt-2 block mb-2 w-full px-3 sm:px-4 py-2 sm:py-2 border text-gray-700 border-[#C4C4C4] rounded-[15px] placeholder-[#D9D9D9] focus:ring-purple-900 focus:border-purple-900"
                     >
                       <option value="">Sélectionnez un niveau</option>
+                      <option value="CAP">CAP</option>
+                      <option value="BEP">BEP</option>
+                      <option value="BAC PRO">BAC PRO</option>
                       <option value="Bac+1">Bac+1</option>
                       <option value="Bac+2">Bac+2</option>
                       <option value="Bac+3">Bac+3</option>
@@ -352,7 +476,9 @@ export default function Candidature() {
                     </label>
                   </div>
                   {fileMessage && (
-                    <p className="text-green-600 text-center text-xs sm:text-sm mt-2">{fileMessage}</p>
+                    <p className="text-green-600 text-center text-xs sm:text-sm mt-2">
+                      {fileMessage}
+                    </p>
                   )}
                   <p className="text-[#616161] text-center text-xs sm:text-[14px] mt-1 sm:mt-2">
                     Les types de fichiers pris en charge sont uniquement pdf
@@ -404,7 +530,7 @@ export default function Candidature() {
                         onChange={(e) => handleFileChange(e, "video")}
                         className="hidden"
                         required
-                        disabled={videoUploading} // Désactive l'input pendant le chargement
+                        disabled={videoUploading}
                       />
                     </label>
                   </div>
@@ -414,7 +540,9 @@ export default function Candidature() {
                     </div>
                   )}
                   {fileMessage && (
-                    <p className="text-green-600 text-center text-xs sm:text-sm mt-2">{fileMessage}</p>
+                    <p className="text-green-600 text-center text-xs sm:text-sm mt-2">
+                      {fileMessage}
+                    </p>
                   )}
                   <p className="text-[#616161] text-center text-xs sm:text-[14px] mt-1 sm:mt-2">
                     Les types de fichiers pris en charge sont uniquement
@@ -436,13 +564,18 @@ export default function Candidature() {
                 )}
                 <button
                   type="submit"
-                  className={`${step === 1 || step === 4 ? "w-full" : "w-full"
-                    } bg-[#7A20DA] text-white font-medium py-2 px-3 sm:px-4 rounded-lg cursor-pointer hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 transition duration-200 disabled:opacity-50`}
-                  disabled={loading} // Désactive le bouton pendant le chargement
+                  className={`${
+                    step === 1 || step === 4 ? "w-full" : "w-full"
+                  } bg-[#7A20DA] text-white font-medium py-2 px-3 sm:px-4 rounded-lg cursor-pointer hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 transition duration-200 disabled:opacity-50`}
+                  disabled={loading}
                 >
                   {loading ? (
                     <div className="w-6 h-6 border-4 border-t-[#7A20DA] border-t-transparent rounded-full animate-spin mx-auto"></div>
-                  ) : step === 4 ? "Soumettre" : "Continuez"}
+                  ) : step === 4 ? (
+                    "Confirmer & Soumettre"
+                  ) : (
+                    "Continuez"
+                  )}
                 </button>
               </div>
             </form>

@@ -13,7 +13,13 @@ type AlternanceSearch = {
   level?: string;
   contracttype?: string;
 };
-
+type Personality = {
+  resultType?: string;
+  summary?: {
+    emoji?: string;
+    description?: string;
+  };
+};
 type Candidate = {
   firstName?: string;
   lastName?: string;
@@ -23,6 +29,7 @@ type Candidate = {
   photoUrl?: string;
   skills?: string[];
   alternanceSearch?: AlternanceSearch;
+  personalityTestResult?: Personality;
 };
 
 export default function CandidateProfile() {
@@ -148,6 +155,18 @@ export default function CandidateProfile() {
               <h2 className="text-lg sm:text-xl text-left text-gray-700">
                 {candidat.firstName}
               </h2>
+              {candidat.personalityTestResult?.resultType && (
+                <div className="mt-2">
+                  <p className="text-sm sm:text-base text-gray-600">
+                    {candidat.personalityTestResult.summary?.emoji}{" "}
+                    {candidat.personalityTestResult.resultType}
+                  </p>
+                  <p className="text-xs sm:text-sm text-gray-500">
+                    {candidat.personalityTestResult.summary?.description ||
+                      "Aucune description disponible"}
+                  </p>
+                </div>
+              )}
 
               {/* Vidéo */}
               <div className="w-full h-48 sm:h-64 rounded-[15px] relative overflow-hidden">

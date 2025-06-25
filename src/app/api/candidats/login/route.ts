@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import CandidatModelPromise from '@/models/Candidats';
+import CandidatSubscriptionModelPromise from '@/models/CandidatSubscription'; // Nouveau modèle
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { ICandidat } from '@/lib/types';
@@ -14,6 +15,7 @@ export async function POST(req: NextRequest) {
     }
 
     const CandidatModel = await CandidatModelPromise;
+    const CandidatSubscriptionModel = await CandidatSubscriptionModelPromise;
 
     const candidat = await CandidatModel.findOne({ email }) as ICandidat;
     if (!candidat) {
@@ -27,8 +29,25 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ message: 'Mot de passe invalide.' }, { status: 401 });
     }
 
+    // Vérification de l'abonnement
+    const subscription = await CandidatSubscriptionModel.findOne({ candidatId: candidat._id });
+    if (!subscription) {
+      return NextResponse.json({ message: 'Aucun abonnement trouvé.' }, { status: 403 });
+    }
+
+    const now = new Date();
+    if (!subscription.isActive && (!subscription.isTrial || subscription.endDate! < now)) {
+      return NextResponse.json({ message: 'Abonnement invalide ou expiré.' }, { status: 403 });
+    }
+
     const token = jwt.sign(
-      { id: candidat._id, email: candidat.email, role: candidat.role },
+      { 
+        id: candidat._id, 
+        email: candidat.email, 
+        role: candidat.role,
+        isActive: subscription.isActive,
+        isTrial: subscription.isTrial,
+      },
       process.env.JWT_SECRET!,
       { expiresIn: '7d' }
     );
@@ -41,6 +60,8 @@ export async function POST(req: NextRequest) {
         firstName: candidat.firstName,
         lastName: candidat.lastName,
         email: candidat.email,
+        isActive: subscription.isActive,
+        isTrial: subscription.isTrial,
       },
     }, { status: 200 });
   } catch (error) {

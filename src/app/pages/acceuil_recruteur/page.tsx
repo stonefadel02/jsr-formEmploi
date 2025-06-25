@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import Footer from "@/app/components/Footer";
 import Navbar from "@/app/components/Navbar";
@@ -20,8 +20,18 @@ export default function AcceuilRecruteur() {
               <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-7xl font-bold mb-2 sm:mb-4">
                 Trouvez des talents qualifiés en quelques clics.
               </h1>
-              <p className="text-sm sm:text-base md:text-md py-2 sm:py-4 md:py-6 mb-2 sm:mb-4">
-                Accédez à une base de candidats ciblés – 1 mois d’essai gratuits.
+              <p className="text-sm sm:text-base md:text-md ">
+                Accédez à une base de candidats ciblés – 1 mois d’essai
+                gratuits. 
+              
+              </p>
+              <p className="py-4">
+                  <strong>Pré-évaluation déjà disponible</strong> <br /> Chaque candidat proposé
+                passe un test initial via notre application , qui permet de
+                mieux cerner sa personnalité. <br /> 👉 Si vous souhaitez approfondir
+                les résultats de ce test (lecture détaillée, analyse
+                personnalisée, entretien complémentaire), merci de <a target="_blank" rel="noopener noreferrer" href="https://www.jsr-formemploi.com/%C3%A0-propos" className="font-bold">nous
+                contacter</a>  directement pour un devis.
               </p>
               <Link href={"/employeur/candidats"}>
                 <button className="bg-white text-[#501891] text-[15px] px-4 sm:px-6 py-2 sm:py-3 rounded-[10px] font-medium hover:bg-gray-100 transition duration-200 cursor-pointer">
