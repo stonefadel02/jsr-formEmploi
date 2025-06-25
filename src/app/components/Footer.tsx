@@ -31,7 +31,7 @@ export default function Footer() {
                   Candidature
                 </Link>
               </li>
-              <li>
+              {/* <li>
                 <Link
                   href="/conseils-carriere"
                   className="hover:text-[#501891] transition duration-200"
@@ -46,7 +46,7 @@ export default function Footer() {
                 >
                   Rédaction de CV
                 </Link>
-              </li>
+              </li> */}
             
             </ul>
           </div>
@@ -71,14 +71,14 @@ export default function Footer() {
                   Je suis recruteur
                 </Link>
               </li>
-               <li>
+               {/* <li>
                 <Link
                   href=""
                   className="hover:text-[#501891] transition duration-200"
                 >
                   Conseil recrutement
                 </Link>
-              </li>
+              </li> */}
             </ul>
           </div>
 
