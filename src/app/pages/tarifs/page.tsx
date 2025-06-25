@@ -36,7 +36,6 @@ export default function Acceuil() {
       }
     } catch (error) {
       console.error("Erreur lors de la souscription:", error);
-      alert("Une erreur est survenue. Consultez la console pour plus de détails.");
     } finally {
       setLoading(false);
     }
