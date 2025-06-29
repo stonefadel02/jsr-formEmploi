@@ -11,22 +11,31 @@ export async function POST(req: NextRequest) {
     const { companyName, email, password } = body;
 
     if (!companyName || !email || !password) {
+      console.log('[Erreur validation] Champs manquants :', { companyName, email, password });
       return NextResponse.json({ message: 'Champs requis manquants.' }, { status: 400 });
     }
 
     const EmployerModel = await EmployerModelPromise;
     const SubscriptionModel = await SubscriptionModelPromise;
 
+    const emailLC = email.toLowerCase(); // toujours en minuscule
+    console.log('[Inscription] Email utilisé :', emailLC);
+
     // Vérifier si l'email a déjà été utilisé pour un essai
     const existingSubscription = await SubscriptionModel.findOne({ 
-      email: email.toLowerCase(), 
+      email: emailLC, 
       isTrial: { $in: [true, false] } 
     }).populate('employerId');
+
+    console.log('[Check Subscription] Résultat :', existingSubscription);
+
     if (existingSubscription) {
       return NextResponse.json({ message: 'Cet email a déjà été utilisé. Veuillez souscrire à un plan payant.' }, { status: 409 });
     }
 
-    const existingEmployer = await EmployerModel.findOne({ email: email.toLowerCase() });
+    const existingEmployer = await EmployerModel.findOne({ email: emailLC });
+    console.log('[Check Employer] Résultat :', existingEmployer);
+
     if (existingEmployer) {
       return NextResponse.json({ message: 'Cet email est déjà utilisé.' }, { status: 409 });
     }
@@ -34,9 +43,11 @@ export async function POST(req: NextRequest) {
     const passwordHash = await bcrypt.hash(password, 10);
     const employer = await EmployerModel.create({
       companyName,
-      email: email.toLowerCase(),
+      email: emailLC,
       password: passwordHash,
     });
+
+    console.log('[Création Employeur OK] ID:', employer._id);
 
     const oneMonthFromNow = new Date();
     oneMonthFromNow.setMonth(oneMonthFromNow.getMonth() + 1);
@@ -47,11 +58,14 @@ export async function POST(req: NextRequest) {
       startDate: new Date(),
       endDate: oneMonthFromNow,
       isTrial: true,
-      isActive: true, // Actif pendant l'essai
+      isActive: true,
       price: 0,
     });
 
-    await sendRegistrationEmail(email, companyName); // Ajuste selon ton mailer
+    console.log('[Abonnement Créé]');
+
+    await sendRegistrationEmail(emailLC, companyName);
+    console.log('[Email envoyé]');
 
     const token = jwt.sign(
       { id: employer._id, email: employer.email, role: employer.role },
@@ -60,6 +74,7 @@ export async function POST(req: NextRequest) {
     );
 
     console.log('Employeur inscrit avec succès');
+
     return NextResponse.json(
       { message: 'Employeur inscrit avec succès', token, employer: { email: employer.email, _id: employer._id } },
       { status: 201 }
