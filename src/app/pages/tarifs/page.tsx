@@ -68,7 +68,7 @@ export default function Acceuil() {
               </Link>
             </div>
             <div className="bg-white backdrop-blur-md p-6 rounded-lg text-white text-center">
-              <h2 className="text-2xl text-[#7A20DA] font-bold mb-4">Plan Payant - Candidats</h2>
+              <h2 className="text-2xl text-[#7A20DA] font-bold mb-4">Plan Payant - Candidat</h2>
               <p className="text-xl text-[#252525] font-bold mb-4">10€ / an</p>
               <ul className="text-left text-[#616161] mb-6 space-y-2">
                 <li>✔ Accès à sa candidature</li>
