@@ -30,7 +30,7 @@ export default function AcceuilRecruteur() {
                 passe un test initial via notre application , qui permet de
                 mieux cerner sa personnalité. <br /> 👉 Si vous souhaitez approfondir
                 les résultats de ce test (lecture détaillée, analyse
-                personnalisée, entretien complémentaire), merci de <a target="_blank" rel="noopener noreferrer" href="https://www.jsr-formemploi.com/%C3%A0-propos" className="font-bold">nous
+                personnalisée, entretien complémentaire), merci de <a target="_blank" rel="noopener noreferrer" href="https://www.jsr-formemploi.com/ecrivez-nous" className="font-bold">nous
                 contacter</a>  directement pour un devis.
               </p>
               <Link href={"/employeur/candidats"}>

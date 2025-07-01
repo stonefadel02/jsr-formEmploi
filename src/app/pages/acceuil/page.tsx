@@ -109,10 +109,11 @@ export default function Acceuil() {
               <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-7xl font-bold mb-4">
                 Rejoignez les talents de demain avec JSR.
               </h1>
-              <p className="text-base md:text-lg py-6 mb-6">
+              <p className="text-base md:text-lg py-4 mb-2">
                 Nous connectons les talents aux meilleures
                 opportunités professionnelles.
               </p>
+              <p className="text-base md:text-lg mb-6" >JSR est CERTIFIÉ bilan de compétences et d'orientation avec double expertise Central test</p>
            <div className="flex space-x-4">
                <Link href={"/candidat/candidature"}>
               <button className="bg-white text-[#501891] px-18 py-3 rounded-[10px] font-medium hover:bg-gray-100 transition duration-200 cursor-pointer">
