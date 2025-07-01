@@ -22,7 +22,7 @@ export default function AcceuilRecruteur() {
               </h1>
               <p className="text-sm sm:text-base md:text-md ">
                 Accédez à une base de candidats ciblés – 1 mois d’essai
-                gratuits. 
+                gratuit. 
               
               </p>
               <p className="py-4">
@@ -111,7 +111,8 @@ export default function AcceuilRecruteur() {
                 />
                 <div className="border-t-[2px] border-[#ECECEC] my-2 sm:my-4"></div>
                 <h3 className="text-center py-4 sm:py-6 md:py-10 text-[14px] sm:text-[16px] md:text-[18px] text-[#4C4C4C] font-semibold text-lg px-2 sm:px-4">
-                  Suivi simple des candidatures
+                  Certifié
+Bilan de compétences, Orientation & Central Test
                 </h3>
               </div>
             </div>

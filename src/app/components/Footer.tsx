@@ -97,21 +97,21 @@ export default function Footer() {
               <li>
                 <Link
                   target="_blank"  rel="noopener noreferrer"
-                  href="https://www.jsr-formemploi.com/ecrivez-nous"
+                  href="/pages/contact"
                   className="hover:text-[#501891] transition duration-200"
                 >
                   Contacts
                 </Link>
               </li>
             
-                <li>
+                {/* <li>
                 <Link
                   href="/aide"
                   className="hover:text-[#501891] transition duration-200"
                 >
                   FAQ
                 </Link>
-              </li>
+              </li> */}
             </ul>
           </div>
         </div>

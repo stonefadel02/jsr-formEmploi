@@ -1,23 +1,62 @@
 'use client';
 
+import { useState } from "react";
 import Footer from "@/app/components/Footer";
 import Navbar from "@/app/components/Navbar";
 import Image from "next/image";
 
 export default function AcceuilRecruteur() {
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    subject: '',
+    message: '',
+  });
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError('');
+    setSuccess('');
+    setLoading(true);
+
+    try {
+      const response = await fetch('https://formspree.io/f/manjvgdd', { // Remplacez par votre ID Formspree
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData),
+      });
+
+      if (response.ok) {
+        setSuccess('Message envoyé avec succès !');
+        setFormData({ name: '', email: '', subject: '', message: '' }); // Réinitialiser
+      } else {
+        throw new Error('Erreur lors de l\'envoi');
+      }
+    } catch (err) {
+      setError('Erreur lors de l\'envoi. Veuillez réessayer.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <>
       <Navbar />
       {/* Première section (existante) */}
-      <div className="min-h-screen py-10 sm:py-16 md:py-20 relative flex items-center justify-center px-2 sm:px-4 lg:px-8">
-        {/* Conteneur principal avec l'image et la superposition */}
+      <div className="min-h-screen  relative flex items-center justify-center px-2 sm:px-4 lg:px-8">
         <div className="absolute inset-0">
-          {/* Superposition du gradient avec opacité réduite */}
           <div className="absolute inset-0 bg-gradient-to-l from-[#8E2DE2]/80 to-[#4B00C8]"></div>
         </div>
-        <div className="max-w-6xl w-full mt-6 sm:mt-12 md:mt-20 lg:mt-10 relative z-10 text-center">
+        <div className="max-w-6xl w-full  relative z-10 text-center">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-2 sm:gap-4 md:gap-10 lg:gap-40 items-center">
-            {/* Contenu texte centré */}
             <div className="text-white text-left">
               <h1 className="text-2xl sm:text-2xl md:text-3xl lg:text-6xl font-bold mb-1 sm:mb-2 md:mb-4">
                 Contacts
@@ -38,130 +77,85 @@ export default function AcceuilRecruteur() {
         </div>
       </div>
 
-      {/* Section : Demandeur d’emploi */}
-      <div className="py-6 sm:py-10 md:py-16 lg:py-28 bg-[#F6F6F6]">
-        <h2 className="text-[#7A20DA] text-center font-bold text-base sm:text-lg md:text-xl lg:text-[28px]">
-          Demandeur d’emploi
-        </h2>
-        <div className="max-w-5xl md:px-0 px-4 mx-auto w-full mt-4 sm:mt-8 md:mt-12 lg:mt-24">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-4 md:gap-6 lg:gap-10 justify-center items-start">
-            {/* Colonne 1 : 1 élément */}
-            <div className="flex flex-col gap-2 sm:gap-4 md:gap-6 lg:gap-8">
-              {/* Carte 1 */}
-              <div className="rounded-[15px] bg-white border h-auto border-[#ECECEC]  sm:p-4 p-6 lg:py-12 lg:px-16 text-center">
-                <div className="flex items-center">
-                  <Image
-                    src="/bloc.png"
-                    alt="Person 1"
-                    width={100}
-                    height={100}
-                    className="h-8 w-8 sm:h-10 sm:w-10 md:h-12 md:w-12"
-                  />
-                  <h3 className="text-center text-[14px] sm:text-[14px] md:text-[16px] lg:text-[20px] text-[#4C4C4C] font-semibold px-1 sm:px-2">
-                    Inscription
-                  </h3>
-                </div>
-                <p className="text-left font-extralight py-2 sm:py-4 md:py-6 text-[14px] sm:text-[15px] md:text-[16px] lg:text-[17px] leading-6 sm:leading-8 md:leading-10">
-                  Comment puis-je m’inscrire à JSR ? Comment puis-je supprimer
-                  mon compte? Je ne me souviens pas de mon mot de passe !
-                  Comment changer mon adresse e-mail ?
-                </p>
-                <p className="text-left text-[14px] sm:text-[13px] md:text-[14px] text-[#7A20DA]">
-                  Voir plus
-                </p>
+      {/* Section formulaire de contact */}
+      <div className="py-10 sm:py-16 md:py-20 bg-[#F6F6F6]">
+        <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="bg-white p-6 sm:p-10 rounded-[15px] shadow-md">
+            <h2 className="text-[20px] sm:text-[25px] font-semibold text-left text-black mb-6">
+              Nous contacter
+            </h2>
+            {error && (
+              <p className="text-red-600 text-center mb-4 bg-red-100 p-2 rounded">
+                {error}
+              </p>
+            )}
+            {success && (
+              <p className="text-green-600 text-center mb-4 bg-green-100 p-2 rounded">
+                {success}
+              </p>
+            )}
+            <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+              <div>
+                <input
+                  type="text"
+                  name="name"
+                  id="name"
+                  value={formData.name}
+                  onChange={handleChange}
+                  placeholder="Votre nom"
+                  className="mt-1 block w-full px-4 py-3 border border-[#C4C4C4] rounded-[15px] placeholder-[#D9D9D9] focus:ring-[#7A20DA] focus:border-[#7A20DA] text-gray-600"
+                  required
+                />
               </div>
-            </div>
-
-            {/* Colonne 2 : 1 élément */}
-            <div className="flex flex-col gap-2 sm:gap-4 md:gap-6 lg:gap-8">
-              {/* Carte 2 */}
-              <div className="rounded-[15px] bg-white border h-auto border-[#ECECEC]  sm:p-4 p-6 lg:py-12 lg:px-16 text-center">
-                <div className="flex items-center">
-                  <Image
-                    src="/search.png"
-                    alt="Person 1"
-                    width={100}
-                    height={100}
-                    className="h-8 w-8 sm:h-10 sm:w-10 md:h-12 md:w-12"
-                  />
-                  <h3 className="text-center text-[14px] sm:text-[14px] md:text-[16px] lg:text-[20px] text-[#4C4C4C] font-semibold px-1 sm:px-2">
-                    Recherche d’emploi
-                  </h3>
-                </div>
-                <p className="text-left font-extralight py-2 sm:py-4 md:py-6 text-[14px] sm:text-[15px] md:text-[16px] lg:text-[17px] leading-6 sm:leading-8 md:leading-10">
-                  Comment postuler à un emploi sur JSR ? Comment créer mon CV
-                  efficace? Quels sont les services gratuits pour la recherches
-                  d’emploi sur JSR ?
-                </p>
-                <p className="text-left text-[14px] sm:text-[13px] md:text-[14px] text-[#7A20DA]">
-                  Voir plus
-                </p>
+              <div>
+                <input
+                  type="email"
+                  name="email"
+                  id="email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  placeholder="example@gmail.com"
+                  className="mt-1 block w-full px-4 py-3 border border-[#C4C4C4] rounded-[15px] placeholder-[#D9D9D9] focus:ring-[#7A20DA] focus:border-[#7A20DA] text-gray-600"
+                  required
+                />
               </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Section : Employeur */}
-      <div className="py-4 sm:py-10 md:py-16 lg:py-2 bg-[#F6F6F6]">
-        <h2 className="text-[#7A20DA] text-center font-bold text-base sm:text-lg md:text-xl lg:text-[28px]">
-          Employeur
-        </h2>
-        <div className="max-w-5xl md:px-0 px-4 mx-auto w-full mt-4 sm:mt-8 md:mt-12 lg:mt-24">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-4 md:gap-6 lg:gap-10 justify-center items-start">
-            {/* Colonne 1 : 1 élément */}
-            <div className="flex flex-col gap-2 sm:gap-4 md:gap-6 lg:gap-8">
-              {/* Carte 1 */}
-              <div className="rounded-[15px] bg-white border h-auto border-[#ECECEC] sm:p-4 p-6 lg:py-12 lg:px-16 text-center">
-                <div className="flex items-center">
-                  <Image
-                    src="/bloc.png"
-                    alt="Person 1"
-                    width={100}
-                    height={100}
-                    className="h-8 w-8 sm:h-10 sm:w-10 md:h-12 md:w-12"
-                  />
-                  <h3 className="text-center text-[14px] sm:text-[14px] md:text-[16px] lg:text-[20px] text-[#4C4C4C] font-semibold px-1 sm:px-2">
-                    Détails du compte
-                  </h3>
-                </div>
-                <p className="text-left font-extralight py-2 sm:py-4 md:py-6 text-[14px] sm:text-[15px] md:text-[16px] lg:text-[17px] leading-6 sm:leading-8 md:leading-10">
-                  Comment puis-je m’inscrire à JSR ? Comment puis-je supprimer
-                  mon compte? Je ne me souviens pas de mon mot de passe !
-                  Comment changer mon adresse e-mail ?
-                </p>
-                <p className="text-left text-[14px] sm:text-[13px] md:text-[14px] text-[#7A20DA]">
-                  Voir plus
-                </p>
+              <div>
+                <input
+                  type="text"
+                  name="subject"
+                  id="subject"
+                  value={formData.subject}
+                  onChange={handleChange}
+                  placeholder="Objet du message"
+                  className="mt-1 block w-full px-4 py-3 border border-[#C4C4C4] rounded-[15px] placeholder-[#D9D9D9] focus:ring-[#7A20DA] focus:border-[#7A20DA] text-gray-600"
+                  required
+                />
               </div>
-            </div>
-
-            {/* Colonne 2 : 1 élément */}
-            <div className="flex flex-col gap-2 sm:gap-4 md:gap-6 lg:gap-8">
-              {/* Carte 2 */}
-              <div className="rounded-[15px] bg-white border h-auto border-[#ECECEC] sm:p-4 p-6 lg:py-12 lg:px-16 text-center mb-10 sm:mb-14 md:mb-20 lg:mb-28">
-                <div className="flex items-center">
-                  <Image
-                    src="/search.png"
-                    alt="Person 1"
-                    width={100}
-                    height={100}
-                    className="h-8 w-8 sm:h-10 sm:w-10 md:h-12 md:w-12"
-                  />
-                  <h3 className="text-center text-[14px] sm:text-[14px] md:text-[16px] lg:text-[20px] text-[#4C4C4C] font-semibold px-1 sm:px-2">
-                    Abonnement
-                  </h3>
-                </div>
-                <p className="text-left font-extralight py-2 sm:py-4 md:py-6 text-[14px] sm:text-[15px] md:text-[16px] lg:text-[17px] leading-6 sm:leading-8 md:leading-10">
-                  Comment postuler à un emploi sur JSR ? Comment créer mon CV
-                  efficace? Quels sont les services gratuits pour la recherches
-                  d’emploi sur JSR ?
-                </p>
-                <p className="text-left text-[14px] sm:text-[13px] md:text-[14px] text-[#7A20DA]">
-                  Voir plus
-                </p>
+              <div>
+                <textarea
+                  name="message"
+                  id="message"
+                  value={formData.message}
+                  onChange={handleChange}
+                  placeholder="Votre message"
+                  rows={4}
+                  className="mt-1 block w-full px-4 py-3 border border-[#C4C4C4] rounded-[15px] placeholder-[#D9D9D9] focus:ring-[#7A20DA] focus:border-[#7A20DA] text-gray-600"
+                  required
+                />
               </div>
-            </div>
+              <button
+                type="submit"
+                className="w-full font-extrabold cursor:pointer bg-[#7A20DA] text-white py-3 px-4 rounded-lg hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-[#7A20DA] transition duration-200 disabled:opacity-50"
+                disabled={loading}
+              >
+                {loading ? (
+                  <div className="w-6 h-6 border-4 border-t-[#7A20DA] border-t-transparent rounded-full animate-spin mx-auto"></div>
+                ) : (
+                  "Envoyer"
+                )}
+              </button>
+            </form>
+            
           </div>
         </div>
       </div>

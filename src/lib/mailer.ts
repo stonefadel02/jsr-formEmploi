@@ -40,6 +40,7 @@ export const sendRegistrationEmail = async (to: string, name: string) => {
     subject: "Bienvenue sur Jsr-emploi ! 🎉",
     html: `<h2>Bonjour ${name},</h2>
            <p>Votre compte a été créé avec succès !</p>
+            <p>1 mois gratuit des cet instant </p>
            <p>Merci de rejoindre notre plateforme.</p>`,
   });
 

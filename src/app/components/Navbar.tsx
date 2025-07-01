@@ -80,7 +80,7 @@ export default function Navbar() {
                   Nos Tarifs
                 </Link>
 
-                <Link target="_blank" rel="noopener noreferrer" href="https://www.jsr-formemploi.com/%C3%A0-propos" className="text-[#501891] hover:text-gray-600 font-medium text-[14px] sm:text-[15px] ">
+                <Link target="_blank" rel="noopener noreferrer" href="/pages/contact" className="text-[#501891] hover:text-gray-600 font-medium text-[14px] sm:text-[15px] ">
                   Nous contacter
                 </Link>
               </div>
@@ -174,7 +174,7 @@ export default function Navbar() {
                 <Link href="/pages/tarifs" className="block text-[#501891] hover:text-gray-600 font-medium  sm:text-[15px] ">
                   Nos Tarifs
                 </Link>
-                <Link target="_blank" rel="noopener noreferrer" href="https://www.jsr-formemploi.com/%C3%A0-propos" className="block text-[#501891] hover:text-gray-600 font-medium  sm:text-[15px] ">
+                <Link target="_blank" rel="noopener noreferrer" href="/pages/contact" className="block text-[#501891] hover:text-gray-600 font-medium  sm:text-[15px] ">
                   Nous contacter
                 </Link>
               </div>
