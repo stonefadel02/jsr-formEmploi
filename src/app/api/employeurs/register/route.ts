@@ -18,69 +18,82 @@ export async function POST(req: NextRequest) {
     const EmployerModel = await EmployerModelPromise;
     const SubscriptionModel = await SubscriptionModelPromise;
 
-    const emailLC = email.toLowerCase(); // toujours en minuscule
+    const emailLC = email.toLowerCase();
     console.log('[Inscription] Email utilisé :', emailLC);
 
-    // Vérifier si l'email a déjà été utilisé pour un essai
-    const existingSubscription = await SubscriptionModel.findOne({ 
-      email: emailLC, 
-      isTrial: { $in: [true, false] } 
-    }).populate('employerId');
-
-    console.log('[Check Subscription] Résultat :', existingSubscription);
-
-    if (existingSubscription) {
-      return NextResponse.json({ message: 'Cet email a déjà été utilisé. Veuillez souscrire à un plan payant.' }, { status: 409 });
-    }
-
+    // Vérification existence
     const existingEmployer = await EmployerModel.findOne({ email: emailLC });
-    console.log('[Check Employer] Résultat :', existingEmployer);
-
     if (existingEmployer) {
       return NextResponse.json({ message: 'Cet email est déjà utilisé.' }, { status: 409 });
     }
 
     const passwordHash = await bcrypt.hash(password, 10);
-    const employer = await EmployerModel.create({
-      companyName,
-      email: emailLC,
-      password: passwordHash,
-    });
 
-    console.log('[Création Employeur OK] ID:', employer._id);
+    // Création de l'employeur
+    let employer;
+    try {
+      employer = await EmployerModel.create({
+        companyName,
+        email: emailLC,
+        password: passwordHash,
+      });
 
-    const oneMonthFromNow = new Date();
-    oneMonthFromNow.setMonth(oneMonthFromNow.getMonth() + 1);
+      console.log('[Création Employeur OK] ID:', employer._id);
 
-    await SubscriptionModel.create({
-      employerId: employer._id,
-      plan: 'Gratuit',
-      startDate: new Date(),
-      endDate: oneMonthFromNow,
-      isTrial: true,
-      isActive: true,
-      price: 0,
-    });
+      // Création de l’abonnement d’essai
+      const oneMonthFromNow = new Date();
+      oneMonthFromNow.setMonth(oneMonthFromNow.getMonth() + 1);
 
-    console.log('[Abonnement Créé]');
+      await SubscriptionModel.create({
+        employerId: employer._id,
+        email: emailLC,
+        plan: 'Gratuit',
+        startDate: new Date(),
+        endDate: oneMonthFromNow,
+        isTrial: true,
+        isActive: true,
+        price: 0,
+      });
 
-    await sendRegistrationEmail(emailLC, companyName);
-    console.log('[Email envoyé]');
+      console.log('[Abonnement Créé]');
 
-    const token = jwt.sign(
-      { id: employer._id, email: employer.email, role: employer.role },
-      process.env.JWT_SECRET!,
-      { expiresIn: '7d' }
-    );
+      // Envoi de l'email
+      await sendRegistrationEmail(emailLC, companyName);
+      console.log('[Email envoyé]');
 
-    console.log('Employeur inscrit avec succès');
+      // Génération du token
+      const token = jwt.sign(
+        { id: employer._id, email: employer.email, role: employer.role },
+        process.env.JWT_SECRET!,
+        { expiresIn: '7d' }
+      );
 
-    return NextResponse.json(
-      { message: 'Employeur inscrit avec succès', token, employer: { email: employer.email, _id: employer._id } },
-      { status: 201 }
-    );
+      console.log('Employeur inscrit avec succès');
+
+      return NextResponse.json(
+        {
+          message: 'Employeur inscrit avec succès',
+          token,
+          employer: {
+            email: employer.email,
+            _id: employer._id,
+          },
+        },
+        { status: 201 }
+      );
+    } catch (error) {
+      console.error('[Erreur après création] :', error);
+
+      // Rollback si l'employeur a été créé
+      if (employer?._id) {
+        await EmployerModel.findByIdAndDelete(employer._id);
+        console.log(`[Rollback] Employeur supprimé : ${employer._id}`);
+      }
+
+      return NextResponse.json({ message: 'Une erreur est survenue pendant l’inscription.' }, { status: 500 });
+    }
   } catch (error) {
-    console.error('Erreur inscription :', error instanceof Error ? error.message : error);
-    return NextResponse.json({ message: 'Erreur serveur' }, { status: 500 });
+    console.error('Erreur inscription (générale) :', error instanceof Error ? error.message : error);
+    return NextResponse.json({ message: 'Erreur serveur.' }, { status: 500 });
   }
 }
