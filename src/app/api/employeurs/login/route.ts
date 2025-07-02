@@ -1,3 +1,5 @@
+export const runtime = 'nodejs';
+
 import { NextRequest, NextResponse } from 'next/server';
 import EmployerModelPromise from '@/models/Employer';
 import SubscriptionModelPromise from '@/models/Subscription';
