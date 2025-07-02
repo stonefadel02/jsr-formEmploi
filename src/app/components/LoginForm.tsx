@@ -102,7 +102,7 @@ export default function LoginForm({ role }: Props) {
       <button
         type="submit"
         className="w-full cursor-pointer bg-[#7A20DA] text-white py-3 rounded-lg hover:bg-purple-700 disabled:opacity-50"
-        disabled={loading} // Désactive le bouton pendant le chargement
+        disabled={loading} // Désactive lehyfdikijoiioiooi bouton pendant le chargement
       >
         {loading ? (
           <div className="w-6 h-6 border-4 border-t-[#7A20DA] border-t-transparent rounded-full animate-spin mx-auto"></div>
