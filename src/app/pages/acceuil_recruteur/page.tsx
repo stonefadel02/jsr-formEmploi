@@ -27,10 +27,10 @@ export default function AcceuilRecruteur() {
               </p>
               <p className="py-4">
                   <strong>Pré-évaluation déjà disponible</strong> <br /> Chaque candidat proposé
-                passe un test initial via notre application , qui permet de
+                passe un test initial via notre application, qui permet de
                 mieux cerner sa personnalité. <br /> 👉 Si vous souhaitez approfondir
                 les résultats de ce test (lecture détaillée, analyse
-                personnalisée, entretien complémentaire), merci de <a target="_blank" rel="noopener noreferrer" href="https://www.jsr-formemploi.com/ecrivez-nous" className="font-bold">nous
+                personnalisée, entretien complémentaire), merci de <a target="_blank" rel="noopener noreferrer" href="./contact" className="font-bold">nous
                 contacter</a>  directement pour un devis.
               </p>
               <Link href={"/employeur/candidats"}>
@@ -78,7 +78,7 @@ export default function AcceuilRecruteur() {
                 />
                 <div className="border-t-[2px] border-[#ECECEC] my-2 sm:my-4"></div>
                 <h3 className="text-center py-4 sm:py-6 md:py-10 text-[14px] sm:text-[16px] md:text-[18px] text-[#4C4C4C] font-semibold text-lg px-2 sm:px-4">
-                  1 mois d`accès gratuit à l`inscription
+                  {`1 mois d'accès gratuit à l'inscription`}
                 </h3>
               </div>
             </div>

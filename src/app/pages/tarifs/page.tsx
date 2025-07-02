@@ -56,9 +56,11 @@ export default function Acceuil() {
               <h2 className="text-2xl text-[#7A20DA] font-bold mb-4">Plan Gratuit</h2>
               <p className="text-xl text-[#252525] font-bold mb-4">0€ / 1 mois de gratuité</p>
               <ul className="text-left text-[#616161] mb-6 space-y-2">
-                <li>✔ Accès à une sélection profils</li>
-                <li>✔ CV et profil visible par les recruteurs</li>
-                <li>✔ Support de base</li>
+                <li>✔ Profil accessible
+</li>
+                <li>✔ CV & Profil visible aux recruteurs</li>
+                <li>✔ Support Standard
+</li>
                 <li>✔ Accès aux ressources</li>
               </ul>
               <Link href="/components/register">
@@ -72,8 +74,8 @@ export default function Acceuil() {
               <p className="text-xl text-[#252525] font-bold mb-4">10€ / an</p>
               <ul className="text-left text-[#616161] mb-6 space-y-2">
                 <li>✔ Accès à sa candidature</li>
-                <li>✔ CV et profil visible par les recruteurs</li>
-                <li>✔ Support de base</li>
+                <li>✔ CV et profil visible aux recruteurs</li>
+                <li>✔ Support Standard</li>
                 <li>✔ Accès aux ressources</li>
               </ul>
               <button
@@ -88,11 +90,11 @@ export default function Acceuil() {
               <h2 className="text-2xl text-[#7A20DA] font-bold mb-4">Plan Payant Recruteur</h2>
               <p className="text-xl text-[#252525] font-bold mb-4">100€ / an</p>
               <ul className="text-left text-[#616161] mb-6 space-y-2">
-                <li>✔ Accès à tout les profils</li>
+                <li>✔ Accès à tous les profils</li>
+                <li>✔ Accès complet aux candidatures</li>
                 <li>✔ CV et profil mis en avant</li>
                 <li>✔ Support premium</li>
                 <li>✔ Accès complet aux ressources</li>
-                <li>✔ Accès complet aux candidatures</li>
               </ul>
               <button
                 onClick={() => handleSubscribe("price_1RdCKOQ8brLwKg0wMoJeI40W", setLoadingRecruteur)}
