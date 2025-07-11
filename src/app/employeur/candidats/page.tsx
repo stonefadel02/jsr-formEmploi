@@ -24,6 +24,7 @@ interface FilterOptions {
   locations: string[];
   levels: string[];
   contractTypes: string[];
+  formations: string[];
 }
 
 interface FilterApiResponse {
@@ -45,12 +46,15 @@ export default function ProfileEmployeur() {
     locations: [],
     levels: [],
     contractTypes: [],
+    formations: [],
   });
 
   // États pour les filtres et la pagination
   const [filters, setFilters] = useState({
     keyword: "",
     sector: "",
+    date: "",
+    formation: "",
     location: "",
     level: "",
     contracttype: "",
@@ -92,6 +96,9 @@ export default function ProfileEmployeur() {
           sector: filters.sector || undefined,
           location: filters.location || undefined,
           level: filters.level || undefined,
+          date: filters.date || undefined,
+          formation: filters.formation || undefined,
+
           contracttype: filters.contracttype || undefined,
           sortBy: filters.sortBy,
           page: filters.page,
@@ -265,9 +272,8 @@ export default function ProfileEmployeur() {
                 onChange={handleFilterChange}
                 className="border border-gray-300 rounded-[5px] px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#7A20DA]"
               >
-                <option value="date">Trier par date</option>
-                <option value="relevance">Trier par pertinence</option>
-                <option value="location">Trier par localisation</option>
+                <option value="date">Trier par ecole</option>
+              
               </select>
             </div>
           </div>
@@ -290,6 +296,12 @@ export default function ProfileEmployeur() {
                     Niveau d`étude
                   </th>
                   <th className="px-6 py-3 text-sm font-semibold text-start text-[#202020]">
+                    Date de naissance
+                  </th>
+                    <th className="px-6 py-3 text-sm font-semibold text-start text-[#202020]">
+                    Formation
+                  </th>
+                    <th className="px-6 py-3 text-sm font-semibold text-start text-[#202020]">
                     Date de soumission
                   </th>
                   <th className="px-6 py-3 text-sm font-semibold text-end text-[#202020]">
@@ -327,6 +339,12 @@ export default function ProfileEmployeur() {
                       </td>
                       <td className="px-6 text-start py-4 text-[#4C4C4C]">
                         {candidat?.alternanceSearch?.level || "N/A"}
+                      </td>
+                      <td className="px-6 text-start py-4 text-[#4C4C4C]">
+                        {formatDate(candidat?.alternanceSearch?.date ?? new Date())}
+                      </td>
+                       <td className="px-6 text-start py-4 text-[#4C4C4C]">
+                        {candidat?.formation ?? "N/A"}
                       </td>
                       <td className="px-6 text-start py-4 text-[#4C4C4C]">
                         {formatDate(candidat.createdAt ?? new Date())}
