@@ -47,8 +47,11 @@ async function connectEmployersDb(): Promise<Connection> {
     return cached.employersConnection;
   }
 
-  cached.employersConnection = await mongoose.createConnection(MONGODB_EMPLOYERS_URI, connectionOptions);
-  return cached.employersConnection;
+  const connection = mongoose.createConnection(MONGODB_EMPLOYERS_URI, connectionOptions);
+await connection.asPromise(); // Attend que la connexion soit bien établie
+cached.employersConnection = connection;
+return connection;
+
 }
 
 export { connectCandidatsDb, connectEmployersDb };

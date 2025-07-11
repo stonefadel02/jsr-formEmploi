@@ -8,6 +8,7 @@ import SubscriptionModelPromise from '@/models/Subscription';
 import { sendRegistrationEmail } from '@/lib/mailer';
 
 export async function POST(req: NextRequest) {
+  
   try {
     const body = await req.json();
     const { companyName, email, password } = body;

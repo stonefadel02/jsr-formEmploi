@@ -21,12 +21,15 @@ export interface IAlternanceSearch {
   location?: string;
   level?: string;
   contracttype?: string;
+      date?: Date; // Date de naissance
+
 }
 
 export interface ICandidat extends Document {
   _id: Types.ObjectId;
   firstName?: string;
   lastName?: string;
+  formation?: string; // Formation
   email: string;
   password?: string;
   role: 'candidat';
@@ -34,6 +37,8 @@ export interface ICandidat extends Document {
   phone?: string;
   alternanceSearch?: {
     sector?: string;
+    date?: Date; // Date de naissance
+
     location?: string;
     level?: string;
     contracttype?: string;

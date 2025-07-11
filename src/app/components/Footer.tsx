@@ -100,7 +100,7 @@ export default function Footer() {
                   href="/pages/contact"
                   className="hover:text-[#501891] transition duration-200"
                 >
-                  Contacts
+                  Contact
                 </Link>
               </li>
             

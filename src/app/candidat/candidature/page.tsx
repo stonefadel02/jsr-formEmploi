@@ -1,4 +1,5 @@
 "use client";
+
 import { searchDepartment, searchCity } from "france-cities-js";
 import { useState, useEffect } from "react";
 import Navbar from "@/app/components/Navbar";
@@ -6,49 +7,51 @@ import { useRouter } from "next/navigation";
 import { Country, State } from "country-state-city";
 
 export default function Candidature() {
-  const [step, setStep] = useState(1); // Gérer les étapes (1, 2, 3, 4)
+  const [step, setStep] = useState(1);
   const router = useRouter();
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
+    formation: "",
+    date: "",
     phone: "",
     adresse: "",
     sector: "",
-    department: "", // Nouveau champ pour le département
-    city: "", // Nouveau champ pour la ville
+    otherSector: "", // Champ pour "Autres"
+    department: "",
+    city: "",
     level: "",
     contracttype: "",
     cvFile: null as File | null,
     videoFile: null as File | null,
   });
-  const [loading, setLoading] = useState(false); // Loader pour la soumission
-  const [fileMessage, setFileMessage] = useState<string | null>(null); // Message de confirmation
-  const [videoUploading, setVideoUploading] = useState(false); // Loader spécifique pour la vidéo
+  const [loading, setLoading] = useState(false);
+  const [fileMessage, setFileMessage] = useState<string | null>(null);
+  const [videoUploading, setVideoUploading] = useState(false);
+  const [showOtherInput, setShowOtherInput] = useState(false); // Contrôle l'affichage de l'input "Autres"
 
-  // Liste des départements français
-  const country = Country.getCountryByCode("FR"); // Code ISO pour la France
+  const country = Country.getCountryByCode("FR");
   const departments = State.getStatesOfCountry(country?.isoCode ?? "FR").map(
     (state) => ({
-      code: state.isoCode.split("-")[1], // Extraire le code numérique (ex. "75")
+      code: state.isoCode.split("-")[1],
       name: state.name,
     })
   );
 
   const listDepartements = searchDepartment
-    .byName("", 200) // "" pour tous, limite 200 (départements français)
+    .byName("", 200)
     .map((d) => ({
-      code: d.code, // code du département, ex "75"
-      name: d.name, // nom du département, ex "Paris"
+      code: d.code,
+      name: d.name,
     }));
-  const [cities, setCities] = useState<string[]>([]); // Liste des villes filtrée par département
+  const [cities, setCities] = useState<string[]>([]);
 
-  // Mettre à jour les villes en fonction du département sélectionné
   useEffect(() => {
     if (formData.department) {
       const cities = searchCity
-        .byDepartmentCode(formData.department, 1000) // Limite raisonnable à 1000
+        .byDepartmentCode(formData.department, 1000)
         .map((c) => c.name);
-      console.log("Villes trouvées pour", formData.department, ":", cities); // Débogage
+      console.log("Villes trouvées pour", formData.department, ":", cities);
       setCities(cities);
       setFormData((prev) => ({ ...prev, city: "" }));
     } else {
@@ -59,7 +62,18 @@ export default function Candidature() {
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    if (name === "sector" && value === "Autres") {
+      setShowOtherInput(true);
+      setFormData((prev) => ({ ...prev, sector: "Autres", otherSector: "" }));
+    } else if (name === "sector" && value !== "Autres") {
+      setShowOtherInput(false);
+      setFormData((prev) => ({ ...prev, [name]: value, otherSector: "" }));
+    } else if (name === "otherSector") {
+      setFormData((prev) => ({ ...prev, otherSector: value }));
+    } else {
+      setFormData((prev) => ({ ...prev, [name]: value }));
+    }
   };
 
   const handleFileChange = (
@@ -69,7 +83,7 @@ export default function Candidature() {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    const maxSize = 5 * 1024 * 1024; // 5 Mo
+    const maxSize = 5 * 1024 * 1024;
     if (file.size > maxSize) {
       alert("Le fichier dépasse la taille maximale autorisée de 5 Mo.");
       return;
@@ -126,14 +140,32 @@ export default function Candidature() {
     const data = new FormData();
     data.append("firstName", formData.firstName);
     data.append("lastName", formData.lastName);
+    data.append("formation", formData.formation);
     data.append("phone", formData.phone);
 
+    // Gestion du secteur : utiliser otherSector si "Autres" est sélectionné
+    const sectorValue = formData.sector === "Autres" && formData.otherSector
+      ? formData.otherSector
+      : formData.sector;
     const alternanceSearch = {
-      location: `${formData.department} - ${formData.city}`, // Concaténer département et ville
+      location: `${formData.department} - ${formData.city}`,
       contracttype: formData.contracttype,
-      sector: formData.sector,
+      sector: sectorValue,
       level: formData.level,
+      date: formData.date,
     };
+
+    // Débogage : Afficher les données envoyées
+    console.log("Données envoyées :", {
+      firstName: formData.firstName,
+      lastName: formData.lastName,
+      formation: formData.formation,
+      date: formData.date,
+      phone: formData.phone,
+      alternanceSearch,
+      cvFile: formData.cvFile,
+      videoFile: formData.videoFile,
+    });
 
     if (
       !alternanceSearch.location ||
@@ -144,6 +176,7 @@ export default function Candidature() {
       alternanceSearch.contracttype === "" ||
       alternanceSearch.sector === "" ||
       alternanceSearch.level === "" ||
+      !alternanceSearch.date ||
       alternanceSearch.contracttype === "Sélectionnez un type" ||
       alternanceSearch.sector === "Sélectionnez un secteur" ||
       alternanceSearch.level === "Sélectionnez un niveau"
@@ -192,12 +225,10 @@ export default function Candidature() {
       <div className="min-h-screen bg-[#F6F6F6] flex justify-center p-2 sm:p-4">
         <div className="mt-32 sm:mt-16 md:mt-24 w-full max-w-sm sm:max-w-md md:max-w-lg">
           <div className="bg-white p-4 sm:p-6 md:p-8 rounded-[15px] shadow-md">
-            {/* Titre et contenu de l'étape */}
             <form
               onSubmit={step === 4 ? handleSubmit : handleNext}
               className="flex flex-col gap-2 sm:gap-3"
             >
-              {/* Étape 1 : Informations personnelles */}
               {step === 1 && (
                 <>
                   <h2 className="text-[20px] sm:text-[17px] md:text-[20px] font-bold text-left text-black mb-2 sm:mb-4">
@@ -242,6 +273,24 @@ export default function Candidature() {
                   <div>
                     <label
                       className="text-[#4C4C4C] text-sm sm:text-base md:text-[16px]"
+                      htmlFor="date"
+                    >
+                      Date de naissance <span className="text-[#FF0000]"> *</span>
+                    </label>
+                    <input
+                      type="date"
+                      name="date"
+                      id="date"
+                      value={formData.date}
+                      onChange={handleChange}
+                      placeholder="date"
+                      className="mt-1 sm:mt-2 block mb-2 w-full px-3 sm:px-4 py-2 sm:py-2 border text-gray-700 border-[#C4C4C4] rounded-[15px] placeholder-[#D9D9D9] focus:ring-purple-900 focus:border-purple-900"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label
+                      className="text-[#4C4C4C] text-sm sm:text-base md:text-[16px]"
                       htmlFor="phone"
                     >
                       Téléphone <span className="text-[#FF0000]"> *</span>
@@ -257,33 +306,32 @@ export default function Candidature() {
                       required
                     />
                   </div>
-                  <div>
-                    <label
-                      className="text-[#4C4C4C] text-sm sm:text-base md:text-[16px]"
-                      htmlFor="adresse"
-                    >
-                      Adresse <span className="text-[#FF0000]"> *</span>
-                    </label>
-                    <input
-                      type="text"
-                      name="adresse"
-                      id="adresse"
-                      value={formData.adresse}
-                      onChange={handleChange}
-                      placeholder="Adresse"
-                      className="mt-1 sm:mt-2 block mb-2 w-full px-3 sm:px-4 py-2 sm:py-2 border text-gray-700 border-[#C4C4C4] rounded-[15px] placeholder-[#D9D9D9] focus:ring-purple-900 focus:border-purple-900"
-                      required
-                    />
-                  </div>
                 </>
               )}
 
-              {/* Étape 2 : Recherche d’alternance */}
               {step === 2 && (
                 <>
                   <h2 className="text-[20px] sm:text-[17px] md:text-[20px] font-bold text-left text-black mb-2 sm:mb-4">
                     Recherche d’alternance
                   </h2>
+                  <div>
+                    <label
+                      className="text-[#4C4C4C] text-sm sm:text-base md:text-[16px]"
+                    >
+                      Nom de votre école ou organisme de formation{" "}
+                      <span className="text-[#FF0000]"> *</span>
+                    </label>
+                    <input
+                      type="text"
+                      name="formation"
+                      id="formation"
+                      value={formData.formation}
+                      onChange={handleChange}
+                      placeholder="Entrez votre école ou organisme de formation ici"
+                      className="mt-1 sm:mt-2 block mb-2 w-full px-3 sm:px-4 py-2 sm:py-2 border text-gray-700 border-[#C4C4C4] rounded-[15px] placeholder-[#D9D9D9] focus:ring-purple-900 focus:border-purple-900"
+                      required
+                    />
+                  </div>
                   <div>
                     <label
                       className="text-[#4C4C4C] text-sm sm:text-base md:text-[16px]"
@@ -296,8 +344,8 @@ export default function Candidature() {
                       id="sector"
                       value={formData.sector}
                       onChange={handleChange}
-                      required
                       className="mt-1 sm:mt-2 block mb-2 w-full px-3 sm:px-4 py-2 sm:py-2 border text-gray-700 border-[#C4C4C4] rounded-[15px] placeholder-[#D9D9D9] focus:ring-purple-900 focus:border-purple-900"
+                      required
                     >
                       <option value="">Sélectionnez un secteur</option>
                       <option value="Informatique et Technologies">
@@ -330,7 +378,21 @@ export default function Candidature() {
                       <option value="Environnement et Développement Durable">
                         Environnement et Développement Durable
                       </option>
+                      <option value="Coiffure">Coiffure</option>
+                      <option value="Petite enfance">Petite enfance</option>
+                      <option value="Autres">Autres</option>
                     </select>
+                    {showOtherInput && (
+                      <input
+                        type="text"
+                        name="otherSector"
+                        value={formData.otherSector}
+                        onChange={handleChange}
+                        placeholder="Précisez votre secteur"
+                        className="mt-1 sm:mt-2 block mb-2 w-full px-3 sm:px-4 py-2 sm:py-2 border text-gray-700 border-[#C4C4C4] rounded-[15px] placeholder-[#D9D9D9] focus:ring-purple-900 focus:border-purple-900"
+                        required
+                      />
+                    )}
                   </div>
                   <div>
                     <label
@@ -429,7 +491,6 @@ export default function Candidature() {
                 </>
               )}
 
-              {/* Étape 3 : Téléversement du CV */}
               {step === 3 && (
                 <>
                   <h2 className="text-[20px] sm:text-[17px] md:text-[20px] font-bold text-left text-black mb-2 sm:mb-4">
@@ -487,7 +548,6 @@ export default function Candidature() {
                 </>
               )}
 
-              {/* Étape 4 : Téléversement de la vidéo */}
               {step === 4 && (
                 <>
                   <h2 className="text-[20px] sm:text-[17px] md:text-[20px] font-bold text-left text-black mb-2 sm:mb-4">
@@ -551,7 +611,6 @@ export default function Candidature() {
                 </>
               )}
 
-              {/* Boutons de navigation */}
               <div className="flex gap-2 sm:gap-4 mt-2 sm:mt-4">
                 {step > 1 && (
                   <button

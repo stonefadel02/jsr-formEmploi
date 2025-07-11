@@ -8,6 +8,7 @@ const candidateSchema = new Schema<ICandidat>(
     firstName: { type: String },
     lastName: { type: String },
     email: { type: String, required: true, unique: true },
+    formation: { type: String }, // Formation
     password: {
       type: String,
       required: function (this: ICandidat) {
@@ -24,6 +25,7 @@ const candidateSchema = new Schema<ICandidat>(
     alternanceSearch: {
       sector: { type: String },
       location: { type: String },
+      date: { type: Date }, // Date de naissance
       level: { type: String },
       contracttype: { type: String },
     },

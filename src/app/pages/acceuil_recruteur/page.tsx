@@ -21,7 +21,7 @@ export default function AcceuilRecruteur() {
                 Trouvez des talents qualifiés en quelques clics.
               </h1>
               <p className="text-sm sm:text-base md:text-md ">
-                Accédez à une base de candidats ciblés – 1 mois d’essai
+                Accédez à une base de candidats ciblés
                 gratuit. 
               
               </p>
@@ -78,7 +78,7 @@ export default function AcceuilRecruteur() {
                 />
                 <div className="border-t-[2px] border-[#ECECEC] my-2 sm:my-4"></div>
                 <h3 className="text-center py-4 sm:py-6 md:py-10 text-[14px] sm:text-[16px] md:text-[18px] text-[#4C4C4C] font-semibold text-lg px-2 sm:px-4">
-                  {`1 mois d'accès gratuit à l'inscription`}
+                  {`Pré-évaluation déjà disponible`}
                 </h3>
               </div>
             </div>

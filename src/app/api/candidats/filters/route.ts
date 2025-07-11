@@ -5,6 +5,7 @@ import { ApiResponse } from '@/lib/types';
 
 interface FilterOptions {
   sectors: string[];
+  dates: Date[];
   locations: string[];
   levels: string[];
   contractTypes: string[];
@@ -20,6 +21,7 @@ export async function GET(): Promise<NextResponse<ApiResponse<FilterOptions>>> {
     const locations = await Candidat.distinct('alternanceSearch.location');
     const levels = await Candidat.distinct('alternanceSearch.level');
     const contractTypes = await Candidat.distinct('alternanceSearch.contracttype');
+    const dates = await Candidat.distinct('alternanceSearch.date');
 
     return NextResponse.json({
       success: true,
@@ -28,6 +30,7 @@ export async function GET(): Promise<NextResponse<ApiResponse<FilterOptions>>> {
         locations: locations.filter(Boolean),
         levels: levels.filter(Boolean),
         contractTypes: contractTypes.filter(Boolean),
+        dates: dates.filter(Boolean), // Filtrer les valeurs nulles ou vides
       },
     }, { status: 200 });
   } catch (error) {

@@ -146,8 +146,7 @@ export default function Login() {
                 <div className="bg-[#7A20DA] w-4 border-[#7A20DA] rounded-l-[15px] border-[1px]"></div>
                 <div className="bg-[#F4E9FF] py-4 px-5 sm:py-8 sm:px-10 rounded-r-[15px] flex items-center justify-start">
                   <p className="text-sm text-[#7A20DA] sm:text-base">
-                    🎁 1 mois d’accès gratuits à l’inscription. Ensuite, un
-                    abonnement sera requis pour continuer à accéder aux
+                    🎁 Un abonnement sera requis pour continuer à accéder aux
                     candidatures.
                   </p>
                 </div>
