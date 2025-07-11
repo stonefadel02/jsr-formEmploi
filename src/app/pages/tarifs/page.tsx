@@ -3,45 +3,24 @@
 import Footer from "@/app/components/Footer";
 import Navbar from "@/app/components/Navbar";
 import { useState } from "react";
-import { loadStripe } from "@stripe/stripe-js";
-
-const stripePromise = loadStripe(
-  process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!
-);
 
 export default function Acceuil() {
   const [loadingCandidat, setLoadingCandidat] = useState(false);
   const [loadingRecruteur, setLoadingRecruteur] = useState(false);
 
-  const handleSubscribe = async (
-    priceId: string,
+  const handleSubscribe = (
+    url: string,
     setLoading: (value: boolean) => void
   ) => {
-    console.log("Démarrage de handleSubscribe avec priceId:", priceId);
+    console.log("Démarrage de handleSubscribe avec URL:", url);
     setLoading(true);
     try {
-      console.log("Tentative de chargement de Stripe...");
-      const stripe = await stripePromise;
-      console.log("Stripe chargé:", stripe);
-      console.log("Tentative de fetch vers /api/create-checkout-session...");
-      const response = await fetch("/api/create-checkout-session", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ priceId }),
-      });
-      console.log("Réponse API:", response.status, response.statusText);
-      console.log("Tentative de parsing JSON...");
-      const { url } = await response.json();
-      console.log("URL reçue:", url);
-      if (url) {
-        window.location.href = url;
-      } else {
-        throw new Error("Aucune URL retournée par l'API");
-      }
+      console.log("Redirection vers:", url);
+      window.location.href = url;
     } catch (error) {
-      console.error("Erreur lors de la souscription:", error);
+      console.error("Erreur lors de la redirection:", error);
     } finally {
-      setLoading(false);
+      setLoading(false); // Réinitialisation en cas d'erreur, mais généralement inutile ici
     }
   };
 
@@ -55,8 +34,7 @@ export default function Acceuil() {
               Recruteurs, Candidats, choisissez la formule qui vous correspond
             </h1>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 mx-auto max-w-2xl  gap-6 mb-12">
-       
+          <div className="grid grid-cols-1 md:grid-cols-2 mx-auto max-w-2xl gap-6 mb-12">
             <div className="bg-white backdrop-blur-md p-6 rounded-lg text-white text-center">
               <h2 className="text-2xl text-[#7A20DA] font-bold mb-4">
                 Plan Payant - Candidat
@@ -71,7 +49,7 @@ export default function Acceuil() {
               <button
                 onClick={() =>
                   handleSubscribe(
-                    "price_1RdCHQQ8brLwKg0wxR3dMhW0",
+                    "https://buy.stripe.com/dRm00k2JR61UaYM4gh73G00",
                     setLoadingCandidat
                   )
                 }
@@ -96,7 +74,7 @@ export default function Acceuil() {
               <button
                 onClick={() =>
                   handleSubscribe(
-                    "price_1RdCKOQ8brLwKg0wMoJeI40W",
+                    "https://buy.stripe.com/eVq3cwfwDeyqaYM8wx73G01",
                     setLoadingRecruteur
                   )
                 }
