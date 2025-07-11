@@ -312,7 +312,7 @@ export default function ProfileEmployeur() {
                     <th className="px-6 py-3 text-sm font-semibold text-start text-[#202020]">
                     Date de soumission
                   </th>
-                  <th className="px-6 py-3 text-sm font-semibold text-end text-[#202020]">
+                  <th className="px-8 py-3 text-sm font-semibold text-end text-[#202020]">
                     Actions
                   </th>
                 </tr>
@@ -357,7 +357,7 @@ export default function ProfileEmployeur() {
                       <td className="px-6 text-start py-4 text-[#4C4C4C]">
                         {formatDate(candidat.createdAt ?? new Date())}
                       </td>
-                      <td className="px-6 text-end py-4">
+                      <td className="px-8 text-end py-4">
                         <button
                           onClick={() => viewProfile(candidat._id.toString())}
                           className="bg-[#7A20DA] text-white px-6 py-2 rounded-[5px] cursor-pointer hover:bg-[#6A1AB8] transition duration-200"
