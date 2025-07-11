@@ -269,7 +269,7 @@ export default function ProfileEmployeur() {
                   </option>
                 ))}
               </select>
-              <select
+              {/* <select
                 name="sortBy"
                 value={filters.sortBy}
                 onChange={handleFilterChange}
@@ -282,7 +282,7 @@ export default function ProfileEmployeur() {
                   </option>
                 ))}
               
-              </select>
+              </select> */}
             </div>
           </div>
 
