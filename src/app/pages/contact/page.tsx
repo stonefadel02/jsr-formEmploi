@@ -59,7 +59,7 @@ export default function AcceuilRecruteur() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-2 sm:gap-4 md:gap-10 lg:gap-40 items-center">
             <div className="text-white text-left">
               <h1 className="text-2xl sm:text-2xl md:text-3xl lg:text-6xl font-bold mb-1 sm:mb-2 md:mb-4">
-                Contacts
+                Contact
               </h1>
               <p className="text-sm sm:text-sm md:text-base lg:text-[16px] py-1 sm:py-2 md:py-4 lg:py-6 mb-1 sm:mb-2 md:mb-4">
                 Nous sommes toujours heureux de vous aider et de répondre à vos
