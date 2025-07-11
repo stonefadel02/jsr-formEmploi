@@ -273,6 +273,11 @@ export default function ProfileEmployeur() {
                 className="border border-gray-300 rounded-[5px] px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#7A20DA]"
               >
                 <option value="date">Trier par ecole</option>
+                 {filterOptions.formations.map((formation) => (
+                  <option key={formation} value={formation}>
+                    {formation}
+                  </option>
+                ))}
               
               </select>
             </div>
@@ -352,7 +357,7 @@ export default function ProfileEmployeur() {
                       <td className="px-6 text-end py-4">
                         <button
                           onClick={() => viewProfile(candidat._id.toString())}
-                          className="bg-[#7A20DA] text-white px-4 py-2 rounded-[5px] cursor-pointer hover:bg-[#6A1AB8] transition duration-200"
+                          className="bg-[#7A20DA] text-white px-6 py-2 rounded-[5px] cursor-pointer hover:bg-[#6A1AB8] transition duration-200"
                         >
                           Voir le profil
                         </button>
