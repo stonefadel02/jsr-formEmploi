@@ -25,6 +25,8 @@ interface FilterOptions {
   levels: string[];
   contractTypes: string[];
   formations: string[];
+      dates: Date[]
+
 }
 
 interface FilterApiResponse {
@@ -47,6 +49,7 @@ export default function ProfileEmployeur() {
     levels: [],
     contractTypes: [],
     formations: [],
+    dates: []
   });
 
   // États pour les filtres et la pagination
@@ -272,10 +275,10 @@ export default function ProfileEmployeur() {
                 onChange={handleFilterChange}
                 className="border border-gray-300 rounded-[5px] px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#7A20DA]"
               >
-                <option value="date">Trier par ecole</option>
-                 {filterOptions.formations.map((formation) => (
-                  <option key={formation} value={formation}>
-                    {formation}
+                <option value="date">Trier par date de naissance</option>
+                 {filterOptions.dates.map((date) => (
+                  <option key={date.toISOString()} value={date.toISOString()}>
+                    {date.toLocaleDateString("fr-FR")}
                   </option>
                 ))}
               
