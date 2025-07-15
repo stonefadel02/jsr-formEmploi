@@ -181,7 +181,7 @@ const handleRenew = (employerId: string) => {
           <div className="border-[1px] my-4 border-[#8929E0]"></div>
           <h4 className="py-4">Statistiques des Abonnements</h4>
           <div className="flex flex-col sm:flex-row justify-between gap-4 mb-6">
-            <div className="flex w-1/4">
+            <div className="flex w-1/3">
               <div className="w-2 rounded-l-[20px] bg-[#2A9D8F]"></div>
               <div className="bg-white rounded-r-[20px] p-4 shadow-md flex-1 text-center">
                 <h3 className="text-[#4E4E4E] text-left font-semibold">
@@ -204,7 +204,7 @@ const handleRenew = (employerId: string) => {
                 </div>
               </div>
             </div>
-            <div className="flex w-1/4">
+            <div className="flex w-1/3">
               <div className="w-2 rounded-l-[20px] bg-[#2A9D8F]"></div>
               <div className="bg-white rounded-r-[20px] p-4 shadow-md flex-1 text-center">
                 <h3 className="text-[#4E4E4E] text-left font-semibold">
@@ -248,7 +248,7 @@ const handleRenew = (employerId: string) => {
                 </div>
               </div>
             </div>
-            <div className="flex w-1/4">
+            <div className="flex w-1/3">
               <div className="w-2 rounded-l-[20px] bg-[#2A9D8F]"></div>
               <div className="bg-white rounded-r-[20px] p-4 shadow-md flex-1 text-center">
                 <h3 className="text-[#4E4E4E] text-left font-semibold">
@@ -272,7 +272,7 @@ const handleRenew = (employerId: string) => {
                 </div>
               </div>
             </div>
-            <div className="flex w-1/4">
+            {/* <div className="flex w-1/4">
               <div className="w-2 rounded-l-[20px] bg-[#2A9D8F]"></div>
               <div className="bg-white rounded-r-[20px] p-4 shadow-md flex-1 text-center">
                 <h3 className="text-[#4E4E4E] text-left font-semibold">
@@ -296,7 +296,7 @@ const handleRenew = (employerId: string) => {
                   </svg>
                 </div>
               </div>
-            </div>
+            </div> */}
           </div>
           <div className="bg-white rounded-[20px] py-2 px-6 shadow-md border-[1px] border-[#C4C4C4] mb-6">
             <div className="flex flex-col sm:flex-row items-center justify-between space-y-4 sm:space-y-0 sm:space-x-4">
@@ -533,9 +533,9 @@ const handleRenew = (employerId: string) => {
             </div>
           )}
 
-          <button className="bg-[#7A20DA] text-white py-2 px-10 mt-10 font-semibold rounded-[5px]">
+          {/* <button className="bg-[#7A20DA] text-white py-2 px-10 mt-10 font-semibold rounded-[5px]">
             Voir plus de candidatures
-          </button>
+          </button> */}
         </div>
       </div>
     </>

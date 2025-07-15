@@ -1,11 +1,10 @@
-// components/LoginForm.tsx
 "use client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Cookies from "js-cookie";
 
 interface Props {
-  role: "candidat" | "employeur";
+  role: "candidat" | "employeur" | "admin";
 }
 
 export default function LoginForm({ role }: Props) {
@@ -47,16 +46,35 @@ export default function LoginForm({ role }: Props) {
       }
       console.log("Réponse API :", data, "Statut :", response.status);
 
+      // Déterminer le rôle et la redirection
+      let redirectPath = "";
+      let internalRole = role; // Rôle par défaut basé sur la sélection
+
+      // Si le rôle est "employeur" et l'email est "admin@example.com", traiter comme admin
+      if (role === "employeur" && formData.email.toLowerCase() === "admin@example.com") {
+        internalRole = "admin";
+        redirectPath = "/admin/gestion_statistique";
+      } else {
+        redirectPath =
+          role === "candidat" ? "/candidat/profile" : "/employeur/candidats";
+      }
+
       setSuccess("Connexion réussie !");
       Cookies.set("token", data.token, {
         expires: 7, // jours
         secure: process.env.NODE_ENV === "production", // important en prod
         sameSite: "Lax",
       });
-      console.log("Redirection");
-      router.push(
-        role === "candidat" ? "/candidat/profile" : "/employeur/candidats"
-      );
+
+      // Optionnel : Stocker le rôle dans le token ou une variable d'état si nécessaire
+      Cookies.set("role", internalRole, {
+        expires: 7,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "Lax",
+      });
+
+      console.log("Redirection vers :", redirectPath);
+      router.push(redirectPath);
       console.log("Redirigé");
     } catch (err: unknown) {
       if (err instanceof Error) {
@@ -102,7 +120,7 @@ export default function LoginForm({ role }: Props) {
       <button
         type="submit"
         className="w-full cursor-pointer bg-[#7A20DA] text-white py-3 rounded-lg hover:bg-purple-700 disabled:opacity-50"
-        disabled={loading} // Désactive lehyfdikijoiioiooi bouton pendant le chargement
+        disabled={loading} // Désactive le bouton pendant le chargement
       >
         {loading ? (
           <div className="w-6 h-6 border-4 border-t-[#7A20DA] border-t-transparent rounded-full animate-spin mx-auto"></div>

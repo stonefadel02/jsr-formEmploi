@@ -5,28 +5,20 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Cookies from "js-cookie";
 
-
 export default function Candidature() {
-
-  const [candidatures, setCandidatures] = useState([]);
+  const [candidatures, setCandidatures] = useState<ICandidat[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
   useEffect(() => {
     const fetchCandidatures = async () => {
       try {
-        const response = await fetch("/api/candidats/allCandidats"); // Remplace cette URL par celle de ton API
+        const response = await fetch("/api/candidats/allCandidats");
         if (!response.ok) throw new Error("Erreur lors du chargement des données");
         const data = await response.json();
-        console.log(data.data.candidats); // Pour vérifier la structure des données
-
-        setCandidatures(data.data.candidats); // Assurez-vous que data.candidats est un tableau
+        setCandidatures(data.data.candidats);
       } catch (err: unknown) {
-        if (err instanceof Error) {
-          setError(err.message);
-        } else {
-          setError("Une erreur est survenue");
-        }
+        setError(err instanceof Error ? err.message : "Une erreur est survenue");
       } finally {
         setLoading(false);
       }
@@ -40,42 +32,84 @@ export default function Candidature() {
   const viewProfile = (candidatId: string) => {
     router.push(`/candidats/${candidatId}`);
   };
-  const deleteCandidat = async (id: string) => {
-    const confirmRenouvellement = window.confirm("Êtes-vous sûr de vouloir faire cette action ?");
-    if (!confirmRenouvellement) return;
-    try {
-      const token = Cookies.get('token');
-      const response = await fetch(`/api/admin/candidats/${id}`,
-        {
-          method: "DELETE",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      ); // Remplace cette URL par celle de ton API
-      if (!response.ok) throw new Error("Erreur lors du chargement des données");
-      
-      router.push("/admin/gestion_candidat")
 
+  const deleteCandidat = async (id: string) => {
+    if (!confirm("Êtes-vous sûr de vouloir supprimer ce candidat ?")) return;
+    try {
+      const token = Cookies.get("token");
+      const response = await fetch(`/api/admin/candidats/${id}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (!response.ok) throw new Error("Erreur lors de la suppression");
+      router.push("/admin/gestion_candidat");
     } catch (err: unknown) {
-      if (err instanceof Error) {
-        setError(err.message);
-      } else {
-        setError("Une erreur est survenue");
-      }
+      setError(err instanceof Error ? err.message : "Une erreur est survenue");
     } finally {
       setLoading(false);
     }
   };
+
+  const handleRenew = (candidatId: string) => {
+    if (!confirm("Êtes-vous sûr de vouloir renouveler l'abonnement ?")) return;
+    fetch(`/api/admin/subscriptions/${candidatId}/renouveler`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+    })
+      .then((response) => {
+        if (!response.ok) throw new Error("Erreur lors du renouvellement");
+        return response.json();
+      })
+      .then((data) => {
+        if (data.error) {
+          alert(`Erreur : ${data.error}`);
+        } else {
+          alert("Abonnement renouvelé avec succès !");
+          setCandidatures((prev) =>
+            prev.map((candidat) =>
+              candidat._id === candidatId
+                ? { ...candidat, subscription: { ...data.subscription, isTrial: false } }
+                : candidat
+            )
+          );
+        }
+      })
+      .catch((error) => {
+        console.error("Erreur lors du renouvellement :", error);
+        alert("Une erreur est survenue lors du renouvellement de l'abonnement.");
+      });
+  };
+
+  const handleMarkAsPaid = (candidatId: string) => {
+    if (!confirm("Confirmez-vous le paiement de cet abonnement ?")) return;
+    fetch(`/api/admin/candidats/subscriptions/${candidatId}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.error) {
+          alert(`Erreur : ${data.error}`);
+        } else {
+          alert("Abonnement marqué comme payé avec succès !");
+          setCandidatures((prev) =>
+            prev.map((candidat) =>
+              candidat._id === candidatId
+                ? { ...candidat, subscription: { ...data.subscription, isTrial: false } }
+                : candidat
+            )
+          );
+        }
+      })
+      .catch((error) => {
+        console.error("Erreur lors du marquage comme payé :", error);
+        alert("Une erreur est survenue lors du marquage de l'abonnement.");
+      });
+  };
+
   return (
     <>
-
-
-      {/* Contenu principal */}
-
       <div className="max-w-7xl w-full">
-
-        {/* Filtres */}
         <div className="rounded-[15px] bg-white p-10">
           <div className="flex items-center gap-4">
             <svg
@@ -111,30 +145,13 @@ export default function Candidature() {
               />
             </svg>
 
-            <h1 className="text-2xl font-bold text-[#8929E0]">
-              Gestion des Candidatures
-            </h1>
+            <h1 className="text-2xl font-bold text-[#8929E0]">Gestion des Candidatures</h1>
           </div>
           <div className="border-[1px] my-4 border-[#8929E0]"></div>
-          <div className="bg-white  rounded-[20px] py-2 px-6 shadow-md border-[1px] border-[#C4C4C4]  mb-6">
+          <div className="bg-white rounded-[20px] py-2 px-6 shadow-md border-[1px] border-[#C4C4C4] mb-6">
             <div className="flex flex-col sm:flex-row items-center justify-between space-y-4 sm:space-y-0 sm:space-x-4">
-              <h3 className="text-[#4E4E4E] font-semibold">Status</h3>
-              <select
-                defaultValue=""
-                className="p-2 pr-6 border border-[#F1F1F1] text-[#4C4C4C] rounded-[15px] w-full sm:w-[300px]"
-              >
-                <option value="">Tous</option>
-              </select>
-              <h3 className="text-[#4E4E4E] font-semibold">Secteur</h3>
-              <select className="p-2 border border-[#F1F1F1] text-[#4C4C4C] rounded-[15px] w-full sm:w-[300px]">
-                <option value="">Tous</option>
-              </select>
-              <div className="flex items-center w-full sm:w-auto space-x-2">
-                <input
-                  type="text"
-                  placeholder="Recherche par..."
-                  className="p-2 border border-[#F1F1F1] rounded-[15px] w-full sm:w-[300px]"
-                />
+              <div className="flex items-center w-full space-x-2">
+                <input type="text" placeholder="Recherche par..." className="p-2 border border-[#F1F1F1] rounded-[15px] w-full" />
                 <button className="">
                   <svg
                     width="100"
@@ -151,12 +168,12 @@ export default function Candidature() {
                       fill="white"
                     />
                   </svg>
+
                 </button>
               </div>
             </div>
           </div>
 
-          {/* Tableau */}
           {loading && <p className="text-center text-gray-500">Chargement...</p>}
           {error && <p className="text-center text-red-500">{error}</p>}
 
@@ -168,7 +185,7 @@ export default function Candidature() {
                     <th className="py-6 px-6">Nom</th>
                     <th className="py-6 px-6">Secteur</th>
                     <th className="py-6 px-6">Date de soumission</th>
-                    <th className="py-6 px-6">Statut</th>
+                    <th className="py-6 px-6">Statut Abonnement</th>
                     <th className="py-6 px-6">Actions</th>
                   </tr>
                 </thead>
@@ -177,17 +194,56 @@ export default function Candidature() {
                     <tr key={candidature._id.toString()} className="border-b text-[#4C4C4C] border-gray-200 odd:bg-white even:bg-[#F6F6F6]">
                       <td className="py-6 px-6">{candidature.lastName?.charAt(0)}. {candidature.firstName}</td>
                       <td className="py-6 px-6">{candidature.alternanceSearch?.sector}</td>
-                      <td className="py-6 px-6">{candidature.createdAt ? new Date(candidature.createdAt).toLocaleDateString() : "Date non disponible"}</td>
-                      <td className="py-6 px-6">En cours</td>
+                      <td className="py-6 px-6">{new Date(candidature.createdAt).toLocaleDateString()}</td>
+                      <td className="py-6 px-6 text-[#2A9D8F]">
+                        {candidature.subscription?.isActive && !candidature.subscription?.isTrial ? (
+                          <div className="flex items-center gap-2 text-green-600">
+                            <svg width="18" height="19" viewBox="0 0 28 29" fill="none" xmlns="http://www.w3.org/2000/svg">
+                              {/* SVG existant */}
+                            </svg>
+                            Actif
+                          </div>
+                        ) : candidature.subscription?.isTrial && candidature.subscription?.isActive ? (
+                          <div className="flex items-center gap-2">
+                            <svg width="25" height="27" viewBox="0 0 25 27" fill="none" xmlns="http://www.w3.org/2000/svg">
+                              {/* SVG existant */}
+                            </svg>
+                            En essai
+                          </div>
+                        ) : (
+                          <div className="flex items-center gap-2 text-red-600">
+                            <svg width="18" height="19" viewBox="0 0 28 29" fill="none" xmlns="http://www.w3.org/2000/svg">
+                              {/* SVG existant */}
+                            </svg>
+                            Expiré
+                          </div>
+                        )}
+                      </td>
                       <td className="py-6 px-6 flex space-x-2">
-                        {/* <button onClick={() => viewProfile(candidature._id.toString())} className="bg-[#7A20DA] flex font-bold text-white px-4 items-center gap-2 py-1 rounded-[5px]">
-                          <svg xmlns="http://www.w3.org/2000/svg" fill="white" viewBox="0 0 24 24" width="24" height="24">
-                            <path d="M12 4.5C7 4.5 2.73 8.11 1 12c1.73 3.89 6 7.5 11 7.5s9.27-3.61 11-7.5C21.27 8.11 17 4.5 12 4.5zm0 12a4.5 4.5 0 1 1 0-9 4.5 4.5 0 0 1 0 9zm0-7a2.5 2.5 0 1 0 .001 5.001A2.5 2.5 0 0 0 12 9.5z" />
-                          </svg>
-                          Voir
-                        </button> */}
-                        <button onClick={()=> deleteCandidat(candidature._id.toString())} className="bg-[#FF0000] text-white flex font-bold px-4 items-center gap-2 py-1 rounded-[5px]">
-                          <svg
+                        {!candidature.subscription?.isActive && !candidature.subscription?.isTrial && (
+                          <button
+                            onClick={() => handleRenew(candidature._id.toString())}
+                            className="bg-[#2A9D8F] flex items-center gap-1 text-white px-2 py-1 rounded-md"
+                          >
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                              {/* SVG existant */}
+                            </svg>
+                            Renouveler
+                          </button>
+                        )}
+                        {candidature.subscription?.isTrial && !candidature.subscription?.isActive && (
+                          <button
+                            onClick={() => handleMarkAsPaid(candidature._id.toString())}
+                            className="bg-[#4DD5FF] flex items-center gap-1 text-white px-2 py-1 rounded-md"
+                          >
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                              {/* SVG existant */}
+                            </svg>
+                            Marquer comme payé
+                          </button>
+                        )}
+                        <button onClick={() => deleteCandidat(candidature._id.toString())} className="bg-[#FF0000] text-white flex font-bold px-4 items-center gap-2 py-1 rounded-[5px]">
+                         <svg
                             width="16"
                             height="16"
                             viewBox="0 0 20 20"
@@ -215,21 +271,13 @@ export default function Candidature() {
                       </td>
                     </tr>
                   ))}
-
                 </tbody>
               </table>
             </div>
           )}
-
-          {!loading && candidatures.length === 0 && (
-            <p className="text-center text-gray-500">Aucune candidature trouvée.</p>
-          )}
-          {!loading && candidatures.length > 0 && (
-            <button className="bg-[#7A20DA] text-white py-2 px-10 mt-10 font-semibold rounded-[5px] " >Voir plus de candidatures</button>
-          )}
+          {!loading && candidatures.length === 0 && <p className="text-center text-gray-500">Aucune candidature trouvée.</p>}
         </div>
       </div>
-
     </>
   );
 }

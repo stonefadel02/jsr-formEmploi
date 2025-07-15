@@ -112,7 +112,7 @@ export default function Employeur() {
                       <td className="py-6 px-6">{employeur.email}</td>
                       <td className="py-6 px-6">{employeur.status}</td>
                       <td className="py-6 px-6 flex space-x-2">
-                        <button className="bg-[#7A20DA] flex font-bold text-white px-4 items-center gap-2 py-1 rounded-[5px]">
+                        {/* <button className="bg-[#7A20DA] flex font-bold text-white px-4 items-center gap-2 py-1 rounded-[5px]">
                           <svg
                             width="16"
                             height="14"
@@ -126,7 +126,7 @@ export default function Employeur() {
                             />
                           </svg>
                           Valider
-                        </button>
+                        </button> */}
                         <button className="bg-[#F4E9FF] text-[#7A20DA] font-bold flex px-4 items-center gap-2 py-1 rounded-[5px]">
                           <svg
                             width="5"
@@ -168,7 +168,7 @@ export default function Employeur() {
                           </svg>
                           Supprimer
                         </button>
-                        <button className="bg-[#F4E9FF] text-[#7A20DA] font-bold flex px-4 items-center gap-2 py-1 rounded-[5px]">
+                        {/* <button className="bg-[#F4E9FF] text-[#7A20DA] font-bold flex px-4 items-center gap-2 py-1 rounded-[5px]">
                           <svg
                             width="20"
                             height="20"
@@ -182,7 +182,7 @@ export default function Employeur() {
                             />
                           </svg>
                           Détails
-                        </button>
+                        </button> */}
                       </td>
                     </tr>
                   ))}
@@ -195,11 +195,11 @@ export default function Employeur() {
           {!loading && employeurs.length === 0 && (
             <p className="text-center text-gray-500 mt-4">Aucun employeur trouvé.</p>
           )}
-          {!loading && employeurs.length > 0 && (
+          {/* {!loading && employeurs.length > 0 && (
             <button className="bg-[#7A20DA] text-white py-2 px-10 mt-10 font-semibold rounded-[5px]">
               Voir plus d’employeurs
             </button>
-          )}
+          )} */}
         </div>
       </div>
     </>
