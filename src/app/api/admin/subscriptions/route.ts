@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { connectCandidatsDb } from "@/lib/mongodb";
 import CandidatSubscriptionModelPromise from "@/models/CandidatSubscription";
 import SubscriptionModelPromise from "@/models/Subscription";
+import CandidatModelPromise from "@/models/Candidats"; // Ajout explicite du modèle Candidat
 import jwt, { JwtPayload, TokenExpiredError, JsonWebTokenError } from "jsonwebtoken";
 
 interface DecodedToken extends JwtPayload {
@@ -55,11 +56,13 @@ export async function GET(req: NextRequest): Promise<NextResponse<{ success: boo
     await connectCandidatsDb();
     const CandidatSubscription = await CandidatSubscriptionModelPromise;
     const Subscription = await SubscriptionModelPromise;
+    const Candidat = await CandidatModelPromise; // Résolution explicite du modèle Candidat
 
     // Récupérer les abonnements actifs des candidats
     const activeCandidatSubscriptions = await CandidatSubscription.find({ isActive: true })
       .populate({
         path: "candidatId",
+        model: Candidat, // Spécification explicite du modèle
         select: "firstName lastName email",
       })
       .lean();
@@ -68,6 +71,7 @@ export async function GET(req: NextRequest): Promise<NextResponse<{ success: boo
     const activeEmployerSubscriptions = await Subscription.find({ isActive: true })
       .populate({
         path: "employerId",
+        model: Employer, // Utilisation du modèle Employer déjà importé
         select: "companyName email",
       })
       .lean();
