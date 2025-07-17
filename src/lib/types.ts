@@ -47,6 +47,7 @@ export interface ICandidat extends Document {
   videoUrl?: string;
   photoUrl?: string,
   status?: 'En attente' | 'Validé' | 'Refusé';
+  subscription?: ICandidatSubscription;
   createdAt?: Date;
   updatedAt?: Date;
 }
@@ -67,7 +68,7 @@ export interface IPersonalityTestResult {
 export interface ISubscription {
   employerId: Types.ObjectId; // Référence directe à Employer
   email: string; // Email de l'employeur
-  plan: 'Gratuit' | 'Standard' | 'Premium';
+  plan: 'Gratuit' | 'Standard' ;
   startDate: Date;
   endDate?: Date;
   isTrial: boolean;
@@ -79,7 +80,7 @@ export interface ISubscription {
 // Ajout dans lib/types.ts
 export interface ICandidatSubscription {
   candidatId: Types.ObjectId;
-  plan: 'Gratuit' | 'Standard' | 'Premium';
+  plan: 'Gratuit' | 'Standard' ;
   startDate: Date;
   email:string;
   endDate?: Date;

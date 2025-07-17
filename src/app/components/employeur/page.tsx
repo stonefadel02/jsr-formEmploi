@@ -6,20 +6,19 @@ import Cookies from "js-cookie";
 import { useRouter } from "next/navigation";
 
 export default function Employeur() {
-
-  const [employeurs, setEmployeurs] = useState([]);
+  const [employeurs, setEmployeurs] = useState<IEmployer[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const router =  useRouter()
+  const router = useRouter();
 
   useEffect(() => {
     const fetchEmployeurs = async () => {
       try {
-        const response = await fetch("/api/admin/employers/employer"); // Remplace cette URL par celle de ton API
+        const response = await fetch("/api/admin/employers/employer");
         if (!response.ok) throw new Error("Erreur lors du chargement des données");
         const data = await response.json();
         console.log(data); // Pour vérifier la structure des données
-        setEmployeurs(data); // Assurez-vous que data.candidats est un tableau
+        setEmployeurs(data); // Assurez-vous que data contient un tableau d'employeurs
       } catch (err: unknown) {
         if (err instanceof Error) {
           setError(err.message);
@@ -36,19 +35,15 @@ export default function Employeur() {
 
   const deleteEmployeurs = async (id: string) => {
     try {
-      const token = Cookies.get('token');
-      const response = await fetch(`/api/admin/employers/employer/${id}`,
-        {
-          method: "DELETE",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      ); // Remplace cette URL par celle de ton API
-      if (!response.ok) throw new Error("Erreur lors du chargement des données");
-      
-      router.push("/admin/gestion_employeur")
-
+      const token = Cookies.get("token");
+      const response = await fetch(`/api/admin/employers/employer/${id}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      if (!response.ok) throw new Error("Erreur lors de la suppression");
+      router.push("/admin/gestion_employeur");
     } catch (err: unknown) {
       if (err instanceof Error) {
         setError(err.message);
@@ -60,11 +55,68 @@ export default function Employeur() {
     }
   };
 
+  const handleRenew = (employerId: string) => {
+    if (!confirm("Êtes-vous sûr de vouloir renouveler l'abonnement ?")) return;
+    fetch(`/api/admin/subscriptions/${employerId}/renouveler`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action: "renew" }),
+    })
+      .then((response) => {
+        if (!response.ok) throw new Error("Erreur lors du renouvellement");
+        return response.json();
+      })
+      .then((data) => {
+        if (data.error) {
+          alert(`Erreur : ${data.error}`);
+        } else {
+          alert("Abonnement renouvelé avec succès !");
+          setEmployeurs((prev) =>
+            prev.map((employeur) =>
+              employeur._id === employerId
+                ? { ...employeur, subscription: { ...data.subscription, isTrial: false } }
+                : employeur
+            )
+          );
+        }
+      })
+      .catch((error) => {
+        console.error("Erreur lors du renouvellement :", error);
+        alert("Une erreur est survenue lors du renouvellement de l'abonnement.");
+      });
+  };
+
+  const handleMarkAsPaid = (employerId: string) => {
+    if (!confirm("Confirmez-vous l'activation de cet abonnement ?")) return;
+    fetch(`/api/admin/subscriptions/${employerId}/renouveler`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action: "markAsPaid" }),
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.error) {
+          alert(`Erreur : ${data.error}`);
+        } else {
+          alert("Abonnement activé avec succès !");
+          setEmployeurs((prev) =>
+            prev.map((employeur) =>
+              employeur._id === employerId
+                ? { ...employeur, subscription: { ...data.subscription, isTrial: false } }
+                : employeur
+            )
+          );
+        }
+      })
+      .catch((error) => {
+        console.error("Erreur lors de l'activation :", error);
+        alert("Une erreur est survenue lors de l'activation de l'abonnement.");
+      });
+  };
+
   return (
     <>
-      {/* Contenu principal (la div flex-1 a été déplacée dans GestionEmployeur) */}
       <div className="max-w-7xl w-full">
-        {/* Filtres */}
         <div className="rounded-[15px] bg-white p-10">
           <div className="flex items-center gap-4">
             <svg
@@ -84,13 +136,10 @@ export default function Employeur() {
               />
             </svg>
 
-            <h1 className="text-2xl font-bold text-[#8929E0]">
-              Gestion des Employeurs
-            </h1>
+            <h1 className="text-2xl font-bold text-[#8929E0]">Gestion des Employeurs</h1>
           </div>
           <div className="border-[1px] my-4 border-[#8929E0]"></div>
 
-          {/* Tableau */}
           {loading && <p className="text-center text-gray-500">Chargement...</p>}
           {error && <p className="text-center text-red-500">{error}</p>}
 
@@ -107,42 +156,63 @@ export default function Employeur() {
                 </thead>
                 <tbody>
                   {employeurs.map((employeur: IEmployer) => (
-                    <tr key={employeur._id.toString()} className="border-b text-[#4C4C4C] border-gray-200 odd:bg-white even:bg-[#F6F6F6]">
+                    <tr
+                      key={employeur._id.toString()}
+                      className="border-b text-[#4C4C4C] border-gray-200 odd:bg-white even:bg-[#F6F6F6]"
+                    >
                       <td className="py-6 px-6">{employeur.companyName}</td>
                       <td className="py-6 px-6">{employeur.email}</td>
-                      <td className="py-6 px-6">{employeur.status}</td>
+                      <td className="py-6 px-6">
+                        {employeur.subscription?.isActive && !employeur.subscription?.isTrial ? (
+                          <div className="flex items-center gap-2 text-green-600">
+                            <svg width="18" height="19" viewBox="0 0 28 29" fill="none" xmlns="http://www.w3.org/2000/svg">
+                              {/* SVG existant pour "Actif" */}
+                            </svg>
+                            Actif
+                          </div>
+                        ) : employeur.subscription?.isTrial && employeur.subscription?.isActive ? (
+                          <div className="flex items-center gap-2">
+                            <svg width="25" height="27" viewBox="0 0 25 27" fill="none" xmlns="http://www.w3.org/2000/svg">
+                              {/* SVG existant pour "En essai" */}
+                            </svg>
+                            En essai
+                          </div>
+                        ) : (
+                          <div className="flex items-center gap-2 text-red-600">
+                            <svg width="18" height="19" viewBox="0 0 28 29" fill="none" xmlns="http://www.w3.org/2000/svg">
+                              {/* SVG existant pour "Expiré" */}
+                            </svg>
+                            Expiré
+                          </div>
+                        )}
+                      </td>
                       <td className="py-6 px-6 flex space-x-2">
-                        {/* <button className="bg-[#7A20DA] flex font-bold text-white px-4 items-center gap-2 py-1 rounded-[5px]">
-                          <svg
-                            width="16"
-                            height="14"
-                            viewBox="0 0 18 16"
-                            fill="none"
-                            xmlns="http://www.w3.org/2000/svg"
+                        {employeur.subscription?.isTrial && employeur.subscription?.isActive && (
+                          <button
+                            onClick={() => handleMarkAsPaid(employeur._id.toString())}
+                            className="bg-[#4DD5FF] flex items-center gap-1 text-white px-2 py-1 rounded-md"
                           >
-                            <path
-                              d="M2.71124 9.00215L5.30016 11.6103C7.32455 7.32071 9.67154 4.54884 11.6598 2.79623C12.8109 1.78166 13.8326 1.11664 14.5874 0.698472C14.9645 0.489496 15.2745 0.342343 15.5007 0.244021C15.6136 0.19487 15.7055 0.157922 15.7743 0.131554C15.8088 0.118371 15.8374 0.107833 15.86 0.0997265L15.8893 0.0893793L15.9005 0.0855403L15.9052 0.0839402L15.9092 0.0825324C16.7414 -0.196884 17.6407 0.256159 17.9182 1.09445C18.1943 1.92871 17.749 2.83051 16.9246 3.11457L16.9038 3.12234C16.8776 3.13243 16.8289 3.15174 16.7598 3.18175C16.622 3.24176 16.4026 3.34461 16.118 3.50228C15.5492 3.81743 14.718 4.35239 13.7515 5.20441C11.8252 6.90242 9.32383 9.89237 7.29804 14.9943C7.09977 15.4935 6.66572 15.8591 6.14276 15.9673C5.61979 16.0754 5.0779 15.9116 4.70039 15.5315L0.46517 11.2649C-0.155057 10.6401 -0.155057 9.62699 0.46517 9.00215C1.0854 8.37732 2.09101 8.37732 2.71124 9.00215Z"
-                              fill="white"
-                            />
-                          </svg>
-                          Valider
-                        </button> */}
-                        <button className="bg-[#F4E9FF] text-[#7A20DA] font-bold flex px-4 items-center gap-2 py-1 rounded-[5px]">
-                          <svg
-                            width="5"
-                            height="14"
-                            viewBox="0 0 7 16"
-                            fill="none"
-                            xmlns="http://www.w3.org/2000/svg"
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                              {/* SVG existant pour "Activer" */}
+                            </svg>
+                            Activer
+                          </button>
+                        )}
+                        {!employeur.subscription?.isActive && (
+                          <button
+                            onClick={() => handleRenew(employeur._id.toString())}
+                            className="bg-[#2A9D8F] flex items-center gap-1 text-white px-2 py-1 rounded-md"
                           >
-                            <path
-                              d="M2.23938 0.627251V15.3727C2.23938 15.6236 2.05277 15.8044 1.67954 15.9164C1.49893 15.9721 1.31274 16 1.11969 16L0.559846 15.9164C0.186186 15.8044 0 15.6236 0 15.3727V0.627251C0 0.37635 0.186615 0.195609 0.559846 0.0836335C0.740026 0.0278779 0.926641 0 1.11969 0L1.67954 0.0836335C2.05277 0.195145 2.23938 0.37635 2.23938 0.627251ZM7 0.627251V15.3727C7 15.6236 6.81339 15.8044 6.44016 15.9164C6.25955 15.9721 6.07336 16 5.88031 16L5.32046 15.9164C4.9468 15.8044 4.76062 15.6236 4.76062 15.3727V0.627251C4.76062 0.37635 4.94723 0.195609 5.32046 0.0836335C5.50064 0.0278779 5.68726 0 5.88031 0L6.44016 0.0836335C6.81339 0.195145 7 0.37635 7 0.627251Z"
-                              fill="#7A20DA"
-                            />
-                          </svg>
-                          Suspendre
-                        </button>
-                        <button onClick={()=> deleteEmployeurs((employeur._id).toString()) } className="bg-[#FF0000] text-white flex font-bold px-4 items-center gap-2 py-1 rounded-[5px]">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                              {/* SVG existant pour "Renouveler" */}
+                            </svg>
+                            Renouveler
+                          </button>
+                        )}
+                        <button
+                          onClick={() => deleteEmployeurs(employeur._id.toString())}
+                          className="bg-[#FF0000] text-white flex font-bold px-4 items-center gap-2 py-1 rounded-[5px]"
+                        >
                           <svg
                             width="16"
                             height="16"
@@ -168,21 +238,6 @@ export default function Employeur() {
                           </svg>
                           Supprimer
                         </button>
-                        {/* <button className="bg-[#F4E9FF] text-[#7A20DA] font-bold flex px-4 items-center gap-2 py-1 rounded-[5px]">
-                          <svg
-                            width="20"
-                            height="20"
-                            viewBox="0 0 23 23"
-                            fill="none"
-                            xmlns="http://www.w3.org/2000/svg"
-                          >
-                            <path
-                              d="M11.5 0C5.16147 0 0 5.16147 0 11.5C0 17.8385 5.16147 23 11.5 23C17.8385 23 23 17.8385 23 11.5C23 5.16147 17.8385 0 11.5 0ZM10.8235 16.0797V15.3829C10.8235 15.0109 11.1279 14.7065 11.5 14.7065C11.8721 14.7065 12.1765 15.0109 12.1765 15.3829V16.0797C12.1765 16.4585 11.8721 16.7562 11.5 16.7562C11.1279 16.7562 10.8235 16.4585 10.8235 16.0797ZM12.1765 13.2047C12.1765 13.5768 11.8721 13.8812 11.5 13.8812C11.1279 13.8812 10.8235 13.5768 10.8235 13.2047V6.92029C10.8235 6.54147 11.1279 6.24382 11.5 6.24382C11.8721 6.24382 12.1765 6.54147 12.1765 6.92029V13.2047Z"
-                              fill="#7A20DA"
-                            />
-                          </svg>
-                          Détails
-                        </button> */}
                       </td>
                     </tr>
                   ))}
@@ -191,15 +246,9 @@ export default function Employeur() {
             </div>
           )}
 
-          {/* Message si aucun employeur n'est trouvé */}
           {!loading && employeurs.length === 0 && (
             <p className="text-center text-gray-500 mt-4">Aucun employeur trouvé.</p>
           )}
-          {/* {!loading && employeurs.length > 0 && (
-            <button className="bg-[#7A20DA] text-white py-2 px-10 mt-10 font-semibold rounded-[5px]">
-              Voir plus d’employeurs
-            </button>
-          )} */}
         </div>
       </div>
     </>

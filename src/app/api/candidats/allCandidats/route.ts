@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { connectCandidatsDb } from "@/lib/mongodb";
 import CandidatPromise from "../../../../models/Candidats";
+import CandidatSubscriptionModelPromise from "@/models/CandidatSubscription";
 import EmployerPromise from "@/models/Employer";
 import jwt, { JwtPayload, TokenExpiredError, JsonWebTokenError } from "jsonwebtoken";
 import { ICandidat, ApiResponse } from "@/lib/types";
@@ -40,7 +41,7 @@ interface MatchQuery {
 
 export async function GET(req: NextRequest): Promise<NextResponse<ApiResponse<{ candidats: ICandidat[]; total: number }>>> {
   try {
-    const token = req.cookies.get('token')?.value;
+    const token = req.cookies.get("token")?.value;
     if (!token) {
       return NextResponse.json({ success: false, message: "Authentication required" }, { status: 401 });
     }
@@ -60,12 +61,13 @@ export async function GET(req: NextRequest): Promise<NextResponse<ApiResponse<{ 
 
     const Employer = await EmployerPromise;
     const employer = await Employer.findById(decoded.id).select("role");
-    if (!employer || employer.role !== "employeur" && employer.role !== "admin") {
+    if (!employer || (employer.role !== "employeur" && employer.role !== "admin")) {
       return NextResponse.json({ success: false, message: "Employeur access required" }, { status: 403 });
     }
 
     await connectCandidatsDb();
     const Candidat = await CandidatPromise;
+    const CandidatSubscription = await CandidatSubscriptionModelPromise;
 
     const { searchParams } = new URL(req.url);
     const query: QueryParams = {
@@ -113,12 +115,33 @@ export async function GET(req: NextRequest): Promise<NextResponse<ApiResponse<{ 
         sortOption.createdAt = -1;
     }
 
-    const candidats = await Candidat.find(matchQuery)
-      .sort(sortOption)
-      .skip(skip)
-      .limit(limit)
-      .select("-password"); // Exclure le mot de passe
+    // Utiliser l'agrégation MongoDB pour joindre les abonnements
+    const pipeline = [
+      { $match: matchQuery },
+      {
+        $lookup: {
+          from: "candidatsubscriptions", // Nom de la collection des abonnements
+          localField: "_id",
+          foreignField: "candidatId",
+          as: "subscription"
+        }
+      },
+      {
+        $addFields: {
+          subscription: { $arrayElemAt: ["$subscription", 0] } // Prendre le premier (et unique) abonnement
+        }
+      },
+      { $sort: sortOption },
+      { $skip: skip },
+      { $limit: limit },
+      {
+        $project: {
+          password: 0 // Exclure le mot de passe
+        }
+      }
+    ];
 
+    const candidats = await Candidat.aggregate(pipeline);
     const total = await Candidat.countDocuments(matchQuery);
 
     return NextResponse.json(

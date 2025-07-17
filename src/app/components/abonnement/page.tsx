@@ -1,21 +1,10 @@
 "use client";
 
-import { ISubscription } from "@/lib/types";
+import { IActiveSubscription, statsType } from "@/lib/types";
 import { useState, useEffect } from "react";
 
-export interface statsType {
-  totalActifs: number;
-  totalEssais: number;
-  expirés: number;
-  revenusMensuels: number;
-}
-
-interface ISubscriptionExtended extends ISubscription {
-  companyName?: string;
-}
-
 export default function Abonnement() {
-  const [subscriptions, setSubscriptions] = useState<ISubscriptionExtended[]>([]);
+  const [subscriptions, setSubscriptions] = useState<IActiveSubscription[]>([]);
   const [stats, setStats] = useState<statsType | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -26,71 +15,49 @@ export default function Abonnement() {
         const response = await fetch("/api/admin/subscriptions");
         if (!response.ok) throw new Error("Erreur lors du chargement des données");
         const data = await response.json();
-        setSubscriptions(data);
+        setSubscriptions(data.data || []);
       } catch (err: unknown) {
-        if (err instanceof Error) {
-          setError(err.message);
-        } else {
-          setError("Une erreur est survenue");
-        }
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    const fetchStats = async () => {
-      try {
-        const response = await fetch("/api/admin/subscriptions/stats");
-        if (!response.ok) throw new Error("Erreur lors du chargement des données");
-        const data = await response.json();
-        setStats(data);
-      } catch (err: unknown) {
-        if (err instanceof Error) {
-          setError(err.message);
-        } else {
-          setError("Une erreur est survenue");
-        }
+        setError(err instanceof Error ? err.message : "Une erreur est survenue");
       } finally {
         setLoading(false);
       }
     };
 
     fetchSubscriptions();
-    fetchStats();
   }, []);
 
-const handleRenew = (employerId: string) => {
-  const confirmRenouvellement = window.confirm("Êtes-vous sûr de vouloir renouveler l'abonnement ?");
-  if (confirmRenouvellement) {
-    fetch(`/api/admin/subscriptions/${employerId}/renouveler`, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    })
-      .then((response) => {
-        if (!response.ok) throw new Error("Erreur lors du renouvellement");
-        return response.json();
+  const handleRenew = (employerId: string) => {
+    const confirmRenouvellement = window.confirm("Êtes-vous sûr de vouloir renouveler l'abonnement ?");
+    if (confirmRenouvellement) {
+      fetch(`/api/admin/subscriptions/${employerId}/renouveler`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
       })
-      .then((data) => {
-        if (data.error) {
-          alert(`Erreur : ${data.error}`);
-        } else {
-          alert("Abonnement renouvelé avec succès !");
-          // Mise à jour de l'état après renouvellement (exemple)
-          setSubscriptions((prev) =>
-            prev.map((sub) =>
-              sub.employerId === employerId ? { ...sub, isActive: true } : sub
-            )
-          );
-        }
-      })
-      .catch((error) => {
-        console.error("Erreur lors du renouvellement :", error);
-        alert("Une erreur est survenue lors du renouvellement de l'abonnement.");
-      });
-  }
-};
+        .then((response) => {
+          if (!response.ok) throw new Error("Erreur lors du renouvellement");
+          return response.json();
+        })
+        .then((data) => {
+          if (data.error) {
+            alert(`Erreur : ${data.error}`);
+          } else {
+            alert("Abonnement renouvelé avec succès !");
+            setSubscriptions((prev) =>
+              prev.map((sub) =>
+                sub.type === "employer" && sub.employerId?.toString() === employerId
+                  ? { ...sub, isActive: true }
+                  : sub
+              )
+            );
+          }
+        })
+        .catch((error) => {
+          console.error("Erreur lors du renouvellement :", error);
+          alert("Une erreur est survenue lors du renouvellement de l'abonnement.");
+        });
+    }
+  };
+
   const handleMarkAsPaid = (employerId: string) => {
     const confirmPayment = window.confirm("Confirmez-vous le paiement de cet abonnement ?");
     if (confirmPayment) {
@@ -106,10 +73,11 @@ const handleRenew = (employerId: string) => {
             alert("Abonnement marqué comme payé avec succès !");
             setSubscriptions((prev) =>
               prev.map((sub) =>
-                sub.employerId === employerId ? { ...sub, isActive: true, isTrial: false } : sub
+                sub.type === "employer" && sub.employerId?.toString() === employerId
+                  ? { ...sub, isActive: true, isTrial: false }
+                  : sub
               )
             );
-            updateStats();
           }
         })
         .catch((error) => {
@@ -123,11 +91,11 @@ const handleRenew = (employerId: string) => {
     if (subscriptions.length > 0) {
       const newStats = {
         totalActifs: subscriptions.filter((sub) => sub.isActive && !sub.isTrial).length,
-        totalEssais: subscriptions.filter((sub) => sub.isTrial && !sub.isActive).length,
-        expirés: subscriptions.filter((sub) => !sub.isActive && !sub.isTrial).length,
+        totalEssais: subscriptions.filter((sub) => sub.isTrial && sub.isActive).length,
+        expirés: 0, // Pas d'expirés dans cette liste car seuls les actifs sont récupérés
         revenusMensuels: subscriptions.reduce((acc, sub) => {
           if (sub.isActive && !sub.isTrial) {
-            const price = sub.plan === "Entreprise" ? 500 : sub.plan === "Essai" ? 0 : 200; // Exemple de prix
+            const price = sub.plan === "Premium" ? 500 : sub.plan === "Gratuit" ? 0 : 200;
             return acc + price;
           }
           return acc;
@@ -272,31 +240,6 @@ const handleRenew = (employerId: string) => {
                 </div>
               </div>
             </div>
-            {/* <div className="flex w-1/4">
-              <div className="w-2 rounded-l-[20px] bg-[#2A9D8F]"></div>
-              <div className="bg-white rounded-r-[20px] p-4 shadow-md flex-1 text-center">
-                <h3 className="text-[#4E4E4E] text-left font-semibold">
-                  Revenu Mensuel Estimé
-                </h3>
-                <div className="flex items-center py-4 justify-between">
-                  <p className="text-4xl font-bold text-[#7A20DA]">
-                    {stats?.revenusMensuels} €
-                  </p>
-                  <svg
-                    width="33"
-                    height="33"
-                    viewBox="0 0 63 63"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      d="M36.2595 37.0482H29.0095C29.0871 39.0846 29.6408 40.5895 30.6707 41.5615C31.7006 42.5336 33.4011 43.0196 35.771 43.0196C37.3041 43.0196 38.6675 42.7871 39.861 42.322L40.8602 48.5937C38.8004 49.06 36.7627 49.2938 34.7497 49.2938C30.5673 49.2938 27.2327 48.2098 24.7472 46.0405C22.2604 43.8724 20.9561 40.8749 20.8318 37.0482H16.9977V33.3309H20.8318V30.5193H16.9977V26.8021H20.9007C21.1948 22.9605 22.6357 19.9631 25.2221 17.8098C27.8086 15.6565 31.2244 14.5798 35.4695 14.5798C37.1109 14.5798 38.9087 14.8198 40.8602 15.2996L39.861 21.5738C38.6527 21.0939 37.3595 20.854 35.9801 20.854C33.8428 20.854 32.2075 21.3388 31.0779 22.3059C29.9471 23.2743 29.2802 24.773 29.0797 26.8021H36.2595V30.5193H29.0095V33.3309H36.2595V37.0482ZM31.5 0C14.1036 0 0 14.1024 0 31.5C0 48.8976 14.1036 63 31.5 63C48.8964 63 63 48.8964 63 31.5C63 14.1036 48.8964 0 31.5 0ZM31.5 56.7037C17.8209 56.7037 6.73313 45.6147 6.73313 31.9368C6.73313 18.2589 17.8209 7.16871 31.5 7.16871C45.1791 7.16871 56.2669 18.2577 56.2669 31.9368C56.2669 45.6159 45.1791 56.7037 31.5 56.7037Z"
-                      fill="#4DD5FF"
-                    />
-                  </svg>
-                </div>
-              </div>
-            </div> */}
           </div>
           <div className="bg-white rounded-[20px] py-2 px-6 shadow-md border-[1px] border-[#C4C4C4] mb-6">
             <div className="flex flex-col sm:flex-row items-center justify-between space-y-4 sm:space-y-0 sm:space-x-4">
@@ -346,8 +289,10 @@ const handleRenew = (employerId: string) => {
               <table className="w-full text-left">
                 <thead>
                   <tr className="border-b border-gray-300">
-                    <th className="py-6 px-6">Entreprise</th>
-                    <th className="py-6 px-6">Type d’abonnement</th>
+                    <th className="py-6 px-6">Type</th>
+                    <th className="py-6 px-6">Nom/Entreprise</th>
+                    <th className="py-6 px-6">Email</th>
+                    {/* <th className="py-6 px-6">Type d’abonnement</th> */}
                     <th className="py-6 px-6">Date de début</th>
                     <th className="py-6 px-6">Date d’expiration</th>
                     <th className="py-6 px-6">Statut</th>
@@ -355,15 +300,19 @@ const handleRenew = (employerId: string) => {
                   </tr>
                 </thead>
                 <tbody>
-                  {subscriptions.map((subscription: ISubscriptionExtended) => (
+                  {subscriptions.map((subscription) => (
                     <tr
-                      key={subscription.companyName}
+                      key={subscription.type === "candidate" ? `${subscription.firstName}-${subscription.lastName}` : subscription.companyName}
                       className="border-b text-[#4C4C4C] border-gray-200 odd:bg-white even:bg-[#F6F6F6]"
                     >
+                      <td className="py-6 px-6">{subscription.type === "candidate" ? "Candidat" : "Employeur"}</td>
                       <td className="py-6 px-6">
-                        {subscription.companyName ?? "N/A"}
+                        {subscription.type === "candidate"
+                          ? `${subscription.firstName || "N/A"} ${subscription.lastName || ""}`
+                          : subscription.companyName || "N/A"}
                       </td>
-                      <td className="py-6 px-6">{subscription.plan}</td>
+                      <td className="py-6 px-6">{subscription.email || "N/A"}</td>
+                      {/* <td className="py-6 px-6">{subscription.plan}</td> */}
                       <td className="py-6 px-6">
                         {subscription.startDate
                           ? new Date(subscription.startDate).toLocaleDateString("fr-FR")
@@ -375,41 +324,7 @@ const handleRenew = (employerId: string) => {
                           : "N/A"}
                       </td>
                       <td className="py-6 px-6 text-[#2A9D8F]">
-                        {subscription.isActive === true && (
-                          <div className="flex items-center gap-2 text-green-600">
-                            <svg
-                              width="18"
-                              height="19"
-                              viewBox="0 0 28 29"
-                              fill="none"
-                              xmlns="http://www.w3.org/2000/svg"
-                            >
-                              <g clipPath="url(#clip0_63_3918)">
-                                <path
-                                  d="M28 14.4125C28 22.0394 21.7319 28.222 14 28.222C6.26801 28.222 0 22.0394 0 14.4125C0 6.78577 6.26801 0.603027 14 0.603027C21.7319 0.603027 28 6.78577 28 14.4125Z"
-                                  fill="#F6F6F6"
-                                />
-                                <path
-                                  fillRule="evenodd"
-                                  clipRule="evenodd"
-                                  d="M14 26.1506C20.5722 26.1506 25.9 20.8953 25.9 14.4125C25.9 7.92978 20.5722 2.67445 14 2.67445C7.42781 2.67445 2.1 7.92978 2.1 14.4125C2.1 20.8953 7.42781 26.1506 14 26.1506ZM14 28.222C21.7319 28.222 28 22.0394 28 14.4125C28 6.78577 21.7319 0.603027 14 0.603027C6.26801 0.603027 0 6.78577 0 14.4125C0 22.0394 6.26801 28.222 14 28.222Z"
-                                  fill="#2A9D8F"
-                                />
-                                <path
-                                  d="M9.84324 15.0613L11.5548 16.7497C12.8932 13.9729 14.4449 12.1785 15.7593 11.044C16.5204 10.3872 17.1959 9.95673 17.6948 9.68604C17.9442 9.55076 18.1491 9.4555 18.2986 9.39185C18.3733 9.36003 18.434 9.33612 18.4795 9.31905C18.5023 9.31051 18.5212 9.30369 18.5362 9.29844L18.5555 9.29175L18.563 9.28926L18.566 9.28822L18.5687 9.28731C19.1189 9.10644 19.7135 9.39971 19.8969 9.94237C20.0794 10.4824 19.785 11.0662 19.24 11.2501L19.2263 11.2551C19.2089 11.2616 19.1767 11.2741 19.1311 11.2936C19.0399 11.3324 18.8949 11.399 18.7067 11.501C18.3307 11.7051 17.7812 12.0514 17.1422 12.6029C15.8687 13.7021 14.215 15.6376 12.8757 18.9403C12.7446 19.2634 12.4576 19.5001 12.1119 19.5701C11.7662 19.6402 11.4079 19.5341 11.1583 19.288L8.35832 16.5261C7.94827 16.1216 7.94827 15.4658 8.35832 15.0613C8.76836 14.6569 9.43319 14.6569 9.84324 15.0613Z"
-                                  fill="#2A9D8F"
-                                />
-                              </g>
-                              <defs>
-                                <clipPath id="clip0_63_3918">
-                                  <rect width="28" height="29" fill="white" />
-                                </clipPath>
-                              </defs>
-                            </svg>
-                            Actif
-                          </div>
-                        )}
-                        {(subscription.isActive === false && subscription.isTrial === true) && (
+                        {subscription.isTrial ? (
                           <div className="flex items-center gap-2">
                             <svg
                               width="25"
@@ -446,9 +361,8 @@ const handleRenew = (employerId: string) => {
                             </svg>
                             En essai
                           </div>
-                        )}
-                        {(subscription.isActive === false && subscription.isTrial === false) && (
-                          <div className="flex items-center gap-2">
+                        ) : (
+                          <div className="flex items-center gap-2 text-green-600">
                             <svg
                               width="18"
                               height="19"
@@ -456,58 +370,36 @@ const handleRenew = (employerId: string) => {
                               fill="none"
                               xmlns="http://www.w3.org/2000/svg"
                             >
-                              <g clipPath="url(#clip0_63_3963)">
+                              <g clipPath="url(#clip0_63_3918)">
                                 <path
                                   d="M28 14.4125C28 22.0394 21.7319 28.222 14 28.222C6.26801 28.222 0 22.0394 0 14.4125C0 6.78577 6.26801 0.603027 14 0.603027C21.7319 0.603027 28 6.78577 28 14.4125Z"
-                                  fill="white"
+                                  fill="#F6F6F6"
                                 />
                                 <path
                                   fillRule="evenodd"
                                   clipRule="evenodd"
                                   d="M14 26.1506C20.5722 26.1506 25.9 20.8953 25.9 14.4125C25.9 7.92978 20.5722 2.67445 14 2.67445C7.42781 2.67445 2.1 7.92978 2.1 14.4125C2.1 20.8953 7.42781 26.1506 14 26.1506ZM14 28.222C21.7319 28.222 28 22.0394 28 14.4125C28 6.78577 21.7319 0.603027 14 0.603027C6.26801 0.603027 0 6.78577 0 14.4125C0 22.0394 6.26801 28.222 14 28.222Z"
-                                  fill="#FF0000"
+                                  fill="#2A9D8F"
                                 />
                                 <path
-                                  fillRule="evenodd"
-                                  clipRule="evenodd"
-                                  d="M9.336 9.21012C9.03037 8.92996 8.53484 8.92996 8.22922 9.21012C7.92359 9.49027 7.92359 9.94451 8.22922 10.2247L12.8932 14.5L8.22922 18.7754C7.92359 19.0556 7.92359 19.5097 8.22922 19.7899C8.53484 20.07 9.03037 20.07 9.336 19.7899L14 15.5146L18.6641 19.7899C18.9697 20.07 19.4651 20.07 19.7708 19.7899C20.0764 19.5097 20.0764 19.0556 19.7708 18.7754L15.1068 14.5L19.7708 10.2247C20.0764 9.94451 20.0764 9.49027 19.7708 9.21012C19.4651 8.92996 18.9697 8.92996 18.6641 9.21012L14 13.4854L9.336 9.21012Z"
-                                  fill="#FF0000"
+                                  d="M9.84324 15.0613L11.5548 16.7497C12.8932 13.9729 14.4449 12.1785 15.7593 11.044C16.5204 10.3872 17.1959 9.95673 17.6948 9.68604C17.9442 9.55076 18.1491 9.4555 18.2986 9.39185C18.3733 9.36003 18.434 9.33612 18.4795 9.31905C18.5023 9.31051 18.5212 9.30369 18.5362 9.29844L18.5555 9.29175L18.563 9.28926L18.566 9.28822L18.5687 9.28731C19.1189 9.10644 19.7135 9.39971 19.8969 9.94237C20.0794 10.4824 19.785 11.0662 19.24 11.2501L19.2263 11.2551C19.2089 11.2616 19.1767 11.2741 19.1311 11.2936C19.0399 11.3324 18.8949 11.399 18.7067 11.501C18.3307 11.7051 17.7812 12.0514 17.1422 12.6029C15.8687 13.7021 14.215 15.6376 12.8757 18.9403C12.7446 19.2634 12.4576 19.5001 12.1119 19.5701C11.7662 19.6402 11.4079 19.5341 11.1583 19.288L8.35832 16.5261C7.94827 16.1216 7.94827 15.4658 8.35832 15.0613C8.76836 14.6569 9.43319 14.6569 9.84324 15.0613Z"
+                                  fill="#2A9D8F"
                                 />
                               </g>
                               <defs>
-                                <clipPath id="clip0_63_3963">
+                                <clipPath id="clip0_63_3918">
                                   <rect width="28" height="29" fill="white" />
                                 </clipPath>
                               </defs>
                             </svg>
-                            Expiré
+                            Actif
                           </div>
                         )}
                       </td>
                       <td className="py-6 px-6 flex space-x-2">
-                        {(subscription.isActive === false && subscription.isTrial === false) && (
+                        {subscription.isTrial && (
                           <button
-                            onClick={() => handleRenew(subscription.employerId?.toString() || "")}
-                            className="bg-[#2A9D8F] flex items-center gap-1 text-white px-2 py-1 rounded-md"
-                          >
-                            <svg
-                              width="20"
-                              height="20"
-                              viewBox="0 0 24 24"
-                              fill="none"
-                              xmlns="http://www.w3.org/2000/svg"
-                            >
-                              <path
-                                d="M11.5 1C9.22552 1 7.00211 1.67446 5.11095 2.9381C3.21978 4.20174 1.7458 5.99779 0.87539 8.09914C0.00498288 10.2005 -0.222756 12.5128 0.220974 14.7435C0.664704 16.9743 1.75997 19.0234 3.36828 20.6317C4.97658 22.24 7.02568 23.3353 9.25646 23.779C11.4872 24.2228 13.7995 23.995 15.9009 23.1246C18.0022 22.2542 19.7983 20.7802 21.0619 18.8891C22.3255 16.9979 23 14.7745 23 12.5C22.9989 9.45035 21.7869 6.52591 19.6305 4.36948C17.4741 2.21305 14.5497 1.0011 11.5 1ZM20.47 10.8133C20.5427 10.8825 20.6006 10.9658 20.6401 11.0581C20.6796 11.1503 20.7 11.2496 20.7 11.35C20.7 11.4504 20.6796 11.5497 20.6401 11.6419C20.6006 11.7342 20.5427 11.8175 20.47 11.8867L18.17 14.1867C18.1008 14.2594 18.0175 14.3172 17.9253 14.3568C17.833 14.3963 17.7337 14.4167 17.6333 14.4167C17.533 14.4167 17.4336 14.3963 17.3414 14.3568C17.2491 14.3172 17.1659 14.2594 17.0967 14.1867L14.7967 11.8867C14.6567 11.7438 14.5788 11.5516 14.5798 11.3516C14.5808 11.1516 14.6607 10.9601 14.8021 10.8187C14.9435 10.6773 15.135 10.5974 15.3349 10.5964C15.5349 10.5954 15.7272 10.6734 15.87 10.8133L16.8053 11.7333C16.6578 10.7159 16.221 9.76221 15.5469 8.98596C14.8728 8.2097 13.9897 7.64354 13.003 7.35489C12.0162 7.06625 10.9673 7.06727 9.9811 7.35785C8.99491 7.64843 8.11301 8.21632 7.44041 8.99389C6.7678 9.77146 6.33285 10.726 6.18733 11.7437C6.04181 12.7615 6.19185 13.7996 6.6196 14.7345C7.04735 15.6694 7.73478 16.4617 8.60003 17.017C9.46528 17.5723 10.4719 17.8672 11.5 17.8667C11.7033 17.8667 11.8983 17.9474 12.0421 18.0912C12.1859 18.235 12.2667 18.43 12.2667 18.6333C12.2667 18.8367 12.1859 19.0317 12.0421 19.1754C11.8983 19.3192 11.7033 19.4 11.5 19.4C10.1642 19.3995 8.85721 19.0113 7.73773 18.2825C6.61825 17.5537 5.7344 16.5155 5.19346 15.2941C4.65252 14.0727 4.47775 12.7206 4.69036 11.4018C4.90297 10.083 5.49382 8.85426 6.3912 7.86474C7.28858 6.87522 8.45389 6.16746 9.7457 5.82737C11.0375 5.48728 12.4003 5.52947 13.6686 5.94883C14.9368 6.3682 16.0561 7.1467 16.8906 8.18984C17.725 9.23298 18.2387 10.4959 18.3693 11.8253L19.3967 10.8133C19.4659 10.7406 19.5491 10.6828 19.6414 10.6432C19.7336 10.6037 19.833 10.5833 19.9333 10.5833C20.0337 10.5833 20.133 10.6037 20.2253 10.6432C20.3175 10.6828 20.4008 10.7406 20.47 10.8133Z"
-                                fill="white"
-                              />
-                            </svg>
-                            Renouveler
-                          </button>
-                        )}
-                        {(subscription.isActive === false && subscription.isTrial === true) && (
-                          <button
-                            onClick={() => handleMarkAsPaid(subscription.employerId?.toString() || "")}
+                            onClick={() => handleMarkAsPaid(subscription.type === "employer" ? subscription.employerId?.toString() || "" : "")}
                             className="bg-[#4DD5FF] flex items-center gap-1 text-white px-2 py-1 rounded-md"
                           >
                             <svg
@@ -532,10 +424,6 @@ const handleRenew = (employerId: string) => {
               </table>
             </div>
           )}
-
-          {/* <button className="bg-[#7A20DA] text-white py-2 px-10 mt-10 font-semibold rounded-[5px]">
-            Voir plus de candidatures
-          </button> */}
         </div>
       </div>
     </>

@@ -1,6 +1,6 @@
-import { Schema, Model } from 'mongoose';
-import { connectCandidatsDb } from '../lib/mongodb';
-import { ICandidat } from '@/lib/types';
+import { Schema, Model } from "mongoose";
+import { connectCandidatsDb } from "../lib/mongodb";
+import { ICandidat } from "@/lib/types";
 
 // Schéma Mongoose
 const candidateSchema = new Schema<ICandidat>(
@@ -12,15 +12,15 @@ const candidateSchema = new Schema<ICandidat>(
     password: {
       type: String,
       required: function (this: ICandidat) {
-        return this.authProvider === 'local';
+        return this.authProvider === "local";
       },
     },
     role: {
       type: String,
-      default: 'candidat',
+      default: "candidat",
       index: true,
     },
-    authProvider: { type: String, default: 'local' },
+    authProvider: { type: String, default: "local" },
     phone: { type: String },
     alternanceSearch: {
       sector: { type: String },
@@ -31,8 +31,9 @@ const candidateSchema = new Schema<ICandidat>(
     },
     cvUrl: { type: String },
     videoUrl: { type: String },
-    photoUrl : {type: String},
-    status: { type: String, enum: ['En attente', 'Validé', 'Refusé'], default: 'En attente', index: true },
+    photoUrl: { type: String },
+    status: { type: String, enum: ["En attente", "Validé", "Refusé"], default: "En attente", index: true },
+    subscription: { type: Schema.Types.ObjectId, ref: "CandidatSubscription" }, // Ajout de la référence
   },
   {
     timestamps: true,
@@ -42,14 +43,14 @@ const candidateSchema = new Schema<ICandidat>(
 // Fonction pour obtenir le modèle
 const getCandidatModel = async (): Promise<Model<ICandidat>> => {
   const db = await connectCandidatsDb();
-  
+
   // Vérifier si le modèle existe déjà pour cette connexion
   if (db.models.Candidat) {
     return db.models.Candidat as Model<ICandidat>;
   }
 
   // Sinon, définir le modèle
-  return db.model<ICandidat>('Candidat', candidateSchema);
+  return db.model<ICandidat>("Candidat", candidateSchema);
 };
 
 // Exporter une instance unique du modèle

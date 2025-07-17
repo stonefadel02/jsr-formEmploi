@@ -52,9 +52,10 @@ export default function Candidature() {
 
   const handleRenew = (candidatId: string) => {
     if (!confirm("Êtes-vous sûr de vouloir renouveler l'abonnement ?")) return;
-    fetch(`/api/admin/subscriptions/${candidatId}/renouveler`, {
+    fetch(`/api/admin/subscriptions/candidats/${candidatId}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action: "renew" }),
     })
       .then((response) => {
         if (!response.ok) throw new Error("Erreur lors du renouvellement");
@@ -81,17 +82,18 @@ export default function Candidature() {
   };
 
   const handleMarkAsPaid = (candidatId: string) => {
-    if (!confirm("Confirmez-vous le paiement de cet abonnement ?")) return;
-    fetch(`/api/admin/candidats/subscriptions/${candidatId}`, {
+    if (!confirm("Confirmez-vous l'activation de cet abonnement ?")) return;
+    fetch(`/api/admin/subscriptions/candidats/${candidatId}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action: "markAsPaid" }),
     })
       .then((response) => response.json())
       .then((data) => {
         if (data.error) {
           alert(`Erreur : ${data.error}`);
         } else {
-          alert("Abonnement marqué comme payé avec succès !");
+          alert("Abonnement activé avec succès !");
           setCandidatures((prev) =>
             prev.map((candidat) =>
               candidat._id === candidatId
@@ -102,8 +104,8 @@ export default function Candidature() {
         }
       })
       .catch((error) => {
-        console.error("Erreur lors du marquage comme payé :", error);
-        alert("Une erreur est survenue lors du marquage de l'abonnement.");
+        console.error("Erreur lors de l'activation :", error);
+        alert("Une erreur est survenue lors de l'activation de l'abonnement.");
       });
   };
 
@@ -168,7 +170,6 @@ export default function Candidature() {
                       fill="white"
                     />
                   </svg>
-
                 </button>
               </div>
             </div>
@@ -220,7 +221,18 @@ export default function Candidature() {
                         )}
                       </td>
                       <td className="py-6 px-6 flex space-x-2">
-                        {!candidature.subscription?.isActive && !candidature.subscription?.isTrial && (
+                        {candidature.subscription?.isTrial && candidature.subscription?.isActive && (
+                          <button
+                            onClick={() => handleMarkAsPaid(candidature._id.toString())}
+                            className="bg-[#4DD5FF] flex items-center gap-1 text-white px-2 py-1 rounded-md"
+                          >
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                              {/* SVG existant */}
+                            </svg>
+                            Activer
+                          </button>
+                        )}
+                        {!candidature.subscription?.isActive && (
                           <button
                             onClick={() => handleRenew(candidature._id.toString())}
                             className="bg-[#2A9D8F] flex items-center gap-1 text-white px-2 py-1 rounded-md"
@@ -231,19 +243,8 @@ export default function Candidature() {
                             Renouveler
                           </button>
                         )}
-                        {candidature.subscription?.isTrial && !candidature.subscription?.isActive && (
-                          <button
-                            onClick={() => handleMarkAsPaid(candidature._id.toString())}
-                            className="bg-[#4DD5FF] flex items-center gap-1 text-white px-2 py-1 rounded-md"
-                          >
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                              {/* SVG existant */}
-                            </svg>
-                            Marquer comme payé
-                          </button>
-                        )}
                         <button onClick={() => deleteCandidat(candidature._id.toString())} className="bg-[#FF0000] text-white flex font-bold px-4 items-center gap-2 py-1 rounded-[5px]">
-                         <svg
+                          <svg
                             width="16"
                             height="16"
                             viewBox="0 0 20 20"
