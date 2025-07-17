@@ -1,10 +1,17 @@
 "use client";
 
-import { IActiveSubscription, statsType } from "@/lib/types";
+import { ISubscription } from "@/lib/types";
+
+type statsType = {
+  totalActifs: number;
+  totalEssais: number;
+  expirés: number;
+  revenusMensuels: number;
+};
 import { useState, useEffect } from "react";
 
 export default function Abonnement() {
-  const [subscriptions, setSubscriptions] = useState<IActiveSubscription[]>([]);
+  const [subscriptions, setSubscriptions] = useState<ISubscription[]>([]);
   const [stats, setStats] = useState<statsType | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
