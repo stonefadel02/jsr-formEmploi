@@ -110,7 +110,11 @@ export interface IEmployer {
   createdAt: Date;
   updatedAt: Date;
 }
-
+export interface IApiToken {
+  name: string;
+  accessToken: string;
+  expiresAt: Date;
+}
 export interface ApiResponse<T> {
   success: boolean;
   message?: string;

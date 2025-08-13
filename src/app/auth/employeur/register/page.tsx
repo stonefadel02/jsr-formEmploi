@@ -46,22 +46,22 @@ export default function Login() {
       return;
     }
 
-    try {
-      const siretResponse = await fetch(
-        `/api/verify-siret?siret=${formData.siret}`
-      );
-      const siretData = await siretResponse.json();
-      if (!siretResponse.ok || !siretData.isValid) {
-        throw new Error(
-          siretData.message ||
-            "Le numéro de SIRET est invalide ou l'entreprise n'a pas pu être vérifiée."
-        );
-      }
-    } catch (err: any) {
-      setError(err.message);
-      setLoading(false);
-      return;
-    }
+    // try {
+    //   const siretResponse = await fetch(
+    //     `/api/verify-siret?siret=${formData.siret}`
+    //   );
+    //   const siretData = await siretResponse.json();
+    //   if (!siretResponse.ok || !siretData.isValid) {
+    //     throw new Error(
+    //       siretData.message ||
+    //         "Le numéro de SIRET est invalide ou l'entreprise n'a pas pu être vérifiée."
+    //     );
+    //   }
+    // } catch (err: any) {
+    //   setError(err.message);
+    //   setLoading(false);
+    //   return;
+    // }
 
     try {
       const response = await fetch("/api/employeurs/register", {
@@ -147,7 +147,7 @@ export default function Login() {
                   required
                 />
               </div>
-              <div>
+              {/* <div>
                 <label className="text-black font-light sm:text-[18px]">
                   Numéro de SIRET *
                 </label>
@@ -160,7 +160,7 @@ export default function Login() {
                   className="mt-1 block w-full px-4 py-3 border text-gray-700 border-[#C4C4C4] rounded-[15px] placeholder-[#D9D9D9] focus:ring-purple-900 focus:border-purple-900"
                   required
                 />
-              </div>
+              </div> */}
               <div>
                 <label
                   className="text-black mt-4 font-light sm:text-[18px]"

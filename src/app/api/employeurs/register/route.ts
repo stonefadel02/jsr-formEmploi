@@ -16,10 +16,10 @@ export async function POST(req: NextRequest) {
     const EmployerModel = await EmployerModelPromise;
     const emailLC = email.toLowerCase();
 
-    const existingEmployerBySiret = await EmployerModel.findOne({ siret });
-    if (existingEmployerBySiret) {
-        return NextResponse.json({ message: 'Ce numéro de SIRET est déjà utilisé.' }, { status: 409 });
-    }
+    // const existingEmployerBySiret = await EmployerModel.findOne({ siret });
+    // if (existingEmployerBySiret) {
+    //     return NextResponse.json({ message: 'Ce numéro de SIRET est déjà utilisé.' }, { status: 409 });
+    // }
 
     const existingEmployer = await EmployerModel.findOne({ email: emailLC });
     if (existingEmployer) {
