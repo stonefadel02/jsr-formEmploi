@@ -4,15 +4,17 @@ import { useEffect, useState, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import Cookies from 'js-cookie';
 
-// MODIFIÉ : Ce composant reçoit maintenant le sessionId en tant que "prop"
-function SuccessContent({ sessionId }: { sessionId: string | null }) {
+// L'enfant est 100% autonome et gère toute la logique
+function SuccessContent() {
   const router = useRouter();
+  // ✅ Le hook est appelé ici, à l'intérieur du composant qui en a besoin
+  const searchParams = useSearchParams(); 
+  const sessionId = searchParams.get("session_id");
   const [status, setStatus] = useState("Vérification de votre paiement en cours...");
 
   useEffect(() => {
-    // La logique est la même, mais elle dépend maintenant de la prop
     if (sessionId) {
-      console.log("Session ID reçu, lancement de la vérification..."); // Pour le débogage
+      console.log("Session ID trouvé, lancement de la vérification...");
       const verifySession = async () => {
         try {
           const response = await fetch(`/api/verify-session?session_id=${sessionId}`);
@@ -28,15 +30,15 @@ function SuccessContent({ sessionId }: { sessionId: string | null }) {
             setStatus(data.message || "Paiement non complété ou une erreur est survenue.");
           }
         } catch (error) {
-          setStatus("Une erreur de communication est survenue. Veuillez contacter le support.");
-          console.error("Erreur Fetch:", error); // Pour le débogage
+            setStatus("Une erreur de communication est survenue. Veuillez contacter le support.");
+            console.error("Erreur Fetch:", error);
         }
       };
       verifySession();
     } else {
         setStatus("Aucun identifiant de session trouvé. Impossible de vérifier le paiement.");
     }
-  }, [sessionId, router]); // Le useEffect dépend de la prop
+  }, [sessionId, router]);
 
   return (
     <div className="text-center p-6">
@@ -46,15 +48,12 @@ function SuccessContent({ sessionId }: { sessionId: string | null }) {
   );
 }
 
-// MODIFIÉ : Le composant parent lit l'URL et passe le sessionId
+// Le parent ne fait que mettre en place la structure et la frontière Suspense
 export default function SuccessPage() {
-  const searchParams = useSearchParams();
-  const sessionId = searchParams.get("session_id");
-
   return (
     <div className="min-h-screen flex items-center justify-center">
       <Suspense fallback={<p>Chargement...</p>}>
-        <SuccessContent sessionId={sessionId} />
+        <SuccessContent />
       </Suspense>
     </div>
   );
