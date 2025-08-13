@@ -4,24 +4,35 @@ import Footer from "@/app/components/Footer";
 import Navbar from "@/app/components/Navbar";
 import { useState } from "react";
 import Link from "next/link";
+import { useSession } from "next-auth/react";
 
 export default function Acceuil() {
+    const { data: session } = useSession();
   const [loadingCandidat, setLoadingCandidat] = useState(false);
   const [loadingRecruteur, setLoadingRecruteur] = useState(false);
 
-  const handleSubscribe = (
-    url: string,
-    setLoading: (value: boolean) => void
+  const handleSubscribe = async (
+    priceId: string,
+    setLoading: (loading: boolean) => void
   ) => {
-    console.log("Démarrage de handleSubscribe avec URL:", url);
     setLoading(true);
     try {
-      console.log("Redirection vers:", url);
-      window.location.href = url;
+      const response = await fetch('/api/create-checkout-session', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          priceId: priceId,
+          customer_email: session?.user?.email, 
+        }),
+      });
+      const data = await response.json();
+      if (!response.ok || !data.url) {
+        throw new Error(data.error || "Erreur de création de session.");
+      }
+      window.location.href = data.url;
     } catch (error) {
       console.error("Erreur lors de la redirection:", error);
-    } finally {
-      setLoading(false); // Réinitialisation en cas d'erreur, mais généralement inutile ici
+      setLoading(false);
     }
   };
 
@@ -59,7 +70,7 @@ export default function Acceuil() {
               <button
                 onClick={() =>
                   handleSubscribe(
-                    "https://buy.stripe.com/dRm00k2JR61UaYM4gh73G00",
+                    "price_1RdCHQQ8brLwKg0wxR3dMhW0",
 
                     setLoadingCandidat
                   )
@@ -94,7 +105,7 @@ export default function Acceuil() {
               <button
                 onClick={() =>
                   handleSubscribe(
-                    "https://buy.stripe.com/eVq3cwfwDeyqaYM8wx73G01",
+                    "price_1RdCKOQ8brLwKg0wMoJeI40W",
 
                     setLoadingRecruteur
                   )

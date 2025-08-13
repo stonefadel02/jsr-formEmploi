@@ -29,7 +29,7 @@ export default function Candidature() {
   const [fileMessage, setFileMessage] = useState<string | null>(null);
   const [videoUploading, setVideoUploading] = useState(false);
   const [showOtherInput, setShowOtherInput] = useState(false); // Contrôle l'affichage de l'input "Autres"
-
+const [submitError, setSubmitError] = useState<string | null>(null);
   const country = Country.getCountryByCode("FR");
   const departments = State.getStatesOfCountry(country?.isoCode ?? "FR").map(
     (state) => ({
@@ -135,6 +135,13 @@ export default function Candidature() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setSubmitError(null);
+    if (!formData.cvFile || !formData.videoFile) {
+      const errorMessage = "Veuillez télécharger votre CV et votre vidéo de présentation pour pouvoir soumettre votre candidature.";
+      setSubmitError(errorMessage); // On affiche le message d'erreur clair
+      alert(errorMessage); // On affiche aussi une alerte pour être sûr
+      return; // On arrête l'exécution de la fonction
+    }
     setLoading(true);
 
     const data = new FormData();
@@ -626,7 +633,7 @@ export default function Candidature() {
                   className={`${
                     step === 1 || step === 4 ? "w-full" : "w-full"
                   } bg-[#7A20DA] text-white font-medium py-2 px-3 sm:px-4 rounded-lg cursor-pointer hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 transition duration-200 disabled:opacity-50`}
-                  disabled={loading}
+                 disabled={loading || (step === 4 && (!formData.cvFile || !formData.videoFile))}
                 >
                   {loading ? (
                     <div className="w-6 h-6 border-4 border-t-[#7A20DA] border-t-transparent rounded-full animate-spin mx-auto"></div>

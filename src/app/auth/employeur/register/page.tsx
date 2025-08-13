@@ -15,7 +15,7 @@ export default function Login() {
   const [error, setError] = useState("");
   const [success] = useState("");
   const [loading, setLoading] = useState(false); // Nouvel état pour le loader
-     const [showPassword, setShowPassword] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const router = useRouter();
 
@@ -26,7 +26,7 @@ export default function Login() {
   };
 
   // Dans votre composant d'inscription Candidat
-const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
 
@@ -41,16 +41,34 @@ const handleSubmit = async (e: React.FormEvent) => {
 
       if (!response.ok) {
         throw new Error(data.message || "Erreur lors de l'inscription");
-    }
+      }
 
-    window.location.href = "https://buy.stripe.com/eVq3cwfwDeyqaYM8wx73G01";
+const checkoutResponse = await fetch("/api/create-checkout-session", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          priceId: "price_1RdCKOQ8brLwKg0wMoJeI40W", // 👈 REMPLACEZ PAR VOTRE VRAI PRICE ID EMPLOYEUR
+          customer_email: formData.email,
+        }),
 
+        
+      });
+      const checkoutData = await checkoutResponse.json();
+      if (!checkoutResponse.ok || !checkoutData.url) {
+        throw new Error(checkoutData.error || "Erreur lors de la création de la session de paiement.");
+      }
+
+      // ANCIENNE LIGNE (à supprimer ou commenter) :
+      // router.push(`/pages/paiement?email=${formData.email}`);
+
+      // ✅ NOUVELLE LIGNE : Redirection directe vers le lien de paiement Stripe
+     window.location.href = checkoutData.url;
     } catch (err: any) {
       setError(err.message);
     } finally {
       setLoading(false);
     }
-};
+  };
 
   return (
     <>
@@ -108,8 +126,11 @@ const handleSubmit = async (e: React.FormEvent) => {
                   required
                 />
               </div>
-         <div className="relative">
-                <label className="text-black mt-4 font-bold text-[18px]" htmlFor="password">
+              <div className="relative">
+                <label
+                  className="text-black mt-4 font-bold text-[18px]"
+                  htmlFor="password"
+                >
                   Mot de passe
                 </label>
                 <input
@@ -129,21 +150,39 @@ const handleSubmit = async (e: React.FormEvent) => {
                 >
                   {/* Icône qui change en fonction de l'état */}
                   {showPassword ? (
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16"><path d="M13.359 11.238C15.06 9.72 16 8 16 8s-3-5.5-8-5.5a7 7 0 0 0-4.789 1.668l.708.708a6 6 0 0 1 4.08-1.588c4.274 0 7.17 4.305 7.17 4.305a11 11 0 0 1-2.14 2.872l.708.708z"/><path d="M11.297 9.176a3.5 3.5 0 0 0-4.474-4.474l.823.823a2.5 2.5 0 0 1 2.829 2.829l.822.822zm-2.943 1.288l.822.822a2.5 2.5 0 0 1-2.829-2.829l-.823-.823a3.5 3.5 0 0 0 4.474 4.474z"/><path d="M2.06 2.06a1 1 0 0 0-1.414 1.414l1.473 1.473a11 11 0 0 0-1.805 2.51l-.004.004c-.989 1.564-1.313 3.328-.82 4.95.27.75.69 1.45.98 2.08.48 1.05.95 2.12 1.5 3.14l1.32.39a1 1 0 0 0 1.414-1.414l-1.32-.39c-.55-1.02-.97-2.09-1.45-3.14a10 10 0 0 1-.98-2.08c-.49-1.62-.16-3.38.82-4.95a11 11 0 0 1 1.805-2.51L.647 3.475z"/><path d="M12 8a4 4 0 1 1-8 0 4 4 0 0 1 8 0z"/></svg>
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="20"
+                      height="20"
+                      fill="currentColor"
+                      viewBox="0 0 16 16"
+                    >
+                      <path d="M13.359 11.238C15.06 9.72 16 8 16 8s-3-5.5-8-5.5a7 7 0 0 0-4.789 1.668l.708.708a6 6 0 0 1 4.08-1.588c4.274 0 7.17 4.305 7.17 4.305a11 11 0 0 1-2.14 2.872l.708.708z" />
+                      <path d="M11.297 9.176a3.5 3.5 0 0 0-4.474-4.474l.823.823a2.5 2.5 0 0 1 2.829 2.829l.822.822zm-2.943 1.288l.822.822a2.5 2.5 0 0 1-2.829-2.829l-.823-.823a3.5 3.5 0 0 0 4.474 4.474z" />
+                      <path d="M2.06 2.06a1 1 0 0 0-1.414 1.414l1.473 1.473a11 11 0 0 0-1.805 2.51l-.004.004c-.989 1.564-1.313 3.328-.82 4.95.27.75.69 1.45.98 2.08.48 1.05.95 2.12 1.5 3.14l1.32.39a1 1 0 0 0 1.414-1.414l-1.32-.39c-.55-1.02-.97-2.09-1.45-3.14a10 10 0 0 1-.98-2.08c-.49-1.62-.16-3.38.82-4.95a11 11 0 0 1 1.805-2.51L.647 3.475z" />
+                      <path d="M12 8a4 4 0 1 1-8 0 4 4 0 0 1 8 0z" />
+                    </svg>
                   ) : (
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16"><path d="M16 8s-3-5.5-8-5.5S0 8 0 8s3 5.5 8 5.5S16 8 16 8zM1.173 8a13 13 0 0 1 1.66-2.043C4.12 4.668 5.88 3.5 8 3.5s3.879 1.168 5.168 2.457A13 13 0 0 1 14.828 8c-.058.087-.122.183-.195.288-.335.48-.83 1.12-1.465 1.755C11.879 11.332 10.119 12.5 8 12.5s-3.879-1.168-5.168-2.457A13 13 0 0 1 1.172 8z"/><path d="M8 5.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5zM4.5 8a3.5 3.5 0 1 1 7 0 3.5 3.5 0 0 1-7 0z"/></svg>
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="20"
+                      height="20"
+                      fill="currentColor"
+                      viewBox="0 0 16 16"
+                    >
+                      <path d="M16 8s-3-5.5-8-5.5S0 8 0 8s3 5.5 8 5.5S16 8 16 8zM1.173 8a13 13 0 0 1 1.66-2.043C4.12 4.668 5.88 3.5 8 3.5s3.879 1.168 5.168 2.457A13 13 0 0 1 14.828 8c-.058.087-.122.183-.195.288-.335.48-.83 1.12-1.465 1.755C11.879 11.332 10.119 12.5 8 12.5s-3.879-1.168-5.168-2.457A13 13 0 0 1 1.172 8z" />
+                      <path d="M8 5.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5zM4.5 8a3.5 3.5 0 1 1 7 0 3.5 3.5 0 0 1-7 0z" />
+                    </svg>
                   )}
                 </button>
               </div>
-
 
               {/* Nouvelle section : Bannière de notification */}
               <div className="flex">
                 <div className="bg-[#7A20DA] w-4 border-[#7A20DA] rounded-l-[15px] border-[1px]"></div>
                 <div className="bg-[#F4E9FF] py-4 px-5 sm:py-8 sm:px-20 rounded-r-[15px] flex items-center justify-start">
                   <p className="text-sm text-[#7A20DA] sm:text-base">
-                    🎁 Un abonnement sera requis pour accéder aux
-                    candidatures.
+                    🎁 Un abonnement sera requis pour accéder aux candidatures.
                   </p>
                 </div>
               </div>
@@ -186,7 +225,7 @@ const handleSubmit = async (e: React.FormEvent) => {
             </div>
             <p className="mt-4 text-[15px] text-gray-600 font-sans text-left">
               Vos données seront traitées en conformité avec les{" "}
-             <Link
+              <Link
                 href="/politique-de-confidentialite"
                 className="text-[#7A20DA] underline"
               >
