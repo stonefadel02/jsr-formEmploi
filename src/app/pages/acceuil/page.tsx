@@ -106,8 +106,8 @@ export default function Acceuil() {
           <div className="grid grid-cols-1  md:grid-cols-2 gap-8 items-center">
             {/* Contenu texte et bouton (gauche) */}
             <div className="text-white">
-              <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-7xl font-bold mb-4">
-                Ici, ce sont les entrepries qui viennent a vous.
+              <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-bold mb-4">
+                Ici, ce sont les entreprises qui viennent a vous.
               </h1>
               <p className="text-base md:text-lg py-4 mb-2">
                 Nous connectons les talents aux meilleures
