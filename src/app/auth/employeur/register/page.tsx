@@ -142,7 +142,7 @@ const handleSubmit = async (e: React.FormEvent) => {
                 <div className="bg-[#7A20DA] w-4 border-[#7A20DA] rounded-l-[15px] border-[1px]"></div>
                 <div className="bg-[#F4E9FF] py-4 px-5 sm:py-8 sm:px-20 rounded-r-[15px] flex items-center justify-start">
                   <p className="text-sm text-[#7A20DA] sm:text-base">
-                    🎁 Un abonnement sera requis accéder aux
+                    🎁 Un abonnement sera requis pour accéder aux
                     candidatures.
                   </p>
                 </div>
