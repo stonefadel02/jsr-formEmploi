@@ -3,6 +3,7 @@
 import Footer from "@/app/components/Footer";
 import Navbar from "@/app/components/Navbar";
 import { useState } from "react";
+import Link from "next/link";
 
 export default function Acceuil() {
   const [loadingCandidat, setLoadingCandidat] = useState(false);
@@ -46,17 +47,27 @@ export default function Acceuil() {
                 <li>✔ Support Standard</li>
                 <li>✔ Accès aux ressources</li>
               </ul>
+              <Link href="/auth/candidats/register">
+                <button
+                  className="bg-[#7A20DA] text-white px-6 py-3 mt-8 font-bold rounded-[10px] transition duration-200 cursor-pointer"
+                  disabled={loadingCandidat}
+                >
+                  {loadingCandidat ? "Chargement..." : "Souscrire"}
+                </button>
+              </Link>
+
               <button
                 onClick={() =>
                   handleSubscribe(
                     "https://buy.stripe.com/dRm00k2JR61UaYM4gh73G00",
+
                     setLoadingCandidat
                   )
                 }
-                className="bg-[#7A20DA] text-white px-6 py-3 mt-8 font-bold rounded-[10px] transition duration-200 cursor-pointer"
+                className="bg-[#7A20DA] mx-2 text-white px-6 py-3 mt-8 font-bold rounded-[10px] transition duration-200 cursor-pointer"
                 disabled={loadingCandidat}
               >
-                {loadingCandidat ? "Chargement..." : "Souscrire"}
+                {loadingCandidat ? "Chargement..." : "Renouveler"}
               </button>
             </div>
             <div className="bg-white backdrop-blur-md p-6 rounded-lg text-white text-center">
@@ -71,17 +82,27 @@ export default function Acceuil() {
                 <li>✔ Support premium</li>
                 <li>✔ Accès complet aux ressources</li>
               </ul>
+              <Link href="/auth/employeur/register">
+                <button
+                  className="bg-[#7A20DA] text-white px-6 py-3 font-bold rounded-[10px] transition duration-200 cursor-pointer"
+                  disabled={loadingRecruteur}
+                >
+                  {loadingRecruteur ? "Chargement..." : "Souscrire"}
+                </button>
+              </Link>
+
               <button
                 onClick={() =>
                   handleSubscribe(
                     "https://buy.stripe.com/eVq3cwfwDeyqaYM8wx73G01",
+
                     setLoadingRecruteur
                   )
                 }
-                className="bg-[#7A20DA] text-white px-6 py-3 font-bold rounded-[10px] transition duration-200 cursor-pointer"
+                className="bg-[#7A20DA] mx-2 text-white px-6 py-3 font-bold rounded-[10px] transition duration-200 cursor-pointer"
                 disabled={loadingRecruteur}
               >
-                {loadingRecruteur ? "Chargement..." : "Souscrire"}
+                {loadingRecruteur ? "Chargement..." : "Renouveler"}
               </button>
             </div>
           </div>

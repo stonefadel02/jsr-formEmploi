@@ -6,6 +6,8 @@ const employerSchema = new Schema<IEmployer>(
   {
     companyName: { type: String, required: true },
     email: { type: String, required: true, unique: true },
+        isActive: { type: Boolean, default: false }, // Ajout de l'état actif
+
     password: {
       type: String, required: function (this: IEmployer) {
         return this.authProvider === 'local';

@@ -81,14 +81,14 @@ export default function Sidebar() {
                   Gestions des Employeurs
                 </Link>
               </li>
-              <li>
+              {/* <li>
                 <Link
                   href="/subscriptions"
                   className="flex text-left items-center  px-6 py-6 text-white text-[15px] font-medium hover:bg-[#A67BC1]/90 transition-colors duration-200"
                 >
                   Gestions des Abonnements
                 </Link>
-              </li>
+              </li> */}
             </ul>
           </nav>
         </div>

@@ -45,6 +45,7 @@ export interface ICandidat extends Document {
   };
   cvUrl?: string;
   videoUrl?: string;
+  isActive?: boolean;
   photoUrl?: string,
   status?: 'En attente' | 'Validé' | 'Refusé';
   subscription?: ICandidatSubscription;
@@ -98,6 +99,7 @@ export interface IEmployer {
   status: 'En attente' | 'Validé' | 'Suspendu' | 'Refusé';
   role: 'employeur' | 'admin';
   subscription: ISubscription;
+  isActive?: boolean;
   createdAt: Date;
   updatedAt: Date;
 }

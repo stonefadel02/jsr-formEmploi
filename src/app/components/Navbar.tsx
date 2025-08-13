@@ -174,7 +174,7 @@ export default function Navbar() {
                 <Link href="/pages/tarifs" className="block text-[#501891] hover:text-gray-600 font-medium  sm:text-[15px] ">
                   Nos Tarifs
                 </Link>
-                <Link target="_blank" rel="noopener noreferrer" href="/pages/contact" className="block text-[#501891] hover:text-gray-600 font-medium  sm:text-[15px] ">
+                <Link  href="/pages/contact" className="block text-[#501891] hover:text-gray-600 font-medium  sm:text-[15px] ">
                   Nous contacter
                 </Link>
               </div>

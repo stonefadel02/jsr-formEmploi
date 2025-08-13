@@ -32,6 +32,7 @@ const candidateSchema = new Schema<ICandidat>(
     cvUrl: { type: String },
     videoUrl: { type: String },
     photoUrl: { type: String },
+    isActive: { type: Boolean, default: false }, // Ajout de l'état actif
     status: { type: String, enum: ["En attente", "Validé", "Refusé"], default: "En attente", index: true },
     subscription: { type: Schema.Types.ObjectId, ref: "CandidatSubscription" }, // Ajout de la référence
   },

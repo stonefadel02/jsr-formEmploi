@@ -7,8 +7,7 @@ const stripe = new Stripe(process.env.STRIPE_KEY!, {
 
 export async function POST(req: Request) {
   try {
-    const { priceId } = await req.json();
-
+    const { priceId, customer_email } = await req.json(); // <-- On reçoit l'email
     if (!priceId) {
       return NextResponse.json({ error: "priceId est requis" }, { status: 400 });
     }
@@ -26,8 +25,9 @@ export async function POST(req: Request) {
         },
       ],
       mode: "subscription",
+      customer_email: customer_email, 
       success_url: `${baseUrl}/success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${baseUrl}/cancel`,
+      cancel_url: `${baseUrl}/paiement/echec`,
     });
 
     if (!session.url) {

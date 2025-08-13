@@ -7,6 +7,7 @@ import Navbar from "@/app/components/Navbar";
 import { signIn } from "next-auth/react";
 import LoginForm from "@/app/components/LoginForm"; // importe le nouveau composant
 
+
 export default function Login() {
   const roles = ["Je suis candidat", "Je suis employeur"];
   const [selected, setSelected] = useState("Je suis candidat");
@@ -75,7 +76,12 @@ export default function Login() {
                   <div className="w-6 h-6 border-4 border-t-[#7A20DA] border-t-transparent rounded-full animate-spin"></div>
                 ) : (
                   <>
-                    <Image src="/Google.svg" alt="Google" width={24} height={24} />
+                    <Image
+                      src="/Google.svg"
+                      alt="Google"
+                      width={24}
+                      height={24}
+                    />
                     <span className="font-extrabold sm:text-[18px]">
                       Se connecter avec Google
                     </span>
@@ -86,13 +92,19 @@ export default function Login() {
 
             <p className="mt-4 text-[15px] text-gray-600 font-sans text-left">
               Vos données seront traitées selon les{" "}
-              <a href="#" className="text-[#7A20DA] underline">
+              <Link
+                href="/politique-de-confidentialite"
+                className="text-[#7A20DA] underline"
+              >
                 Politiques de confidentialité
-              </a>{" "}
+              </Link>{" "}
               et{" "}
-              <a href="#" className="text-[#7A20DA] underline">
+              <Link
+                href="/conditions-generales-utilisation"
+                className="text-[#7A20DA] underline"
+              >
                 Conditions d’utilisation
-              </a>
+              </Link>
               .
             </p>
           </div>

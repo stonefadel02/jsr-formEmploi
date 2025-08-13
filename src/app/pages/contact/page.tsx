@@ -51,7 +51,7 @@ export default function AcceuilRecruteur() {
     <>
       <Navbar />
       {/* Première section (existante) */}
-      <div className="min-h-screen  relative flex items-center justify-center px-2 sm:px-4 lg:px-8">
+      <div className="sm:min-h-screen  relative flex items-center sm:py-1 py-25 justify-center px-2 sm:px-4 lg:px-8">
         <div className="absolute inset-0">
           <div className="absolute inset-0 bg-gradient-to-l from-[#8E2DE2]/80 to-[#4B00C8]"></div>
         </div>
@@ -71,7 +71,7 @@ export default function AcceuilRecruteur() {
               alt="Contact Image"
               width={1920}
               height={1080}
-              className="w-full h-auto object-cover"
+              className="sm:w-full sm:h-auto sm:object-cover"
             />
           </div>
         </div>

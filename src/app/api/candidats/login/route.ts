@@ -1,6 +1,8 @@
+// /api/candidats/login/route.ts
+
 import { NextRequest, NextResponse } from 'next/server';
 import CandidatModelPromise from '@/models/Candidats';
-import CandidatSubscriptionModelPromise from '@/models/CandidatSubscription'; // Nouveau modèle
+import CandidatSubscriptionModelPromise from '@/models/CandidatSubscription';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { ICandidat } from '@/lib/types';
@@ -19,34 +21,36 @@ export async function POST(req: NextRequest) {
 
     const candidat = await CandidatModel.findOne({ email }) as ICandidat;
     if (!candidat) {
-      return NextResponse.json({ message: 'Email invalide.' }, { status: 401 });
+      return NextResponse.json({ message: 'Email ou mot de passe invalide.' }, { status: 401 });
     }
 
     const isValidPassword = candidat.password 
       ? await bcrypt.compare(password, candidat.password) 
       : false;
     if (!isValidPassword) {
-      return NextResponse.json({ message: 'Mot de passe invalide.' }, { status: 401 });
+      return NextResponse.json({ message: 'Email ou mot de passe invalide.' }, { status: 401 });
     }
 
-    // Vérification de l'abonnement
+    // --- NOUVELLE VÉRIFICATION D'ABONNEMENT (SIMPLIFIÉE) ---
     const subscription = await CandidatSubscriptionModel.findOne({ candidatId: candidat._id });
-    if (!subscription) {
-      return NextResponse.json({ message: 'Aucun abonnement trouvé.' }, { status: 403 });
+    
+    if (!subscription || !subscription.isActive) {
+      return NextResponse.json({ message: 'Votre compte n\'est pas actif. Veuillez souscrire à un abonnement.' }, { status: 403 });
     }
 
     const now = new Date();
-    if (!subscription.isActive && (!subscription.isTrial || subscription.endDate! < now)) {
-      return NextResponse.json({ message: 'Abonnement invalide ou expiré.' }, { status: 403 });
+    if (subscription.endDate! < now) {
+      return NextResponse.json({ message: 'Votre abonnement a expiré. Veuillez le renouveler.' }, { status: 403 });
     }
+    // --- FIN DE LA VÉRIFICATION ---
+
 
     const token = jwt.sign(
       { 
         id: candidat._id, 
         email: candidat.email, 
         role: candidat.role,
-        isActive: subscription.isActive,
-        isTrial: subscription.isTrial,
+        isActive: subscription.isActive, // On garde cette info utile
       },
       process.env.JWT_SECRET!,
       { expiresIn: '7d' }
@@ -57,15 +61,12 @@ export async function POST(req: NextRequest) {
       token,
       candidat: {
         id: candidat._id,
-        firstName: candidat.firstName,
-        lastName: candidat.lastName,
         email: candidat.email,
         isActive: subscription.isActive,
-        isTrial: subscription.isTrial,
       },
     }, { status: 200 });
   } catch (error) {
-    console.error('Erreur connexion :', error instanceof Error ? error.message : error);
+    console.error('Erreur connexion candidat :', error);
     return NextResponse.json({ message: 'Erreur serveur' }, { status: 500 });
   }
 }

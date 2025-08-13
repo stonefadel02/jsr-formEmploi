@@ -201,9 +201,9 @@ export default function GestionStatistique() {
             <div className="py-4">
               <Employeur />
             </div>
-            <div className="py-4">
+            {/* <div className="py-4">
               <Abonnement />
-            </div>
+            </div> */}
           </div>
         </div>
       </div>

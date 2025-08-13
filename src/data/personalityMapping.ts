@@ -80,7 +80,7 @@ export const questions = [
       description:
         "Tu sais diriger et prendre des décisions. Tu aimes que les choses soient organisées et efficaces.",
     },
-    "L’Analytique": {
+    "L'Analytique": {
       emoji: "\ud83e\uddf0",
       description:
         "Tu aimes comprendre, analyser, résoudre. Tu trouves de la satisfaction dans les défis logiques.",

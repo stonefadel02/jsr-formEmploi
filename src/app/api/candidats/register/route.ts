@@ -1,9 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import bcrypt from 'bcrypt';
-import jwt from 'jsonwebtoken';
 import CandidatModelPromise from '@/models/Candidats';
-import CandidatSubscriptionModelPromise from '@/models/CandidatSubscription';
-import { sendRegistrationEmail } from '@/lib/mailer';
+// On n'a plus besoin du modèle d'abonnement ici
 
 export async function POST(req: NextRequest) {
   try {
@@ -15,56 +13,33 @@ export async function POST(req: NextRequest) {
     }
 
     const CandidatModel = await CandidatModelPromise;
-    const CandidatSubscriptionModel = await CandidatSubscriptionModelPromise;
-
-    // Vérifier si l'email a déjà été utilisé pour un essai
-    const existingSubscription = await CandidatSubscriptionModel.findOne({ 
-      email: email.toLowerCase(), 
-      isTrial: { $in: [true, false] } 
-    }).populate('candidatId');
-    if (existingSubscription) {
-      return NextResponse.json({ message: 'Cet email a déjà été utilisé. Veuillez souscrire à un plan payant.' }, { status: 409 });
-    }
 
     const existingCandidat = await CandidatModel.findOne({ email: email.toLowerCase() });
     if (existingCandidat) {
+      // Si le compte existe mais n'est pas actif, on peut permettre de relancer le paiement
+      if (!existingCandidat.isActive) {
+         return NextResponse.json({ message: 'Compte en attente de paiement.', needsPayment: true }, { status: 409 });
+         
+      }
       return NextResponse.json({ message: 'Cet email est déjà utilisé.' }, { status: 409 });
     }
 
     const passwordHash = await bcrypt.hash(password, 10);
+    
+    // On crée le candidat avec le statut inactif
     const candidat = await CandidatModel.create({
       email: email.toLowerCase(),
       password: passwordHash,
-      status: 'Validé',
-    });
-    await sendRegistrationEmail(candidat.email, candidat.firstName || 'Mr/Mme');
-
-    const oneMonthFromNow = new Date();
-    oneMonthFromNow.setMonth(oneMonthFromNow.getMonth() + 1);
-
-    await CandidatSubscriptionModel.create({
-      candidatId: candidat._id,
-      plan: 'Gratuit',
-      startDate: new Date(),
-      endDate: oneMonthFromNow,
-      isTrial: true,
-      isActive: true, // Actif pendant l'essai
-      price: 0,
+      isActive: false, // 🛑 IMPORTANT : Le compte est inactif
     });
 
-    const token = jwt.sign(
-      { id: candidat._id, email: candidat.email, role: candidat.role },
-      process.env.JWT_SECRET!,
-      { expiresIn: '7d' }
-    );
-
-    console.log('Candidat inscrit avec succès');
+    // Pas d'envoi de token ni d'abonnement ici !
     return NextResponse.json(
-      { message: 'Candidat inscrit avec succès', token, candidat: { email: candidat.email, _id: candidat._id } },
+      { message: 'Pré-inscription réussie. Veuillez procéder au paiement pour activer votre compte.' },
       { status: 201 }
     );
   } catch (error) {
-    console.error('Erreur inscription :', error instanceof Error ? error.message : error);
+    console.error('Erreur inscription candidat :', error);
     return NextResponse.json({ message: 'Erreur serveur' }, { status: 500 });
   }
 }

@@ -13,6 +13,10 @@ const publicRoutes = [
   "/auth/candidats/register",
   "/auth/employeur/register",
   "/auth/google",
+  "/politique-de-confidentialite", // ✅ AJOUTER CETTE LIGNE
+  "/conditions-generales-utilisation", // ✅ AJOUTER CETTE LIGN
+   "/success",   // ✅ AJOUTER CETTE LIGNE
+  "/pages/echec",    // ✅ AJOUTER AUS
 ];
 
 export function middleware(req: NextRequest) {

@@ -29,9 +29,11 @@ export async function POST(req: NextRequest) {
 
     // Calcul du profil dominant
     const profileCount: Record<string, number> = {};
-    for (const answer of answers) {
-      profileCount[answer] = (profileCount[answer] || 0) + 1;
-    }
+  for (const answer of answers) {
+  if (answer && answer.trim() !== "") {
+    profileCount[answer] = (profileCount[answer] || 0) + 1;
+  }
+}
 
     const sortedProfiles = Object.entries(profileCount).sort((a, b) => b[1] - a[1]);
     const [dominantProfile] = sortedProfiles[0] as [keyof typeof profileDescriptions, number];

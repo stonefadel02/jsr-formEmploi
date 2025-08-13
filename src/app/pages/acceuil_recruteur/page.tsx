@@ -10,7 +10,7 @@ export default function AcceuilRecruteur() {
     <>
       <Navbar />
       {/* Première section (existante) */}
-      <div className="sm:min-h-screen min-h-[600px] bg-[url('/background.png')] bg-cover bg-center bg-no-repeat relative flex items-center justify-center px-4 sm:px-6 lg:px-8">
+      <div className="sm:min-h-screen min-h-[600px] bg-[url('/background.png')] sm:bg-cover sm:bg-center bg-no-repeat relative flex items-center justify-center px-4 sm:px-6 lg:px-8">
         {/* Overlay sombre pour lisibilité */}
         <div className="absolute inset-0 bg-black/10"></div>
         <div className="max-w-7xl w-full mt-10 sm:mt-20 md:mt-40 relative z-10 text-left">
