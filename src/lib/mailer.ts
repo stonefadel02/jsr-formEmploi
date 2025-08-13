@@ -40,8 +40,7 @@ export const sendRegistrationEmail = async (to: string, name: string) => {
     subject: "Bienvenue sur Jsr-emploi ! 🎉",
     html: `<h2>Bonjour ${name},</h2>
            <p>Votre compte a été créé avec succès !</p>
-            <p>1 mois gratuit dès cet instant </p>
-           <p>Merci de rejoindre notre plateforme.</p>`,
+           <p>Merci de rejoindre notre plateforme.</p> `,
   });
 
   console.log("Email envoyé : %s", info.messageId);
@@ -59,13 +58,11 @@ export async function sendExpirationEmail(email: string, role: string, endDate: 
   const tariffUrl = process.env.TARIFF_PAGE_URL!;
 
   let planSuggestion = '';
-  let subject = 'Rappel : Votre abonnement a expiré';
+  const subject = 'Rappel : Votre abonnement a expiré';
   if (role === 'employeur') {
     planSuggestion = `Nous vous recommandons le plan Payant Recruteur (100€/an).`;
-    subject = 'Rappel : Votre essai employeur a expiré';
   } else if (role === 'candidat') {
     planSuggestion = `Nous vous recommandons le plan Payant Candidat (10€/an).`;
-    subject = 'Rappel : Votre essai candidat a expiré';
   }
 
   const mailOptions = {
@@ -75,7 +72,7 @@ export async function sendExpirationEmail(email: string, role: string, endDate: 
     html: `
       <h1>${subject}</h1>
       <p>Bonjour,</p>
-      <p>Votre abonnement gratuit s'est terminé le ${endDate.toLocaleDateString()}. ${planSuggestion}</p>
+      <p>Votre abonnement s'est terminé le ${endDate.toLocaleDateString()}. ${planSuggestion}</p>
       <p>Pour continuer à bénéficier de nos services :</p>
       <ul>
         <li><a href="${tariffUrl}">Consultez nos tarifs</a> pour plus d'options.</li>
