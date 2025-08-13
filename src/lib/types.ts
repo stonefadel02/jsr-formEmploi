@@ -21,7 +21,10 @@ export interface IAlternanceSearch {
   location?: string;
   level?: string;
   contracttype?: string;
-      date?: Date; // Date de naissance
+  date?: Date; // Date de naissance
+  posteSouhaite: string, // ✅ NOUVEAU
+  dateDebut?: Date,       // ✅ NOUVEAU
+  dateFin?: Date,
 
 }
 
@@ -37,12 +40,14 @@ export interface ICandidat extends Document {
   phone?: string;
   alternanceSearch?: {
     sector?: string;
-    date?: Date; // Date de naissance
-
+    dateDebut?: Date;
+    dateFin?: Date;
+    posteSouhaite?: string;
     location?: string;
     level?: string;
     contracttype?: string;
   };
+  rgpdConsent: boolean;
   cvUrl?: string;
   videoUrl?: string;
   isActive?: boolean;
@@ -93,6 +98,8 @@ export interface ICandidatSubscription {
 export interface IEmployer {
   _id: Types.ObjectId;
   companyName: string;
+  siret: string,  // Ajout
+    acceptTerms: boolean,
   email: string;
   password: string;
   authProvider: string;

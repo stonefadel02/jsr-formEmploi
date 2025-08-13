@@ -6,14 +6,20 @@ import EmployerModelPromise from '@/models/Employer';
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { companyName, email, password } = body;
+   const { companyName, email, password, siret, acceptTerms } = body;
 
-    if (!companyName || !email || !password) {
+
+    if (!companyName || !email || !password || !siret) {
       return NextResponse.json({ message: 'Champs requis manquants.' }, { status: 400 });
     }
     
     const EmployerModel = await EmployerModelPromise;
     const emailLC = email.toLowerCase();
+
+    const existingEmployerBySiret = await EmployerModel.findOne({ siret });
+    if (existingEmployerBySiret) {
+        return NextResponse.json({ message: 'Ce numéro de SIRET est déjà utilisé.' }, { status: 409 });
+    }
 
     const existingEmployer = await EmployerModel.findOne({ email: emailLC });
     if (existingEmployer) {
@@ -29,6 +35,8 @@ export async function POST(req: NextRequest) {
     const employer = await EmployerModel.create({
       companyName,
       email: emailLC,
+      siret: siret,
+      termsAccepted: acceptTerms,
       password: passwordHash,
       isActive: false, // 🛑 IMPORTANT : Le compte est inactif
     });

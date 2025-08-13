@@ -11,6 +11,9 @@ export default function Login() {
     companyName: "",
     email: "",
     password: "",
+    siret: "",
+    confirmPassword: "", // NOUVEAU
+    acceptTerms: false,
   });
   const [error, setError] = useState("");
   const [success] = useState("");
@@ -19,10 +22,12 @@ export default function Login() {
 
   const router = useRouter();
 
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
-  ) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value, type, checked } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: type === "checkbox" ? checked : value,
+    }));
   };
 
   // Dans votre composant d'inscription Candidat
@@ -30,11 +35,44 @@ export default function Login() {
     e.preventDefault();
     setLoading(true);
 
+    if (formData.password !== formData.confirmPassword) {
+      setError("Les mots de passe ne correspondent pas.");
+      setLoading(false);
+      return;
+    }
+    if (!formData.acceptTerms) {
+      setError("Vous devez accepter les conditions d'utilisation.");
+      setLoading(false);
+      return;
+    }
+
+    try {
+      const siretResponse = await fetch(
+        `/api/verify-siret?siret=${formData.siret}`
+      );
+      const siretData = await siretResponse.json();
+      if (!siretResponse.ok || !siretData.isValid) {
+        throw new Error(
+          siretData.message ||
+            "Le numéro de SIRET est invalide ou l'entreprise n'a pas pu être vérifiée."
+        );
+      }
+    } catch (err: any) {
+      setError(err.message);
+      setLoading(false);
+      return;
+    }
+
     try {
       const response = await fetch("/api/employeurs/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({
+          companyName: formData.companyName,
+          email: formData.email,
+          password: formData.password,
+          siret: formData.siret,
+        }),
       });
 
       const data = await response.json();
@@ -43,26 +81,27 @@ export default function Login() {
         throw new Error(data.message || "Erreur lors de l'inscription");
       }
 
-const checkoutResponse = await fetch("/api/create-checkout-session", {
+      const checkoutResponse = await fetch("/api/create-checkout-session", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           priceId: "price_1RdCKOQ8brLwKg0wMoJeI40W", // 👈 REMPLACEZ PAR VOTRE VRAI PRICE ID EMPLOYEUR
           customer_email: formData.email,
         }),
-
-        
       });
       const checkoutData = await checkoutResponse.json();
       if (!checkoutResponse.ok || !checkoutData.url) {
-        throw new Error(checkoutData.error || "Erreur lors de la création de la session de paiement.");
+        throw new Error(
+          checkoutData.error ||
+            "Erreur lors de la création de la session de paiement."
+        );
       }
 
       // ANCIENNE LIGNE (à supprimer ou commenter) :
       // router.push(`/pages/paiement?email=${formData.email}`);
 
       // ✅ NOUVELLE LIGNE : Redirection directe vers le lien de paiement Stripe
-     window.location.href = checkoutData.url;
+      window.location.href = checkoutData.url;
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -109,6 +148,20 @@ const checkoutResponse = await fetch("/api/create-checkout-session", {
                 />
               </div>
               <div>
+                <label className="text-black font-light sm:text-[18px]">
+                  Numéro de SIRET *
+                </label>
+                <input
+                  type="text"
+                  name="siret"
+                  value={formData.siret}
+                  onChange={handleChange}
+                  placeholder="14 chiffres"
+                  className="mt-1 block w-full px-4 py-3 border text-gray-700 border-[#C4C4C4] rounded-[15px] placeholder-[#D9D9D9] focus:ring-purple-900 focus:border-purple-900"
+                  required
+                />
+              </div>
+              <div>
                 <label
                   className="text-black mt-4 font-light sm:text-[18px]"
                   htmlFor=""
@@ -136,7 +189,7 @@ const checkoutResponse = await fetch("/api/create-checkout-session", {
                 <input
                   type={showPassword ? "text" : "password"} // Type dynamique
                   name="password"
-                  placeholder="5 caracteres minimum"
+                  placeholder="8 caracteres minimum"
                   id="password"
                   value={formData.password}
                   onChange={handleChange}
@@ -177,13 +230,55 @@ const checkoutResponse = await fetch("/api/create-checkout-session", {
                 </button>
               </div>
 
+              <div className="relative">
+                <label className="text-black font-bold text-[18px]">
+                  Confirmer le mot de passe *
+                </label>
+                <input
+                  type={showPassword ? "text" : "password"}
+                  name="confirmPassword"
+                  placeholder="Confirmez votre mot de passe"
+                  value={formData.confirmPassword}
+                  onChange={handleChange}
+className="mt-2 block w-full px-4 py-3 border border-[#C4C4C4] text-gray-700 rounded-[15px] placeholder-[#D9D9D9] focus:ring-purple-900 focus:border-purple-900"                  required
+                />
+              </div>
+
+           
+
               {/* Nouvelle section : Bannière de notification */}
               <div className="flex">
                 <div className="bg-[#7A20DA] w-4 border-[#7A20DA] rounded-l-[15px] border-[1px]"></div>
                 <div className="bg-[#F4E9FF] py-4 px-5 sm:py-8 sm:px-20 rounded-r-[15px] flex items-center justify-start">
                   <p className="text-sm text-[#7A20DA] sm:text-base">
-                    🎁 Un abonnement sera requis pour accéder aux candidatures.
+                    Un abonnement sera requis pour accéder aux candidatures.
                   </p>
+                </div>
+              </div>
+
+                 {/* ✅ NOUVEAU : Case à cocher CGU */}
+              <div className="flex items-start mt-4">
+                <input
+                  id="acceptTerms"
+                  name="acceptTerms"
+                  type="checkbox"
+                  checked={formData.acceptTerms}
+                  onChange={handleChange}
+                  className="h-4 w-4 mt-1 text-purple-600 border-gray-300 rounded focus:ring-purple-500"
+                  required
+                />
+                <div className="ml-3 text-sm">
+                  <label htmlFor="acceptTerms" className="text-gray-600">
+                    J'ai lu et j'accepte les{" "}
+                    <Link
+                      href="/conditions-generales-utilisation"
+                      className="text-[#7A20DA] underline"
+                    >
+                      Conditions d’utilisation
+                    </Link>{" "}
+                    et j’autorise la consultation de mes informations par les
+                    candidats.
+                  </label>
                 </div>
               </div>
 

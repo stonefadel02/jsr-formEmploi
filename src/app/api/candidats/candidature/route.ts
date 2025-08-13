@@ -9,6 +9,7 @@ const allowedFields = [
   "phone",
   "formation", // Ajouté
   "alternanceSearch",
+  "rgpdConsent" 
 ];
 
 export async function PUT(req: NextRequest) {
@@ -72,6 +73,9 @@ export async function PUT(req: NextRequest) {
           } catch {
             console.warn("alternanceSearch invalide, ignoré.");
           }
+        } else if (field === "rgpdConsent") {
+          // On s'assure de stocker un booléen
+          (candidat as any)[field] = value === 'true';
         } else {
           (candidat as any)[field] = value.toString(); // Ajout de formation et date ici
         }

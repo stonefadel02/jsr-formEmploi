@@ -5,6 +5,7 @@ import { useState, useEffect } from "react";
 import Navbar from "@/app/components/Navbar";
 import { useRouter } from "next/navigation";
 import { Country, State } from "country-state-city";
+import Cookies from "js-cookie";
 
 export default function Candidature() {
   const [step, setStep] = useState(1);
@@ -20,6 +21,10 @@ export default function Candidature() {
     otherSector: "", // Champ pour "Autres"
     department: "",
     city: "",
+     posteSouhaite: "", // NOUVEAU
+    dateDebut: "",      // NOUVEAU
+    dateFin: "",        // NOUVEAU
+    rgpdConsent: false, // NOUVEAU
     level: "",
     contracttype: "",
     cvFile: null as File | null,
@@ -59,20 +64,24 @@ const [submitError, setSubmitError] = useState<string | null>(null);
     }
   }, [formData.department]);
 
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
-  ) => {
-    const { name, value } = e.target;
+  
+
+ const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const { name, value, type } = e.target;
+    const isCheckbox = type === 'checkbox';
+    const checked = (e.target as HTMLInputElement).checked;
+
     if (name === "sector" && value === "Autres") {
       setShowOtherInput(true);
       setFormData((prev) => ({ ...prev, sector: "Autres", otherSector: "" }));
-    } else if (name === "sector" && value !== "Autres") {
+    } else if (name === "sector") {
       setShowOtherInput(false);
       setFormData((prev) => ({ ...prev, [name]: value, otherSector: "" }));
-    } else if (name === "otherSector") {
-      setFormData((prev) => ({ ...prev, otherSector: value }));
     } else {
-      setFormData((prev) => ({ ...prev, [name]: value }));
+      setFormData((prev) => ({
+        ...prev,
+        [name]: isCheckbox ? checked : value,
+      }));
     }
   };
 
@@ -136,63 +145,40 @@ const [submitError, setSubmitError] = useState<string | null>(null);
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSubmitError(null);
-    if (!formData.cvFile || !formData.videoFile) {
-      const errorMessage = "Veuillez télécharger votre CV et votre vidéo de présentation pour pouvoir soumettre votre candidature.";
-      setSubmitError(errorMessage); // On affiche le message d'erreur clair
-      alert(errorMessage); // On affiche aussi une alerte pour être sûr
-      return; // On arrête l'exécution de la fonction
-    }
-    setLoading(true);
 
+    if (!formData.rgpdConsent) {
+      const errorMessage = "Vous devez accepter les conditions pour soumettre votre candidature.";
+      setSubmitError(errorMessage);
+      alert(errorMessage);
+      return;
+    }
+    if (!formData.cvFile || !formData.videoFile) {
+      const errorMessage = "Veuillez télécharger votre CV et votre vidéo de présentation.";
+      setSubmitError(errorMessage);
+      alert(errorMessage);
+      return;
+    }
+
+    setLoading(true);
     const data = new FormData();
     data.append("firstName", formData.firstName);
     data.append("lastName", formData.lastName);
     data.append("formation", formData.formation);
     data.append("phone", formData.phone);
+    data.append("rgpdConsent", String(formData.rgpdConsent)); // On envoie le consentement
 
-    // Gestion du secteur : utiliser otherSector si "Autres" est sélectionné
-    const sectorValue = formData.sector === "Autres" && formData.otherSector
-      ? formData.otherSector
-      : formData.sector;
+    const sectorValue = formData.sector === "Autres" ? formData.otherSector : formData.sector;
+    
     const alternanceSearch = {
       location: `${formData.department} - ${formData.city}`,
       contracttype: formData.contracttype,
       sector: sectorValue,
       level: formData.level,
-      date: formData.date,
+      date: formData.date, // Date de naissance
+      posteSouhaite: formData.posteSouhaite, // NOUVEAU
+      dateDebut: formData.dateDebut,          // NOUVEAU
+      dateFin: formData.dateFin,              // NOUVEAU
     };
-
-    // Débogage : Afficher les données envoyées
-    console.log("Données envoyées :", {
-      firstName: formData.firstName,
-      lastName: formData.lastName,
-      formation: formData.formation,
-      date: formData.date,
-      phone: formData.phone,
-      alternanceSearch,
-      cvFile: formData.cvFile,
-      videoFile: formData.videoFile,
-    });
-
-    if (
-      !alternanceSearch.location ||
-      !alternanceSearch.contracttype ||
-      !alternanceSearch.sector ||
-      !alternanceSearch.level ||
-      alternanceSearch.location === "" ||
-      alternanceSearch.contracttype === "" ||
-      alternanceSearch.sector === "" ||
-      alternanceSearch.level === "" ||
-      !alternanceSearch.date ||
-      alternanceSearch.contracttype === "Sélectionnez un type" ||
-      alternanceSearch.sector === "Sélectionnez un secteur" ||
-      alternanceSearch.level === "Sélectionnez un niveau"
-    ) {
-      alert(
-        "Veuillez remplir tous les champs liés à votre recherche d'alternance."
-      );
-      return;
-    }
 
     data.append("alternanceSearch", JSON.stringify(alternanceSearch));
 
@@ -200,18 +186,13 @@ const [submitError, setSubmitError] = useState<string | null>(null);
     if (formData.videoFile) data.append("video", formData.videoFile);
 
     try {
-      const token = localStorage.getItem("token");
+      const token = Cookies.get("token"); // Recommandé d'utiliser js-cookie
       const res = await fetch("/api/candidats/candidature", {
         method: "PUT",
         body: data,
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        headers: { Authorization: `Bearer ${token}` },
       });
-
       const result = await res.json();
-      console.log(data, result);
-
       if (res.ok) {
         alert("Candidature soumise avec succès !");
         router.push("/candidat/test-de-personnalite");
@@ -421,6 +402,55 @@ const [submitError, setSubmitError] = useState<string | null>(null);
                       <option value="Stage académique">Stage</option>
                     </select>
                   </div>
+
+<div>
+                    <label className="text-[#4C4C4C]" htmlFor="posteSouhaite">
+                      Poste souhaité <span className="text-[#FF0000]"> *</span>
+                    </label>
+                    <input
+                      type="text"
+                      name="posteSouhaite"
+                      id="posteSouhaite"
+                      value={formData.posteSouhaite}
+                      onChange={handleChange}
+                      placeholder="Ex: Développeur Web, Community Manager"
+                      className="mt-2 block w-full p-2 border rounded-[15px]"
+                      required
+                    />
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="text-[#4C4C4C]" htmlFor="dateDebut">
+                        Début de l'alternance <span className="text-[#FF0000]"> *</span>
+                      </label>
+                      <input
+                        type="date"
+                        name="dateDebut"
+                        id="dateDebut"
+                        value={formData.dateDebut}
+                        onChange={handleChange}
+                        className="mt-2 block w-full p-2 border rounded-[15px]"
+                        required
+                      />
+                    </div>
+                    <div>
+                      <label className="text-[#4C4C4C]" htmlFor="dateFin">
+                        Fin de l'alternance <span className="text-[#FF0000]"> *</span>
+                      </label>
+                      <input
+                        type="date"
+                        name="dateFin"
+                        id="dateFin"
+                        value={formData.dateFin}
+                        onChange={handleChange}
+                        className="mt-2 block w-full p-2 border rounded-[15px]"
+                        required
+                      />
+                    </div>
+                  </div>
+
+
+
                   <div>
                     <label
                       className="text-[#4C4C4C] text-sm sm:text-base md:text-[16px]"
@@ -543,6 +573,8 @@ const [submitError, setSubmitError] = useState<string | null>(null);
                       />
                     </label>
                   </div>
+
+
                   {fileMessage && (
                     <p className="text-green-600 text-center text-xs sm:text-sm mt-2">
                       {fileMessage}
@@ -601,6 +633,27 @@ const [submitError, setSubmitError] = useState<string | null>(null);
                       />
                     </label>
                   </div>
+
+
+                  <div className="mt-6 p-4 border-t border-gray-200">
+                    <label className="flex items-start cursor-pointer">
+                      <input
+                        type="checkbox"
+                        name="rgpdConsent"
+                        checked={formData.rgpdConsent}
+                        onChange={handleChange}
+                        className="h-5 w-5 rounded mt-1 border-gray-300 text-purple-600 focus:ring-purple-500"
+                        required
+                      />
+                      <span className="ml-3 text-sm text-gray-600">
+                        J’autorise la consultation de mon profil par les employeurs inscrits à la plateforme. <span className="text-[#FF0000]">*</span>
+                      </span>
+                    </label>
+                  </div>
+                  {submitError && (
+                    <p className="text-red-600 text-center text-sm mt-4">{submitError}</p>
+                  )}
+
                   {videoUploading && (
                     <div className="flex justify-center mt-2">
                       <div className="w-6 h-6 border-4 border-t-[#7A20DA] border-t-transparent rounded-full animate-spin"></div>

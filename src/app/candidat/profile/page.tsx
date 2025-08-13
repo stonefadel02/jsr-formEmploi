@@ -401,7 +401,7 @@ export default function Profile() {
             <div className="bg-white rounded-[20px] shadow-lg p-6 sm:p-6 md:p-8 mt-4 sm:mt-10">
               {activeTab === "profile" ? (
                 <div className="flex  flex-row items-center ">
-                  <div className="flex justify-between space-x-4 sm:space-x-[850px] items-center">
+                  <div className="flex justify-between space-x-4 sm:space-x-[450px] items-center">
                     <div>
                       <h2 className="text-[17px]   sm:text-[27px] font-bold">
                         {personality.summary?.emoji}{" "}
@@ -702,6 +702,22 @@ export default function Profile() {
                       <div className="space-y-4">
                         <input
                           type="text"
+                          name="formation"
+                          value={formData.formation || ""}
+                          onChange={handleChange}
+                          className="w-full p-2 border-gray-100 border rounded"
+                          placeholder="École / Organisme"
+                        />
+                        <input
+                          type="text"
+                          name="alternanceSearch.posteSouhaite"
+                          value={formData.alternanceSearch?.posteSouhaite || ""}
+                          onChange={handleChange}
+                          className="w-full p-2 border-gray-100 border rounded"
+                          placeholder="Poste souhaité"
+                        />
+                        <input
+                          type="text"
                           name="alternanceSearch[sector]"
                           value={formData.alternanceSearch?.sector || ""}
                           onChange={handleChange}
@@ -724,10 +740,51 @@ export default function Profile() {
                           className="w-full border-gray-100 p-2 border rounded"
                           placeholder="Type de contrat"
                         />
+                        <div>
+                          <label className="text-sm text-gray-500">
+                            Date de début
+                          </label>
+                          <input
+                            type="date"
+                            name="alternanceSearch.dateDebut"
+                            value={
+                              formData.alternanceSearch?.dateDebut
+                                ?.toString()
+                                .split("T")[0] || ""
+                            }
+                            onChange={handleChange}
+                            className="w-full p-2 border-gray-100 border rounded"
+                          />
+                        </div>
+                        <div>
+                          <label className="text-sm text-gray-500">
+                            Date de fin
+                          </label>
+                          <input
+                            type="date"
+                            name="alternanceSearch.dateFin"
+                            value={
+                              formData.alternanceSearch?.dateFin
+                                ?.toString()
+                                .split("T")[0] || ""
+                            }
+                            onChange={handleChange}
+                            className="w-full p-2 border-gray-100 border rounded"
+                          />
+                        </div>
                       </div>
                     )}
                     {!isEditing.alternanceSearch && (
                       <div>
+                        <p className="text-gray-700">
+                          École :{" "}
+                          {profile.formation || "Non spécifié"}
+                        </p >
+                        <p className="text-gray-700">
+                         Poste souhaité :{" "}
+                          {profile.alternanceSearch?.posteSouhaite ||
+                            "Non spécifié"}
+                        </p>
                         <p className="text-gray-700">
                           {profile.alternanceSearch?.sector}
                         </p>
@@ -736,6 +793,22 @@ export default function Profile() {
                         </p>
                         <p className="text-gray-700">
                           {profile.alternanceSearch?.contracttype}
+                        </p>
+                        <p className="text-gray-700">
+                          Début :{" "}
+                          {profile.alternanceSearch?.dateDebut
+                            ? new Date(
+                                profile.alternanceSearch.dateDebut
+                              ).toLocaleDateString("fr-FR")
+                            : "Non spécifié"}
+                        </p>
+                        <p className="text-gray-700">
+                          Fin :{" "}
+                          {profile.alternanceSearch?.dateFin
+                            ? new Date(
+                                profile.alternanceSearch.dateFin
+                              ).toLocaleDateString("fr-FR")
+                            : "Non spécifié"}
                         </p>
                       </div>
                     )}

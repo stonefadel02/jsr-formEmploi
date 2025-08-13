@@ -48,6 +48,7 @@ export async function GET(req: NextRequest) {
         role = 'candidat';
         
         // On active le compte du candidat
+        user.status = 'Validé';
         user.isActive = true;
         await user.save();
 
@@ -74,6 +75,7 @@ export async function GET(req: NextRequest) {
           
           // On active le compte de l'employeur
           user.isActive = true;
+          user.status = 'Validé';
           await user.save();
 
           // On met à jour ou on crée son abonnement
@@ -83,6 +85,7 @@ export async function GET(req: NextRequest) {
               $set: {
                 isActive: true,
                 endDate: newEndDate,
+
                 plan: 'Payant Annuel',
                 isTrial: false,
                 startDate: new Date(),

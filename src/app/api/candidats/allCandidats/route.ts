@@ -116,11 +116,11 @@ export async function GET(req: NextRequest): Promise<NextResponse<ApiResponse<{ 
     }
 
     // Utiliser l'agrégation MongoDB pour joindre les abonnements
-    const pipeline = [
+   const pipeline = [
       { $match: matchQuery },
       {
         $lookup: {
-          from: "candidatsubscriptions", // Nom de la collection des abonnements
+          from: "candidatsubscriptions",
           localField: "_id",
           foreignField: "candidatId",
           as: "subscription"
@@ -128,21 +128,30 @@ export async function GET(req: NextRequest): Promise<NextResponse<ApiResponse<{ 
       },
       {
         $addFields: {
-          subscription: { $arrayElemAt: ["$subscription", 0] } // Prendre le premier (et unique) abonnement
+          subscription: { $arrayElemAt: ["$subscription", 0] }
+        }
+      },
+      // ✅ NOUVEAU : On ajoute un filtre pour ne garder que les abonnés actifs
+      {
+        $match: {
+          "subscription.isActive": true,
+          "subscription.endDate": { $gte: new Date() } // La date de fin doit être supérieure ou égale à aujourd'hui
         }
       },
       { $sort: sortOption },
-      { $skip: skip },
-      { $limit: limit },
       {
-        $project: {
-          password: 0 // Exclure le mot de passe
+        $facet: {
+          candidats: [{ $skip: skip }, { $limit: limit }, { $project: { password: 0 } }],
+          total: [{ $count: "count" }]
         }
       }
     ];
 
-    const candidats = await Candidat.aggregate(pipeline);
-    const total = await Candidat.countDocuments(matchQuery);
+    const results = await Candidat.aggregate(pipeline);
+    
+    const candidats = results[0].candidats;
+    const total = results[0].total.length > 0 ? results[0].total[0].count : 0;
+
 
     return NextResponse.json(
       {

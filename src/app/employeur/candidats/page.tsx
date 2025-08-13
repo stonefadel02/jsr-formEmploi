@@ -294,6 +294,7 @@ export default function ProfileEmployeur() {
                   <th className="px-6 py-6 text-sm font-semibold text-left text-[#202020]">
                     Nom (anonymisé)
                   </th>
+                  <th className="px-6 py-3 text-sm font-semibold text-start text-[#202020]">Poste Souhaité</th>
                   <th className="px-6 py-3 text-sm font-semibold text-start text-[#202020]">
                     Secteur
                   </th>
@@ -303,11 +304,12 @@ export default function ProfileEmployeur() {
                   <th className="px-6 py-3 text-sm font-semibold text-start text-[#202020]">
                     Niveau d`étude
                   </th>
-                  <th className="px-6 py-3 text-sm font-semibold text-start text-[#202020]">
-                    Date de naissance
-                  </th>
                     <th className="px-6 py-3 text-sm font-semibold text-start text-[#202020]">
                     Formation
+                  </th>
+                   <th className="px-6 py-3 text-sm font-semibold text-start text-[#202020]">Disponibilité</th>
+                  <th className="px-6 py-3 text-sm font-semibold text-start text-[#202020]">
+                    Date de naissance
                   </th>
                     <th className="px-6 py-3 text-sm font-semibold text-start text-[#202020]">
                     Date de soumission
@@ -339,6 +341,7 @@ export default function ProfileEmployeur() {
                       <td className="px-6 py-4 text-[#4C4C4C]">
                         {anonymizeName(candidat.firstName ?? "Candidat")}
                       </td>
+                         <td className="px-6 text-start py-4 text-[#4C4C4C]">{candidat?.alternanceSearch?.posteSouhaite || "N/A"}</td>
                       <td className="px-6 text-start py-4 text-[#4C4C4C]">
                         {candidat?.alternanceSearch?.sector || "N/A"}
                       </td>
@@ -348,19 +351,23 @@ export default function ProfileEmployeur() {
                       <td className="px-6 text-start py-4 text-[#4C4C4C]">
                         {candidat?.alternanceSearch?.level || "N/A"}
                       </td>
+                       <td className="px-6 text-start py-4 text-[#4C4C4C]">{candidat?.formation || "N/A"}</td>
+                      <td className="px-6 text-start py-4 text-[#4C4C4C]"> {/* NOUVEAU */}
+                        {candidat.alternanceSearch?.dateDebut && candidat.alternanceSearch?.dateFin
+                          ? `Du ${formatDate(candidat.alternanceSearch.dateDebut)} au ${formatDate(candidat.alternanceSearch.dateFin)}`
+                          : "N/A"}
+                      </td>
                       <td className="px-6 text-start py-4 text-[#4C4C4C]">
                         {formatDate(candidat?.alternanceSearch?.date ?? new Date())}
                       </td>
-                       <td className="px-6 text-start py-4 text-[#4C4C4C]">
-                        {candidat?.formation ?? "N/A"}
-                      </td>
+                     
                       <td className="px-6 text-start py-4 text-[#4C4C4C]">
                         {formatDate(candidat.createdAt ?? new Date())}
                       </td>
-                      <td className="px-8 text-end py-4">
+                      <td className=" text-end py-4">
                         <button
                           onClick={() => viewProfile(candidat._id.toString())}
-                          className="bg-[#7A20DA] text-white px-6 py-2 rounded-[5px] cursor-pointer hover:bg-[#6A1AB8] transition duration-200"
+                          className="bg-[#7A20DA] text-sm text-white px-3 py-2 rounded-[5px] cursor-pointer hover:bg-[#6A1AB8] transition duration-200"
                         >
                           Voir le profil
                         </button>

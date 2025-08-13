@@ -12,6 +12,11 @@ type AlternanceSearch = {
   location?: string;
   level?: string;
   contracttype?: string;
+  posteSouhaite: string;
+  dateDebut?: Date;
+  dateFin?: Date;
+
+
 };
 type Personality = {
   resultType?: string;
@@ -25,6 +30,7 @@ type Candidate = {
   lastName?: string;
   email?: string;
   videoUrl?: string;
+  formation :string;
   cvUrl?: string;
   photoUrl?: string;
   skills?: string[];
@@ -190,7 +196,21 @@ export default function CandidateProfile() {
             <div className="bg-white p-4 sm:p-6 md:p-10 rounded-[15px] space-y-6">
               {/* Informations personnelles */}
               <div>
+
+
                 <div className="space-y-2 sm:space-y-4 pb-6 sm:pb-10">
+                  <div className="grid grid-cols-[150px_1fr] gap-4 items-center">
+                    <h3 className="text-[#4E4E4E] text-[18px]">Poste souhaité</h3>
+                    <p className="text-[#4C4C4C] py-2">
+                      {candidat.alternanceSearch?.posteSouhaite || "Non spécifié"}
+                    </p>
+                  </div>
+                  <div className="grid grid-cols-[150px_1fr] gap-4 items-center">
+                    <h3 className="text-[#4E4E4E] text-[18px]">Formation</h3>
+                    <p className="text-[#4C4C4C] py-2">
+                      {candidat.formation || "Non spécifié"}
+                    </p>
+                  </div>
                   <div className="grid grid-cols-[150px_1fr] gap-4 items-center">
                     <h3 className="text-[#4E4E4E] text-[16px] sm:text-[18px]">Coordonnées</h3>
                     <p className="text-[#4C4C4C] py-1 sm:py-2">
@@ -213,6 +233,14 @@ export default function CandidateProfile() {
                     <h3 className="text-[#4E4E4E] text-[16px] sm:text-[18px]">Type de contrat</h3>
                     <p className="text-[#4C4C4C] py-1 sm:py-2">
                       {candidat.alternanceSearch?.contracttype || "Non spécifié"}
+                    </p>
+                  </div>
+                  <div className="grid grid-cols-[150px_1fr] gap-4 items-center">
+                    <h3 className="text-[#4E4E4E] text-[18px]">Disponibilité</h3>
+                    <p className="text-[#4C4C4C] py-2">
+                       {candidat.alternanceSearch?.dateDebut && candidat.alternanceSearch?.dateFin
+                          ? `Du ${new Date(candidat.alternanceSearch.dateDebut).toLocaleDateString('fr-FR')} au ${new Date(candidat.alternanceSearch.dateFin).toLocaleDateString('fr-FR')}`
+                          : "Non spécifié"}
                     </p>
                   </div>
                 </div>

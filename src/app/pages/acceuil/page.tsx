@@ -107,7 +107,7 @@ export default function Acceuil() {
             {/* Contenu texte et bouton (gauche) */}
             <div className="text-white">
               <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-7xl font-bold mb-4">
-                Rejoignez les talents de demain avec JSR.
+                Ici, ce sont les entrepries qui viennent a vous.
               </h1>
               <p className="text-base md:text-lg py-4 mb-2">
                 Nous connectons les talents aux meilleures

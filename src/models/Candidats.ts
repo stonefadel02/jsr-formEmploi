@@ -28,12 +28,21 @@ const candidateSchema = new Schema<ICandidat>(
       date: { type: Date }, // Date de naissance
       level: { type: String },
       contracttype: { type: String },
+      posteSouhaite: { type: String }, // ✅ NOUVEAU
+      dateDebut: { type: Date }, // ✅ NOUVEAU
+      dateFin: { type: Date },
     },
     cvUrl: { type: String },
     videoUrl: { type: String },
     photoUrl: { type: String },
     isActive: { type: Boolean, default: false }, // Ajout de l'état actif
-    status: { type: String, enum: ["En attente", "Validé", "Refusé"], default: "En attente", index: true },
+    rgpdConsent: { type: Boolean, default: false },
+    status: {
+      type: String,
+      enum: ["En attente", "Validé", "Refusé"],
+      default: "En attente",
+      index: true,
+    },
     subscription: { type: Schema.Types.ObjectId, ref: "CandidatSubscription" }, // Ajout de la référence
   },
   {

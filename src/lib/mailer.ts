@@ -11,9 +11,9 @@
 //   });
 
 //   const info = await transporter.sendMail({
-//     from: '"Jsr-emploi" <no-reply@jsr-emploi.com>',
+//     from: '"Jsr-alternance" <no-reply@jsr-alternance.com>',
 //     to: to,
-//     subject: "Bienvenue sur Jsr-emploi ! 🎉",
+//     subject: "Bienvenue sur Jsr-alternance ! 🎉",
 //     html: `<h2>Bonjour ${name},</h2>
 //            <p>Votre compte a été créé avec succès !</p>
 //            <p>Merci de rejoindre notre plateforme.</p>`,
@@ -35,9 +35,9 @@ export const sendRegistrationEmail = async (to: string, name: string) => {
   });
 
   const info = await transporter.sendMail({
-    from: '"Jsr-emploi" <no-reply@jsr-emploi.com>',
+    from: '"Jsr-alternance" <no-reply@jsr-alternance.com>',
     to: to,
-    subject: "Bienvenue sur Jsr-emploi ! 🎉",
+    subject: "Bienvenue sur Jsr-alternance ! 🎉",
     html: `<h2>Bonjour ${name},</h2>
            <p>Votre compte a été créé avec succès !</p>
            <p>Merci de rejoindre notre plateforme.</p> `,
@@ -66,7 +66,7 @@ export async function sendExpirationEmail(email: string, role: string, endDate: 
   }
 
   const mailOptions = {
-    from: '"Jsr-emploi" <no-reply@jsr-emploi.com>',
+    from: '"Jsr-alternance" <no-reply@jsr-alternance.com>',
     to: email,
     subject: subject,
     html: `
@@ -77,7 +77,7 @@ export async function sendExpirationEmail(email: string, role: string, endDate: 
       <ul>
         <li><a href="${tariffUrl}">Consultez nos tarifs</a> pour plus d'options.</li>
       </ul>
-      <p>Cordialement,<br>L'équipe Jsr-emploi</p>
+      <p>Cordialement,<br>L'équipe Jsr-alternance</p>
     `,
   };
 

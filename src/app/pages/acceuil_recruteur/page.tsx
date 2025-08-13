@@ -21,8 +21,7 @@ export default function AcceuilRecruteur() {
                 Trouvez des talents qualifiés en quelques clics.
               </h1>
               <p className="text-sm sm:text-base md:text-md ">
-                Accédez à une base de candidats ciblés
-                gratuit. 
+                Accédez à une base de candidats ciblés. 
               
               </p>
               <p className="py-4">
