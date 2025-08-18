@@ -83,7 +83,7 @@ export default function Login() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          priceId: "price_1RdCKOQ8brLwKg0wMoJeI40W", // 👈 REMPLACEZ PAR VOTRE VRAI PRICE ID EMPLOYEUR
+          priceId: "price_1RxTaQLv0b9ozmcyWKQnCJn0", // 👈 REMPLACEZ PAR VOTRE VRAI PRICE ID EMPLOYEUR
           customer_email: formData.email,
         }),
       });
@@ -238,11 +238,10 @@ export default function Login() {
                   placeholder="Confirmez votre mot de passe"
                   value={formData.confirmPassword}
                   onChange={handleChange}
-className="mt-2 block w-full px-4 py-3 border border-[#C4C4C4] text-gray-700 rounded-[15px] placeholder-[#D9D9D9] focus:ring-purple-900 focus:border-purple-900"                  required
+                  className="mt-2 block w-full px-4 py-3 border border-[#C4C4C4] text-gray-700 rounded-[15px] placeholder-[#D9D9D9] focus:ring-purple-900 focus:border-purple-900"
+                  required
                 />
               </div>
-
-           
 
               {/* Nouvelle section : Bannière de notification */}
               <div className="flex">
@@ -254,7 +253,7 @@ className="mt-2 block w-full px-4 py-3 border border-[#C4C4C4] text-gray-700 rou
                 </div>
               </div>
 
-                 {/* ✅ NOUVEAU : Case à cocher CGU */}
+              {/* ✅ NOUVEAU : Case à cocher CGU */}
               <div className="flex items-start mt-4">
                 <input
                   id="acceptTerms"

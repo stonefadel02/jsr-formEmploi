@@ -54,7 +54,7 @@ export default function Register() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          priceId: "price_1RdCHQQ8brLwKg0wxR3dMhW0", // 👈 REMPLACEZ PAR VOTRE VRAI PRICE ID CANDIDAT
+          priceId: "price_1RxTklLv0b9ozmcy7h0DMsrl", // 👈 REMPLACEZ PAR VOTRE VRAI PRICE ID CANDIDAT
           customer_email: formData.email,
         }),
 

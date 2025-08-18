@@ -167,7 +167,7 @@ export default function CandidateProfile() {
                     {candidat.personalityTestResult.summary?.emoji}{" "}
                     {candidat.personalityTestResult.resultType}
                   </p>
-                  <p className="text-xs sm:text-sm text-gray-500">
+                  <p className="text-xs text-center sm:text-sm text-gray-500">
                     {candidat.personalityTestResult.summary?.description ||
                       "Aucune description disponible"}
                   </p>
