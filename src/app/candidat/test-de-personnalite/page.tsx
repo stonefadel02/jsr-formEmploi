@@ -4,21 +4,7 @@ import Footer from "@/app/components/Footer";
 import Navbar from "@/app/components/Navbar";
 import { useState,useEffect } from "react";
 import { useRouter } from "next/navigation";
-
-export default function PersonalityTest() {
-  const router = useRouter(); // Pour la redirection vers le profil
-
-   useEffect(() => {
-    // Ce code s'exécute à chaque fois que l'utilisateur arrive sur la page du test.
-    // On remet tous les états à leurs valeurs initiales.
-    setCurrentQuestion(0);
-    setAnswers({});
-    setResult(null);
-    setError(null);
-    setShowPopup(false);
-    setLoading(false);
-  }, [])
-  const questions = [
+const questions = [
     {
       id: 1,
       text: "En groupe, tu es plutôt :",
@@ -93,6 +79,20 @@ export default function PersonalityTest() {
     },
   ];
 
+export default function PersonalityTest() {
+  const router = useRouter(); // Pour la redirection vers le profil
+
+   useEffect(() => {
+    // Ce code s'exécute à chaque fois que l'utilisateur arrive sur la page du test.
+    // On remet tous les états à leurs valeurs initiales.
+    setCurrentQuestion(0);
+    setAnswers({});
+    setResult(null);
+    setError(null);
+    setShowPopup(false);
+    setLoading(false);
+  }, [])
+  
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [answers, setAnswers] = useState<{ [key: number]: string }>({});
   const [loading, setLoading] = useState(false);

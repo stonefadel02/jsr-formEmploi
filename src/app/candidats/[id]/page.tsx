@@ -162,8 +162,8 @@ export default function CandidateProfile() {
                 {candidat.firstName}
               </h2>
               {candidat.personalityTestResult?.resultType && (
-                <div className="mt-2">
-                  <p className="text-sm sm:text-base text-gray-600">
+                <div className="">
+                  <p className="text-sm text-center my-2 sm:text-base text-gray-600">
                     {candidat.personalityTestResult.summary?.emoji}{" "}
                     {candidat.personalityTestResult.resultType}
                   </p>
@@ -173,6 +173,8 @@ export default function CandidateProfile() {
                   </p>
                 </div>
               )}
+
+              
 
               {/* Vidéo */}
               <div className="w-full h-48 sm:h-64 rounded-[15px] relative overflow-hidden">

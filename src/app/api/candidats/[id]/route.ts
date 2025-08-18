@@ -7,6 +7,7 @@ import { connectCandidatsDb } from "@/lib/mongodb";
 import CandidatPromise from "../../../../models/Candidats";
 import jwt from "jsonwebtoken";
 import { ApiResponse, ICandidat } from "@/lib/types";
+import mongoose from "mongoose";
 
 export async function GET(
   req: NextRequest,
@@ -48,35 +49,43 @@ export async function GET(
     await connectCandidatsDb();
     const Candidat = await CandidatPromise;
     
-    // Récupérer toutes les données du candidat sauf le mot de passe
-    const candidat = await Candidat.findById(params.id).select(
-      "-personalInfo.password -password"
-    );
-
-    if (!candidat) {
-      return NextResponse.json(
-        { success: false, message: "Candidat not found" },
-        { status: 404 }
-      );
+  if (!mongoose.Types.ObjectId.isValid(params.id)) {
+      return NextResponse.json({ success: false, message: 'ID de candidat invalide.' }, { status: 400 });
     }
 
-    // S'assurer que toutes les données nécessaires sont incluses
-    const candidatData = {
-      ...candidat.toObject(),
-      cvUrl: candidat.cvUrl || undefined,
-      videoUrl: candidat.videoUrl || undefined,
-      firstName: candidat.firstName || "Non spécifié",
-      lastName: candidat.lastName || "Non spécifié",
-      email: candidat.email || "Non spécifié",
-      skills: candidat.skills || [],
-      experience: candidat.experience || [],
-      alternanceSearch: candidat.alternanceSearch || {
-        sector: "Non spécifié",
-        location: "Non spécifié",
-        level: "Non spécifié",
-        contracttype: "Non spécifié"
+    const pipeline = [
+      {
+        $match: { _id: new mongoose.Types.ObjectId(params.id) }
+      },
+      {
+        $lookup: {
+          from: 'personalitytestresults', // Le nom de votre collection de résultats en minuscules
+          localField: '_id',
+          foreignField: 'candidateId',
+          as: 'personalityTestResult' // Le nom du nouveau champ
+        }
+      },
+      {
+        $unwind: {
+          path: '$personalityTestResult',
+          preserveNullAndEmptyArrays: true // Important : garde le candidat même s'il n'a pas de résultat de test
+        }
+      },
+      {
+        $project: {
+          password: 0
+        }
       }
-    };
+    ];
+
+    const results = await Candidat.aggregate(pipeline);
+
+    if (!results || results.length === 0) {
+      return NextResponse.json({ success: false, message: "Candidat introuvable" }, { status: 404 });
+    }
+
+    const candidatData = results[0]; // Le premier (et unique) résultat est notre candidat complet
+    
 
     return NextResponse.json(
       { success: true, data: candidatData }, 
