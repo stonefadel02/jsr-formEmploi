@@ -94,9 +94,7 @@ export default function Acceuil() {
               <Link href="/auth/employeur/register">
                 <button
                   className="bg-[#7A20DA] text-white px-6 py-3 font-bold rounded-[10px] transition duration-200 cursor-pointer"
-                  disabled={loadingRecruteur}
                 >
-                  {loadingRecruteur ? "Chargement..." : "Souscrire"}
                 </button>
               </Link>
 
@@ -109,7 +107,9 @@ export default function Acceuil() {
                   )
                 }
                 className="bg-[#7A20DA] mx-2 text-white px-6 py-3 font-bold rounded-[10px] transition duration-200 cursor-pointer"
+                disabled={loadingRecruteur}
               >
+                {loadingRecruteur ? "Chargement..." : "Renouveler"}
               </button>
             </div>
           </div>
