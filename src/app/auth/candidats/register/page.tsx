@@ -119,7 +119,7 @@ export default function Register() {
                 <input
                   type={showPassword ? "text" : "password"} // Type dynamique
                   name="password"
-                  placeholder="8 caractères minimum"
+                  placeholder="8 caracteres minimum dont 1 caractère et 1 chiffre"
                   id="password"
                   value={formData.password}
                   onChange={handleChange}

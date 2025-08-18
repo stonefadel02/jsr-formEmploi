@@ -98,7 +98,6 @@ export interface ICandidatSubscription {
 export interface IEmployer {
   _id: Types.ObjectId;
   companyName: string;
-  siret: string,  // Ajout
     acceptTerms: boolean,
   email: string;
   password: string;

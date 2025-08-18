@@ -523,6 +523,14 @@ const [submitError, setSubmitError] = useState<string | null>(null);
                       <option value="Bac+4">Bac+4</option>
                       <option value="Bac+5">Bac+5</option>
                       <option value="Master">Master</option>
+                      <option value="L1">L1</option>
+                      <option value="L2">L2</option>
+                      <option value="L3">L3</option>
+                      <option value="M1">M1</option>
+                      <option value="M2">M2</option>
+
+
+
                     </select>
                   </div>
                 </>

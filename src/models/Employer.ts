@@ -4,7 +4,6 @@ import { connectEmployersDb } from '@/lib/mongodb';
 
 const employerSchema = new Schema<IEmployer>(
   {
-    siret: { type: String, required: true, unique: true, index: true },  // Ajout
     acceptTerms: { type: Boolean, default: false },
     companyName: { type: String, required: true },
     email: { type: String, required: true, unique: true },

@@ -11,7 +11,6 @@ export default function Login() {
     companyName: "",
     email: "",
     password: "",
-    siret: "",
     confirmPassword: "", // NOUVEAU
     acceptTerms: false,
   });
@@ -71,7 +70,6 @@ export default function Login() {
           companyName: formData.companyName,
           email: formData.email,
           password: formData.password,
-          siret: formData.siret,
         }),
       });
 
@@ -189,7 +187,7 @@ export default function Login() {
                 <input
                   type={showPassword ? "text" : "password"} // Type dynamique
                   name="password"
-                  placeholder="8 caracteres minimum"
+                  placeholder="8 caracteres minimum dont 1 caractère et 1 chiffre"
                   id="password"
                   value={formData.password}
                   onChange={handleChange}

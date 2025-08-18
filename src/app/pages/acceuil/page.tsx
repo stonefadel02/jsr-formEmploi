@@ -100,7 +100,7 @@ import Link from "next/link";
 export default function Acceuil() {
   return (
     <>
-    <Navbar />
+      <Navbar />
       <div className=" min-h-screen   bg-gradient-to-l from-[#8E2DE2] to-[#4B00C8] flex items-center justify-center px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl min-h-screen w-full mt-40 mb-32 ">
           <div className="grid grid-cols-1  md:grid-cols-2 gap-8 items-center">
@@ -110,18 +110,36 @@ export default function Acceuil() {
                 Ici, ce sont les entreprises qui viennent a vous.
               </h1>
               <p className="text-base md:text-lg py-4 mb-2">
-                Nous connectons les talents aux meilleures
-                opportunités professionnelles.
+                Nous connectons les talents aux meilleures opportunités
+                professionnelles.
               </p>
-              <p className="text-base md:text-lg mb-6" >JSR est CERTIFIÉ bilan de compétences et d'orientation avec double expertise Central test</p>
-           <div className="flex space-x-4">
-               <Link href={"/candidat/candidature"}>
-              <button className="bg-white text-[#501891] px-18 py-3 rounded-[10px] font-medium hover:bg-gray-100 transition duration-200 cursor-pointer">
-                Candidater
-              </button>
-              </Link>
+              <p className="py-1">
+                👉 Vidéo de présentation, montrez qui vous êtes.
                
-           </div>
+              </p>
+              <p className="py-1">
+                👉 Test de personnalité, révélez vos forces. 
+             
+              </p>
+              <p className="py-1">
+            
+                👉 CV, complétez votre profil.
+              </p>
+              <p className="py-2 font-bold" >
+                                Les recruteurs font le reste !
+
+              </p>
+              <p className="text-base md:text-lg mb-6">
+                JSR est CERTIFIÉ bilan de compétences et d'orientation avec
+                double expertise Central test
+              </p>
+              <div className="flex space-x-4">
+                <Link href={"/candidat/candidature"}>
+                  <button className="bg-white text-[#501891] px-18 py-3 rounded-[10px] font-medium hover:bg-gray-100 transition duration-200 cursor-pointer">
+                    Candidater
+                  </button>
+                </Link>
+              </div>
             </div>
 
             {/* Images (droite) - Trois colonnes avec disposition 75/25, 25/75, 75% centré */}
