@@ -21,7 +21,7 @@ const poppins = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "JSR-Alternance | Trouvez votre future alternance",
+  title: "Jsr-alternance | Trouvez votre future alternance",
   icons: {
     icon: "/favicon.ico",
     shortcut: "/favicon.ico",
