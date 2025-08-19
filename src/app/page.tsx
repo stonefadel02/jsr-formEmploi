@@ -4,14 +4,7 @@ import Footer from "@/app/components/Footer";
 import Navbar from "@/app/components/Navbar";
 import Image from "next/image";
 import Link from "next/link";
-import { Metadata } from 'next';
 
-
-export const metadata: Metadata = {
-  title: 'JSR-Alternance | Trouvez votre future alternance',
-  description: 'La plateforme qui connecte les meilleurs candidats et les entreprises innovantes pour des contrats en alternance et des stages.',
-  keywords: 'alternance, stage, emploi, étudiant, entreprise, recrutement',
-};
 export default function Home() {
   return (
     <>
