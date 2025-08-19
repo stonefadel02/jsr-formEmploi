@@ -17,6 +17,8 @@ const publicRoutes = [
   "/conditions-generales-utilisation", // ✅ AJOUTER CETTE LIGN
    "/success",   // ✅ AJOUTER CETTE LIGNE
   "/pages/echec",    // ✅ AJOUTER AUS
+   "/sitemap.xml", // ✅ AJOUTER CETTE LIGNE
+  "/robots.txt", 
 ];
 
 export function middleware(req: NextRequest) {
