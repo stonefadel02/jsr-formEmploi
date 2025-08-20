@@ -106,7 +106,7 @@ export default function Acceuil() {
             {/* Contenu texte et bouton (gauche) */}
             <div className="text-white">
               <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-bold mb-4">
-                Ici, ce sont les entreprises qui viennent a vous.
+                Ici, ce sont les entreprises qui viennent à vous !
               </h1>
               <p className="text-base md:text-lg py-4 mb-2">
                 Nous connectons les talents aux meilleures opportunités
@@ -130,7 +130,7 @@ export default function Acceuil() {
               </p>
               <p className="text-base md:text-lg mb-6">
                 JSR est CERTIFIÉ bilan de compétences et d'orientation avec
-                double expertise Central test
+                double expertise Central Test
               </p>
               <div className="flex space-x-4">
                 <Link href={"/candidat/candidature"}>
