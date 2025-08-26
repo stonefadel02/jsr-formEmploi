@@ -19,6 +19,7 @@ const publicRoutes = [
   "/pages/echec",    // ✅ AJOUTER AUS
    "/sitemap.xml", // ✅ AJOUTER CETTE LIGNE
   "/robots.txt", 
+   "/auth/verify-email",
 ];
 
 export function middleware(req: NextRequest) {

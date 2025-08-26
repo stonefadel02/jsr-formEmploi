@@ -1,104 +1,103 @@
 import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
 import jwt from 'jsonwebtoken';
+import { connectCandidatsDb ,connectEmployersDb} from '@/lib/mongodb'; // Assurez-vous que le chemin est bon
 import CandidatModelPromise from '@/models/Candidats';
 import EmployerModelPromise from '@/models/Employer';
 import CandidatSubscriptionModelPromise from '@/models/CandidatSubscription';
-import SubscriptionModelPromise from '@/models/Subscription';
-
+import SubscriptionModelPromise from '@/models/Subscription'; // Assurez-vous d'importer celui-ci
 const stripe = new Stripe(process.env.STRIPE_KEY!, {
   apiVersion: "2025-05-28.basil",
 });
 
 export async function GET(req: NextRequest) {
-  const { searchParams } = new URL(req.url);
-  const sessionId = searchParams.get("session_id");
-
-  if (!sessionId) {
-    return NextResponse.json({ error: "Session ID manquant." }, { status: 400 });
-  }
-
   try {
+    // ✅ 1. Toujours se connecter à la BDD au début
+    await connectCandidatsDb(); 
+
+    const { searchParams } = new URL(req.url);
+    const sessionId = searchParams.get("session_id");
+
+    if (!sessionId) {
+      return NextResponse.json({ error: "Session ID manquant." }, { status: 400 });
+    }
+
     const session = await stripe.checkout.sessions.retrieve(sessionId);
 
     if (session.payment_status === "paid") {
       const userEmail = session.customer_details?.email;
-      if (!userEmail) {
-        return NextResponse.json({ success: false, message: "Email non trouvé dans la session Stripe." }, { status: 400 });
+      // ✅ 2. On lit le rôle depuis les métadonnées de Stripe, c'est la source de vérité
+      const userRole = session.metadata?.user_role; 
+
+      if (!userEmail || !userRole) {
+        return NextResponse.json({ success: false, message: "Email ou rôle manquant dans la session Stripe." }, { status: 400 });
       }
 
-      const CandidatModel = await CandidatModelPromise;
-      const EmployerModel = await EmployerModelPromise;
-      const CandidatSubscriptionModel = await CandidatSubscriptionModelPromise;
-      const SubscriptionModel = await SubscriptionModelPromise;
-      
       let user: any = null;
-      let role: string = '';
-
-      // On calcule la nouvelle date de fin (1 an à partir d'aujourd'hui)
       const newEndDate = new Date();
       newEndDate.setFullYear(newEndDate.getFullYear() + 1);
 
-      // --- LOGIQUE UNIFIÉE POUR L'ACTIVATION ET LE RENOUVELLEMENT ---
-
-      // On cherche d'abord si c'est un candidat
-      const candidat = await CandidatModel.findOne({ email: userEmail });
-      if (candidat) {
-        user = candidat;
-        role = 'candidat';
+      // ✅ 3. On utilise le rôle pour interroger la bonne collection, sans ambiguïté
+      if (userRole === 'candidat') {
+        const CandidatModel = await CandidatModelPromise;
+        const CandidatSubscriptionModel = await CandidatSubscriptionModelPromise;
         
-        // On active le compte du candidat
-        user.status = 'Validé';
-        user.isActive = true;
-        await user.save();
-
-        // On met à jour ou on crée son abonnement avec la nouvelle date de fin
-        await CandidatSubscriptionModel.findOneAndUpdate(
-          { candidatId: candidat._id },
-          { 
-            $set: {
-              isActive: true,
-              endDate: newEndDate,
-              plan: 'Payant Annuel', // Mettez le nom de votre plan
-              isTrial: false, // On s'assure que ce n'est plus un essai
-              startDate: new Date(), // On met à jour la date de début au renouvellement
-            }
-          },
-          { upsert: true } // "upsert: true" crée l'abonnement s'il n'existe pas, sinon il le met à jour.
-        );
-      } else {
-        // Si ce n'est pas un candidat, on cherche un employeur
-        const employer = await EmployerModel.findOne({ email: userEmail });
-        if (employer) {
-          user = employer;
-          role = 'employeur';
-          
-          // On active le compte de l'employeur
+        user = await CandidatModel.findOne({ email: userEmail });
+        if (user) {
           user.isActive = true;
           user.status = 'Validé';
           await user.save();
-
-          // On met à jour ou on crée son abonnement
-          await SubscriptionModel.findOneAndUpdate(
-            { employerId: employer._id },
-            { 
-              $set: {
-                isActive: true,
-                endDate: newEndDate,
-
-                plan: 'Payant Annuel',
-                isTrial: false,
-                startDate: new Date(),
-              }
-            },
+          
+          await CandidatSubscriptionModel.findOneAndUpdate(
+            { candidatId: user._id },
+            { $set: { isActive: true, endDate: newEndDate, plan: 'Payant Annuel', isTrial: false, startDate: new Date() }},
             { upsert: true }
           );
         }
+      }else if (userRole === 'employeur') {
+        // ✅ DÉBUT DE LA LOGIQUE CORRIGÉE POUR L'EMPLOYEUR
+        await connectEmployersDb(); // On se connecte à la BDD des employeurs
+        const EmployerModel = await EmployerModelPromise;
+        const SubscriptionModel = await SubscriptionModelPromise;
+
+        user = await EmployerModel.findOne({ email: userEmail });
+        if (user) {
+            user.isActive = true;
+            // Assurez-vous que votre modèle Employer a bien un champ 'status'
+            user.status = 'Validé'; 
+            await user.save();
+
+            // On met à jour la collection SÉPARÉE des abonnements pour l'employeur
+            const updatedSubscription = await SubscriptionModel.findOneAndUpdate(
+              { employerId: user._id },
+              { 
+                $set: { 
+                  isActive: true, 
+                  endDate: newEndDate, 
+                  plan: 'Payant Annuel', 
+                  isTrial: false, 
+                  startDate: new Date() 
+                }
+              },
+              { upsert: true }
+            );
+
+                user.isActive = true;
+          user.status = 'Validé';
+          user.subscription = {
+            plan: updatedSubscription?.plan,
+            isActive: updatedSubscription?.isActive,
+            startDate: updatedSubscription?.startDate,
+            endDate: updatedSubscription?.endDate,
+          };
+          await user.save();
+        }
+        // ✅ FIN DE LA LOGIQUE CORRIGÉE
       }
       
-      if (user && role) {
+      if (user) {
         const token = jwt.sign(
-          { id: user._id, email: user.email, role: role, isActive: true },
+          { id: user._id, email: user.email, role: userRole, isActive: true },
           process.env.JWT_SECRET!,
           { expiresIn: '7d' }
         );
@@ -107,10 +106,9 @@ export async function GET(req: NextRequest) {
           success: true, 
           message: "Paiement réussi, votre compte est maintenant actif.",
           token: token,
-          role: role
+          role: userRole
         });
       } else {
-        // Cette erreur ne devrait plus arriver si l'utilisateur s'est pré-inscrit
         return NextResponse.json({ success: false, message: "Utilisateur introuvable pour activer l'abonnement." }, { status: 404 });
       }
 

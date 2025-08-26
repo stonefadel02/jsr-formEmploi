@@ -27,6 +27,9 @@ const employerSchema = new Schema<IEmployer>(
       default: 'employeur',
       index: true,
     },
+  isEmailVerified: { type: Boolean, default: false },
+  emailVerificationToken: { type: String },
+  emailVerificationExpires: { type: Date },
     subscription: {
       plan: { type: String, enum: ['Gratuit', 'Standard', 'Premium'], default: 'Gratuit' },
       startDate: { type: Date, default: Date.now },

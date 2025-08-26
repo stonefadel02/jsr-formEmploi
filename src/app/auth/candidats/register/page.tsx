@@ -1,11 +1,11 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import Cookies from "js-cookie";
 import Link from "next/link";
 import Image from "next/image";
 import Navbar from "@/app/components/Navbar";
-import { useRouter } from "next/navigation";
 
 export default function Register() {
   const [formData, setFormData] = useState({
@@ -14,9 +14,10 @@ export default function Register() {
     confirmPassword: ""
   });
   const [error, setError] = useState("");
-  const [success] = useState("");
+  const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false); // Nouvel état pour le loader
   const [showPassword, setShowPassword] = useState(false);
+  
   const router = useRouter();
 
   const handleChange = (
@@ -50,26 +51,26 @@ export default function Register() {
       if (!response.ok) {
         throw new Error(data.message || "Erreur lors de l'inscription");
       }
-      const checkoutResponse = await fetch("/api/create-checkout-session", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          priceId: "price_1RxTklLv0b9ozmcy7h0DMsrl", // 👈 REMPLACEZ PAR VOTRE VRAI PRICE ID CANDIDAT
-          customer_email: formData.email,
-        }),
+      setSuccess(data.message);
+      
+
+      // const checkoutResponse = await fetch("/api/create-checkout-session", {
+      //   method: "POST",
+      //   headers: { "Content-Type": "application/json" },
+      //   body: JSON.stringify({
+      //     priceId: "price_1RxTklLv0b9ozmcy7h0DMsrl", // 👈 REMPLACEZ PAR VOTRE VRAI PRICE ID CANDIDAT
+      //     customer_email: formData.email,
+      //   }),
 
         
-      });
-      const checkoutData = await checkoutResponse.json();
-      if (!checkoutResponse.ok || !checkoutData.url) {
-        throw new Error(checkoutData.error || "Erreur lors de la création de la session de paiement.");
-      }
+      // });
+      // const checkoutData = await checkoutResponse.json();
+      // if (!checkoutResponse.ok || !checkoutData.url) {
+      //   throw new Error(checkoutData.error || "Erreur lors de la création de la session de paiement.");
+      // }
 
-      // ANCIENNE LIGNE (à supprimer ou commenter) :
-      // router.push(`/pages/paiement?email=${formData.email}`);
-
-      // ✅ NOUVELLE LIGNE : Redirection directe vers le lien de paiement Stripe
-     window.location.href = checkoutData.url;
+  
+    //  window.location.href = checkoutData.url;
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -96,6 +97,12 @@ export default function Register() {
                 {success}
               </p>
             )}
+
+            {success ? (
+              <div className="text-center py-8">
+                <p className="text-gray-700">Un lien de validation a été envoyé à <strong>{formData.email}</strong> pour continuer.</p>
+              </div>
+            ) : (
             <form onSubmit={handleSubmit} className="flex flex-col gap-4">
               <div>
                 <input
@@ -226,6 +233,7 @@ export default function Register() {
                 <div className="h-[2px] bg-[#C4C4C4] w-1/2"></div>
               </div>
             </form>
+             )}
             <div className="mt-4 text-center">
               <button
                 type="button"

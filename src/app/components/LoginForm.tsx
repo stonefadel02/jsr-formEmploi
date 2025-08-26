@@ -94,7 +94,10 @@ export default function LoginForm({ role }: Props) {
           <p>{error}</p>
           {/* ✅ NOUVEAU : On affiche un bouton si l'abonnement a expiré */}
           {(error.includes('expiré') || error.includes('actif')) && (
-            <Link href="/pages/tarifs" className="block bg-[#7A20DA] text-white font-bold py-2 px-4 rounded-lg mt-3 hover:bg-purple-700">
+         <Link 
+              href={`/pages/tarifs?email=${encodeURIComponent(formData.email)}`} 
+              className="block bg-[#7A20DA] text-white font-bold py-2 px-4 rounded-lg mt-3 hover:bg-purple-700"
+            >
                 Renouveler mon abonnement
             </Link>
           )}

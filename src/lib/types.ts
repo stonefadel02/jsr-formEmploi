@@ -54,6 +54,10 @@ export interface ICandidat extends Document {
   photoUrl?: string,
   status?: 'En attente' | 'Validé' | 'Refusé';
   subscription?: ICandidatSubscription;
+  isEmailVerified:  boolean,
+  emailVerificationToken: string ,
+  emailVerificationExpires:Date ,
+  statusForEmployer?: 'viewed' | 'favorited' | 'shortlisted' | 'rejected' | null; // ✅ AJOUTEZ CETTE LIGNE
   createdAt?: Date;
   updatedAt?: Date;
 }
@@ -106,6 +110,9 @@ export interface IEmployer {
   role: 'employeur' | 'admin';
   subscription: ISubscription;
   isActive?: boolean;
+    isEmailVerified:  boolean,
+  emailVerificationToken: string ,
+  emailVerificationExpires:Date ,
   createdAt: Date;
   updatedAt: Date;
 }

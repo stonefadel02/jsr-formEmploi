@@ -59,12 +59,28 @@ export default function ProfileEmployeur() {
     date: "",
     formation: "",
     location: "",
+    status: "",
     level: "",
     contracttype: "",
     sortBy: "date" as "date" | "relevance" | "location",
     page: 1,
     limit: 10,
   });
+
+   const handleStatusChange = async (candidateId: string, status: 'favorited' | 'shortlisted' | 'rejected') => {
+    try {
+      // Pas besoin de token ici, car le cookie est envoyé automatiquement par le navigateur
+      await axios.post('/api/employeurs/interactions', { candidateId, status });
+
+      // Met à jour l'affichage localement pour une expérience fluide
+      setCandidats(prev => prev.map(c => 
+        c._id.toString() === candidateId ? { ...c, statusForEmployer: status } : c
+      ));
+    } catch (error) {
+      console.error("Erreur lors du changement de statut:", error);
+      alert("Une erreur est survenue.");
+    }
+  };
 
   // Récupérer les options des filtres
   const fetchFilterOptions = async () => {
@@ -101,7 +117,7 @@ export default function ProfileEmployeur() {
           level: filters.level || undefined,
           date: filters.date || undefined,
           formation: filters.formation || undefined,
-
+          status: filters.status || undefined,
           contracttype: filters.contracttype || undefined,
           sortBy: filters.sortBy,
           page: filters.page,
@@ -283,6 +299,17 @@ export default function ProfileEmployeur() {
                 ))}
               
               </select> */}
+              <select
+                name="status"
+                value={filters.status}
+                onChange={handleFilterChange}
+                className="border border-gray-300 rounded-[5px] px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#7A20DA]"
+              >
+                <option value="">Statut</option>
+                <option value="favorited">Favoris</option>
+                <option value="shortlisted">Retenus</option>
+                <option value="rejected">Rejetés</option>
+              </select>
             </div>
           </div>
 
@@ -314,9 +341,11 @@ export default function ProfileEmployeur() {
                     <th className="px-6 py-3 text-sm font-semibold text-start text-[#202020]">
                     Date de soumission
                   </th>
+
                   <th className="px-8 py-3 text-sm font-semibold text-end text-[#202020]">
                     Actions
                   </th>
+                  <th className="px-8 py-3 text-sm font-semibold text-end text-[#202020]">Statut</th>
                 </tr>
               </thead>
               <tbody>
@@ -371,7 +400,33 @@ export default function ProfileEmployeur() {
                         >
                           Voir le profil
                         </button>
+                         <button 
+                        onClick={() => handleStatusChange(candidat._id.toString(), 'favorited')} 
+                        title="Ajouter aux favoris"
+                        className={`p-2 rounded-full text-xl ${candidat.statusForEmployer === 'favorited' ? 'bg-yellow-100' : 'text-gray-300'}`}
+                      >
+                        ⭐
+                      </button>
+                       <button 
+                        onClick={() => handleStatusChange(candidat._id.toString(), 'shortlisted')} 
+                        title="Retenir ce profil"
+                        className={`p-2 rounded-full text-xl ${candidat.statusForEmployer === 'shortlisted' ? 'bg-green-100' : 'text-gray-300'}`}
+                      >
+                        👍
+                      </button>
+                      <button 
+                        onClick={() => handleStatusChange(candidat._id.toString(), 'rejected')} 
+                        title="Refuser ce profil"
+                        className={`p-2 rounded-full text-xl ${candidat.statusForEmployer === 'rejected' ? 'bg-red-100' : 'text-gray-300'}`}
+                      >
+                        ❌
+                      </button>
                       </td>
+                      <td className="px-6 py-4">
+                      {candidat.statusForEmployer === 'favorited' && <span className="bg-yellow-100 text-yellow-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded">Favori</span>}
+                      {candidat.statusForEmployer === 'shortlisted' && <span className="bg-green-100 text-green-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded">Retenu</span>}
+                      {candidat.statusForEmployer === 'rejected' && <span className="bg-red-100 text-red-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded">Rejeté</span>}
+                    </td>
                     </tr>
                   ))
                 )}

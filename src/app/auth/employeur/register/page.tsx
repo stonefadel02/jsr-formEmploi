@@ -15,9 +15,9 @@ export default function Login() {
     acceptTerms: false,
   });
   const [error, setError] = useState("");
-  const [success] = useState("");
   const [loading, setLoading] = useState(false); // Nouvel état pour le loader
   const [showPassword, setShowPassword] = useState(false);
+  const [success, setSuccess] = useState("");
 
   const router = useRouter();
 
@@ -78,28 +78,26 @@ export default function Login() {
       if (!response.ok) {
         throw new Error(data.message || "Erreur lors de l'inscription");
       }
+      setSuccess(data.message);
 
-      const checkoutResponse = await fetch("/api/create-checkout-session", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          priceId: "price_1RxTaQLv0b9ozmcyWKQnCJn0", // 👈 REMPLACEZ PAR VOTRE VRAI PRICE ID EMPLOYEUR
-          customer_email: formData.email,
-        }),
-      });
-      const checkoutData = await checkoutResponse.json();
-      if (!checkoutResponse.ok || !checkoutData.url) {
-        throw new Error(
-          checkoutData.error ||
-            "Erreur lors de la création de la session de paiement."
-        );
-      }
+      // const checkoutResponse = await fetch("/api/create-checkout-session", {
+      //   method: "POST",
+      //   headers: { "Content-Type": "application/json" },
+      //   body: JSON.stringify({
+      //     priceId: "price_1RxTaQLv0b9ozmcyWKQnCJn0", // 👈 REMPLACEZ PAR VOTRE VRAI PRICE ID EMPLOYEUR
+      //     customer_email: formData.email,
+      //   }),
+      // });
+      // const checkoutData = await checkoutResponse.json();
+      // if (!checkoutResponse.ok || !checkoutData.url) {
+      //   throw new Error(
+      //     checkoutData.error ||
+      //       "Erreur lors de la création de la session de paiement."
+      //   );
+      // }
 
-      // ANCIENNE LIGNE (à supprimer ou commenter) :
-      // router.push(`/pages/paiement?email=${formData.email}`);
-
-      // ✅ NOUVELLE LIGNE : Redirection directe vers le lien de paiement Stripe
-      window.location.href = checkoutData.url;
+     
+      // window.location.href = checkoutData.url;
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -126,6 +124,11 @@ export default function Login() {
                 {success}
               </p>
             )}
+            {success ? (
+              <div className="text-center py-8">
+                <p className="text-gray-700">Un lien de validation a été envoyé à <strong>{formData.email}</strong> pour continuer.</p>
+              </div>
+            ) : (
             <form onSubmit={handleSubmit} className="space-y-6">
               <div>
                 <label
@@ -297,6 +300,7 @@ export default function Login() {
                 <div className="h-[2px] bg-[#C4C4C4] w-1/2"></div>
               </div>
             </form>
+            )}
             <div className="mt-4 text-center">
               <button
                 type="button"

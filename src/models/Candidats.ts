@@ -43,6 +43,9 @@ const candidateSchema = new Schema<ICandidat>(
       default: "En attente",
       index: true,
     },
+  isEmailVerified: { type: Boolean, default: false },
+  emailVerificationToken: { type: String },
+  emailVerificationExpires: { type: Date },
     subscription: { type: Schema.Types.ObjectId, ref: "CandidatSubscription" }, // Ajout de la référence
   },
   {

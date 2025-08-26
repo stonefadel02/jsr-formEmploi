@@ -7,9 +7,9 @@ const stripe = new Stripe(process.env.STRIPE_KEY!, {
 
 export async function POST(req: Request) {
   try {
-    const { priceId, customer_email } = await req.json(); // <-- On reçoit l'email
-    if (!priceId) {
-      return NextResponse.json({ error: "priceId est requis" }, { status: 400 });
+    const { priceId, customer_email, role } = await req.json(); // <-- On reçoit l'email
+    if (!priceId || !role ) {
+      return NextResponse.json({ error: "priceId et le role sont requis" }, { status: 400 });
     }
 
     // Obtenir l'origine avec un schéma par défaut
@@ -26,9 +26,14 @@ export async function POST(req: Request) {
       ],
       mode: "subscription",
       customer_email: customer_email, 
+      metadata: {
+        user_role: role 
+      },
       success_url: `${baseUrl}/success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${baseUrl}/paiement/echec`,
     });
+
+    
 
     if (!session.url) {
       throw new Error("Aucune URL de session retournée par Stripe");
