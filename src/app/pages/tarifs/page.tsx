@@ -4,15 +4,14 @@ import Footer from "@/app/components/Footer";
 import Navbar from "@/app/components/Navbar";
 import { useState } from "react";
 import Link from "next/link";
-import { useSession } from "next-auth/react";
 
 export default function Acceuil() {
-    const { data: session } = useSession();
   const [loadingCandidat, setLoadingCandidat] = useState(false);
   const [loadingRecruteur, setLoadingRecruteur] = useState(false);
 
-  const handleSubscribe = async (
+   const handleSubscribe = async (
     priceId: string,
+    role: 'candidat' | 'employeur',
     setLoading: (loading: boolean) => void
   ) => {
     setLoading(true);
@@ -20,18 +19,19 @@ export default function Acceuil() {
       const response = await fetch('/api/create-checkout-session', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          priceId: priceId,
-          customer_email: session?.user?.email, 
-        }),
+        body: JSON.stringify({ priceId,role, }), 
       });
+
       const data = await response.json();
       if (!response.ok || !data.url) {
         throw new Error(data.error || "Erreur de création de session.");
       }
+      
       window.location.href = data.url;
+
     } catch (error) {
       console.error("Erreur lors de la redirection:", error);
+      alert("Une erreur est survenue. Veuillez réessayer.");
       setLoading(false);
     }
   };
@@ -69,7 +69,7 @@ export default function Acceuil() {
               <button
                 onClick={() =>
                   handleSubscribe(
-                    "price_1RxTklLv0b9ozmcy7h0DMsrl",
+                    "price_1RdCHQQ8brLwKg0wxR3dMhW0",'candidat',
 
                     setLoadingCandidat
                   )
@@ -103,7 +103,7 @@ export default function Acceuil() {
               <button
                 onClick={() =>
                   handleSubscribe(
-                    "price_1RxTaQLv0b9ozmcyWKQnCJn0",
+                    "price_1RdCKOQ8brLwKg0wMoJeI40W",'employeur',
 
                     setLoadingRecruteur
                   )

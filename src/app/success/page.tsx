@@ -24,7 +24,14 @@ function SuccessContent() {
             setStatus("Paiement réussi ! Votre compte est activé. Redirection...");
             Cookies.set("token", data.token, { expires: 7, secure: process.env.NODE_ENV === "production", sameSite: "Lax" });
             
-            const redirectPath = data.role === 'candidat' ? '/candidat/candidature' : '/employeur/candidats';
+             let redirectPath = '';
+            if (data.role === 'candidat') {
+              // Si c'est un renouvellement, on va au profil, sinon à la candidature
+              redirectPath = data.isRenewal ? '/candidat/profile' : '/candidat/candidature';
+            } else {
+              // Pour l'employeur, c'est toujours la même page
+              redirectPath = '/employeur/candidats';
+            }
             setTimeout(() => router.push(redirectPath), 3000);
           } else {
             setStatus(data.message || "Paiement non complété ou une erreur est survenue.");

@@ -34,16 +34,21 @@ export async function GET(req: NextRequest) {
       }
 
       let user: any = null;
+       let isRenewal = false;
       const newEndDate = new Date();
       newEndDate.setFullYear(newEndDate.getFullYear() + 1);
 
       // ✅ 3. On utilise le rôle pour interroger la bonne collection, sans ambiguïté
       if (userRole === 'candidat') {
+         await connectCandidatsDb(); 
         const CandidatModel = await CandidatModelPromise;
         const CandidatSubscriptionModel = await CandidatSubscriptionModelPromise;
         
         user = await CandidatModel.findOne({ email: userEmail });
         if (user) {
+          if (user.status === 'Validé') {
+            isRenewal = true;
+          }
           user.isActive = true;
           user.status = 'Validé';
           await user.save();
@@ -106,7 +111,8 @@ export async function GET(req: NextRequest) {
           success: true, 
           message: "Paiement réussi, votre compte est maintenant actif.",
           token: token,
-          role: userRole
+          role: userRole,
+          isRenewal: isRenewal
         });
       } else {
         return NextResponse.json({ success: false, message: "Utilisateur introuvable pour activer l'abonnement." }, { status: 404 });
