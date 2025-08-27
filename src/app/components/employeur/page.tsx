@@ -163,14 +163,14 @@ export default function Employeur() {
                       <td className="py-6 px-6">{employeur.companyName}</td>
                       <td className="py-6 px-6">{employeur.email}</td>
                       <td className="py-6 px-6">
-                        {employeur.subscription?.isActive && !employeur.subscription?.isTrial ? (
+                        {employeur?.isActive && !employeur.subscription?.isTrial ? (
                           <div className="flex items-center gap-2 text-green-600">
                             <svg width="18" height="19" viewBox="0 0 28 29" fill="none" xmlns="http://www.w3.org/2000/svg">
                               {/* SVG existant pour "Actif" */}
                             </svg>
                             Actif
                           </div>
-                        ) : employeur.subscription?.isTrial && employeur.subscription?.isActive ? (
+                        ) : employeur.subscription?.isTrial || employeur?.isActive ? (
                           <div className="flex items-center gap-2">
                             <svg width="25" height="27" viewBox="0 0 25 27" fill="none" xmlns="http://www.w3.org/2000/svg">
                               {/* SVG existant pour "En essai" */}
@@ -187,7 +187,7 @@ export default function Employeur() {
                         )}
                       </td>
                       <td className="py-6 px-6 flex space-x-2">
-                        {employeur.subscription?.isTrial && employeur.subscription?.isActive && (
+                        {employeur?.isTrial && employeur?.isActive && (
                           <button
                             onClick={() => handleMarkAsPaid(employeur._id.toString())}
                             className="bg-[#4DD5FF] flex items-center gap-1 text-white px-2 py-1 rounded-md"
@@ -198,7 +198,7 @@ export default function Employeur() {
                             Activer
                           </button>
                         )}
-                        {!employeur.subscription?.isActive && (
+                        {!employeur?.isActive && (
                           <button
                             onClick={() => handleRenew(employeur._id.toString())}
                             className="bg-[#2A9D8F] flex items-center gap-1 text-white px-2 py-1 rounded-md"
