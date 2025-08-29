@@ -58,7 +58,7 @@ export default function Navbar() {
           {/* Logo et menu à gauche */}
           <div className="flex items-center space-x-4 sm:space-x-6 lg:space-x-8">
             {/* Logo */}
-            <Link href="/pages/acceuil" className="text-[#501891] hover:text-gray-600 font-medium">
+            <Link href="/pages/accueil" className="text-[#501891] hover:text-gray-600 font-medium">
               <Image
                 src="/JSR-Logo.png"
                 alt="JSR FormEmploi Logo"
@@ -70,10 +70,10 @@ export default function Navbar() {
             {/* Menu pour desktop */}
             {!isLoggedIn ? (
               <div className="hidden md:flex space-x-4 sm:space-x-6 lg:space-x-8 items-center">
-                <Link href="/pages/acceuil" className="text-[#501891] hover:text-gray-600 font-medium text-[14px] sm:text-[15px] ">
+                <Link href="/pages/accueil" className="text-[#501891] hover:text-gray-600 font-medium text-[14px] sm:text-[15px] ">
                   Je suis candidat
                 </Link>
-                <Link href="/pages/acceuil_recruteur" className="text-[#501891] hover:text-gray-600 font-medium text-[14px] sm:text-[15px] ">
+                <Link href="/pages/accueil_recruteur" className="text-[#501891] hover:text-gray-600 font-medium text-[14px] sm:text-[15px] ">
                   Je suis recruteur
                 </Link>
                 <Link href="/pages/tarifs" className="text-[#501891] hover:text-gray-600 font-medium text-[14px] sm:text-[15px] ">
@@ -165,10 +165,10 @@ export default function Navbar() {
               <div className="space-y-2  p-2 ">
 
 
-                <Link href="/pages/acceuil" className="  block text-[#501891] hover:text-gray-600 font-medium  sm:text-[15px] ">
+                <Link href="/pages/accueil" className="  block text-[#501891] hover:text-gray-600 font-medium  sm:text-[15px] ">
                   Je suis candidat
                 </Link>
-                <Link href="/pages/acceuil_recruteur" className="block text-[#501891] hover:text-gray-600 font-medium  sm:text-[15px] ">
+                <Link href="/pages/accueil_recruteur" className="block text-[#501891] hover:text-gray-600 font-medium  sm:text-[15px] ">
                   Je suis recruteur
                 </Link>
                 <Link href="/pages/tarifs" className="block text-[#501891] hover:text-gray-600 font-medium  sm:text-[15px] ">

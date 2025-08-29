@@ -65,7 +65,7 @@ export default function Footer() {
               </li>
               <li>
                 <Link
-                  href="/pages/acceuil_recruteur"
+                  href="/pages/accueil_recruteur"
                   className="hover:text-[#501891] transition duration-200"
                 >
                   Je suis recruteur
