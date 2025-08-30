@@ -92,11 +92,7 @@ const [submitError, setSubmitError] = useState<string | null>(null);
     const file = e.target.files?.[0];
     if (!file) return;
 
-    const maxSize = 5 * 1024 * 1024;
-    if (file.size > maxSize) {
-      alert("Le fichier dépasse la taille maximale autorisée de 5 Mo.");
-      return;
-    }
+   
 
     const allowedTypes =
       type === "cv"
