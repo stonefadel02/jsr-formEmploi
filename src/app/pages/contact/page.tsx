@@ -7,9 +7,8 @@ import Image from "next/image";
 
 export default function AcceuilRecruteur() {
   const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    subject: '',
+   senderName: '', 
+    senderEmail: '', 
     message: '',
   });
   const [error, setError] = useState('');
@@ -21,6 +20,32 @@ export default function AcceuilRecruteur() {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
+  // const handleSubmit = async (e: React.FormEvent) => {
+  //   e.preventDefault();
+  //   setError('');
+  //   setSuccess('');
+  //   setLoading(true);
+
+  //   try {
+  //     const response = await fetch('https://formspree.io/f/manjvgdd', { // Remplacez par votre ID Formspree
+  //       method: 'POST',
+  //       headers: { 'Content-Type': 'application/json' },
+  //       body: JSON.stringify(formData),
+  //     });
+
+  //     if (response.ok) {
+  //       setSuccess('Message envoyé avec succès !');
+  //       setFormData({ name: '', email: '', subject: '', message: '' }); // Réinitialiser
+  //     } else {
+  //       throw new Error('Erreur lors de l\'envoi');
+  //     }
+  //   } catch (err) {
+  //     setError('Erreur lors de l\'envoi. Veuillez réessayer.');
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
@@ -28,20 +53,24 @@ export default function AcceuilRecruteur() {
     setLoading(true);
 
     try {
-      const response = await fetch('https://formspree.io/f/manjvgdd', { // Remplacez par votre ID Formspree
+      // On appelle notre propre API /api/contact
+      const response = await fetch('/api/contact', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(formData), // formData a déjà la bonne structure
       });
 
-      if (response.ok) {
-        setSuccess('Message envoyé avec succès !');
-        setFormData({ name: '', email: '', subject: '', message: '' }); // Réinitialiser
-      } else {
-        throw new Error('Erreur lors de l\'envoi');
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || "Erreur lors de l'envoi");
       }
-    } catch (err) {
-      setError('Erreur lors de l\'envoi. Veuillez réessayer.');
+      
+      setSuccess('Message envoyé avec succès ! Nous vous répondrons bientôt.');
+      setFormData({ senderName: '', senderEmail: '', message: '' }); // Réinitialiser
+
+    } catch (err: any) {
+      setError(err.message || 'Erreur lors de l\'envoi. Veuillez réessayer.');
     } finally {
       setLoading(false);
     }
@@ -98,9 +127,9 @@ export default function AcceuilRecruteur() {
               <div>
                 <input
                   type="text"
-                  name="name"
-                  id="name"
-                  value={formData.name}
+                    name="senderName"
+                  id="senderName"
+                  value={formData.senderName}
                   onChange={handleChange}
                   placeholder="Votre nom"
                   className="mt-1 block w-full px-4 py-3 border border-[#C4C4C4] rounded-[15px] placeholder-[#D9D9D9] focus:ring-[#7A20DA] focus:border-[#7A20DA] text-gray-600"
@@ -110,16 +139,16 @@ export default function AcceuilRecruteur() {
               <div>
                 <input
                   type="email"
-                  name="email"
-                  id="email"
-                  value={formData.email}
+                  name="senderEmail"
+                  id="senderEmail"
+                  value={formData.senderEmail}
                   onChange={handleChange}
                   placeholder="example@gmail.com"
                   className="mt-1 block w-full px-4 py-3 border border-[#C4C4C4] rounded-[15px] placeholder-[#D9D9D9] focus:ring-[#7A20DA] focus:border-[#7A20DA] text-gray-600"
                   required
                 />
               </div>
-              <div>
+              {/* <div>
                 <input
                   type="text"
                   name="subject"
@@ -130,7 +159,7 @@ export default function AcceuilRecruteur() {
                   className="mt-1 block w-full px-4 py-3 border border-[#C4C4C4] rounded-[15px] placeholder-[#D9D9D9] focus:ring-[#7A20DA] focus:border-[#7A20DA] text-gray-600"
                   required
                 />
-              </div>
+              </div> */}
               <div>
                 <textarea
                   name="message"
@@ -149,7 +178,7 @@ export default function AcceuilRecruteur() {
                 disabled={loading}
               >
                 {loading ? (
-                  <div className="w-6 h-6 border-4 border-t-[#7A20DA] border-t-transparent rounded-full animate-spin mx-auto"></div>
+                  <div className="w-6 h-6 border-4 border-t-[#7A20DA] border-t-transparent cursor-pointer rounded-full animate-spin mx-auto"></div>
                 ) : (
                   "Envoyer"
                 )}

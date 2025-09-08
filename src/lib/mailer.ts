@@ -91,3 +91,30 @@ export const sendVerificationEmail = async (to: string, name: string, verificati
     throw new Error("L'e-mail n'a pas pu être envoyé.");
   }
 };
+
+export const sendContactFormEmail = async (formData: { senderName: string, senderEmail: string, message: string }) => {
+  const { senderName, senderEmail, message } = formData;
+  
+  try {
+    await resend.emails.send({
+      from: 'Contact Jsr-Alternance <Contact@jsr-alternance.fr>', // Une adresse de votre domaine vérifié
+      to: 'Contact@jsr-alternance.fr', // 👈 L'email où VOUS recevez les messages
+      subject: `Nouveau message de ${senderName} via le site`,
+      replyTo: senderEmail, 
+      html: `
+        <div style="font-family: Arial, sans-serif; line-height: 1.6;">
+          <h2>Nouveau message depuis le formulaire de contact</h2>
+          <p><strong>Nom :</strong> ${senderName}</p>
+          <p><strong>Email :</strong> ${senderEmail}</p>
+          <hr>
+          <p><strong>Message :</strong></p>
+          <p>${message.replace(/\n/g, '<br>')}</p>
+        </div>
+      `,
+    });
+    console.log(`Message de contact de ${senderEmail} envoyé avec succès.`);
+  } catch (error) {
+    console.error("Erreur lors de l'envoi du message de contact:", error);
+    throw new Error("Le message n'a pas pu être envoyé.");
+  }
+};
