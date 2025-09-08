@@ -68,7 +68,7 @@ export async function POST(req: NextRequest) {
 
     // 5. Renvoyer un message approprié à l'utilisateur
     return NextResponse.json(
-      { message: 'Inscription presque terminée ! Veuillez consulter votre boîte de réception pour valider votre e-mail.' },
+      { message: 'Inscription presque terminée ! Veuillez consulter votre boîte de réception ou vos spams pour valider votre e-mail.' },
       { status: 201 }
     );
   
