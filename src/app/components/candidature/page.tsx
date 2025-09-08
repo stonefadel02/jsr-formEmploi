@@ -13,12 +13,19 @@ export default function Candidature() {
   useEffect(() => {
     const fetchCandidatures = async () => {
       try {
-        const response = await fetch("/api/candidats/allCandidats");
-        if (!response.ok) throw new Error("Erreur lors du chargement des données");
+        const token = Cookies.get("token");
+        const response = await fetch("/api/admin/candidats/allCandidats", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+
+        if (!response.ok)
+          throw new Error("Erreur lors du chargement des données");
         const data = await response.json();
-        setCandidatures(data.data.candidats);
+        setCandidatures(data.data || []);
       } catch (err: unknown) {
-        setError(err instanceof Error ? err.message : "Une erreur est survenue");
+        setError(
+          err instanceof Error ? err.message : "Une erreur est survenue"
+        );
       } finally {
         setLoading(false);
       }
@@ -68,8 +75,8 @@ export default function Candidature() {
           alert("Abonnement renouvelé avec succès !");
           setCandidatures((prev) =>
             prev.map((candidat) =>
-              candidat._id === candidatId
-                ? { ...candidat, subscription: { ...data.subscription, isTrial: false } }
+              candidat._id.toString() === candidatId
+                ? { ...candidat, isActive: true, subscription: data.data } // On utilise data.data
                 : candidat
             )
           );
@@ -77,35 +84,9 @@ export default function Candidature() {
       })
       .catch((error) => {
         console.error("Erreur lors du renouvellement :", error);
-        alert("Une erreur est survenue lors du renouvellement de l'abonnement.");
-      });
-  };
-
-  const handleMarkAsPaid = (candidatId: string) => {
-    if (!confirm("Confirmez-vous l'activation de cet abonnement ?")) return;
-    fetch(`/api/admin/subscriptions/candidats/${candidatId}`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ action: "markAsPaid" }),
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        if (data.error) {
-          alert(`Erreur : ${data.error}`);
-        } else {
-          alert("Abonnement activé avec succès !");
-          setCandidatures((prev) =>
-            prev.map((candidat) =>
-              candidat._id === candidatId
-                ? { ...candidat, subscription: { ...data.subscription, isTrial: false } }
-                : candidat
-            )
-          );
-        }
-      })
-      .catch((error) => {
-        console.error("Erreur lors de l'activation :", error);
-        alert("Une erreur est survenue lors de l'activation de l'abonnement.");
+        alert(
+          "Une erreur est survenue lors du renouvellement de l'abonnement."
+        );
       });
   };
 
@@ -147,13 +128,19 @@ export default function Candidature() {
               />
             </svg>
 
-            <h1 className="text-2xl font-bold text-[#8929E0]">Gestion des Candidatures</h1>
+            <h1 className="text-2xl font-bold text-[#8929E0]">
+              Gestion des Candidatures
+            </h1>
           </div>
           <div className="border-[1px] my-4 border-[#8929E0]"></div>
           <div className="bg-white rounded-[20px] py-2 px-6 shadow-md border-[1px] border-[#C4C4C4] mb-6">
             <div className="flex flex-col sm:flex-row items-center justify-between space-y-4 sm:space-y-0 sm:space-x-4">
               <div className="flex items-center w-full space-x-2">
-                <input type="text" placeholder="Recherche par..." className="p-2 border border-[#F1F1F1] rounded-[15px] w-full" />
+                <input
+                  type="text"
+                  placeholder="Recherche par..."
+                  className="p-2 border border-[#F1F1F1] rounded-[15px] w-full"
+                />
                 <button className="">
                   <svg
                     width="100"
@@ -175,7 +162,9 @@ export default function Candidature() {
             </div>
           </div>
 
-          {loading && <p className="text-center text-gray-500">Chargement...</p>}
+          {loading && (
+            <p className="text-center text-gray-500">Chargement...</p>
+          )}
           {error && <p className="text-center text-red-500">{error}</p>}
 
           {!loading && candidatures.length > 0 && (
@@ -184,7 +173,7 @@ export default function Candidature() {
                 <thead>
                   <tr className="border-b border-gray-300">
                     <th className="py-6 px-6">Nom</th>
-                    <th className="py-6 px-6">Secteur</th>
+                    {/* <th className="py-6 px-6">Secteur</th> */}
                     <th className="py-6 px-6">Date de soumission</th>
                     <th className="py-6 px-6">Statut Abonnement</th>
                     <th className="py-6 px-6">Actions</th>
@@ -192,28 +181,58 @@ export default function Candidature() {
                 </thead>
                 <tbody>
                   {candidatures.map((candidature: ICandidat) => (
-                    <tr key={candidature._id.toString()} className="border-b text-[#4C4C4C] border-gray-200 odd:bg-white even:bg-[#F6F6F6]">
-                      <td className="py-6 px-6">{candidature.lastName?.charAt(0)}. {candidature.firstName}</td>
-                      <td className="py-6 px-6">{candidature.alternanceSearch?.sector}</td>
-                      <td className="py-6 px-6">{new Date(candidature.createdAt).toLocaleDateString()}</td>
+                    <tr
+                      key={candidature._id.toString()}
+                      className="border-b text-[#4C4C4C] border-gray-200 odd:bg-white even:bg-[#F6F6F6]"
+                    >
+                      <td className="py-6 px-6">{candidature.email}</td>
+                      {/* <td className="py-6 px-6">
+                        {candidature.alternanceSearch?.sector}
+                      </td> */}
+                      <td className="py-6 px-6">
+                        {new Date(candidature.createdAt).toLocaleDateString()}
+                      </td>
                       <td className="py-6 px-6 text-[#2A9D8F]">
-                        {candidature.subscription?.isActive && !candidature.subscription?.isTrial ? (
+                        {candidature.subscription &&
+                        candidature.subscription.isActive &&
+                        new Date(candidature.subscription.endDate) >=
+                          new Date() ? (
+                          // Si l'abonnement est actif ET que la date de fin n'est pas passée
                           <div className="flex items-center gap-2 text-green-600">
-                            <svg width="18" height="19" viewBox="0 0 28 29" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <svg
+                              width="18"
+                              height="19"
+                              viewBox="0 0 28 29"
+                              fill="none"
+                              xmlns="http://www.w3.org/2000/svg"
+                            >
                               {/* SVG existant */}
                             </svg>
                             Actif
                           </div>
-                        ) : candidature.subscription?.isTrial && candidature.subscription?.isActive ? (
+                        ) : candidature.subscription?.isTrial &&
+                          candidature.subscription?.isActive ? (
                           <div className="flex items-center gap-2">
-                            <svg width="25" height="27" viewBox="0 0 25 27" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <svg
+                              width="25"
+                              height="27"
+                              viewBox="0 0 25 27"
+                              fill="none"
+                              xmlns="http://www.w3.org/2000/svg"
+                            >
                               {/* SVG existant */}
                             </svg>
                             En essai
                           </div>
                         ) : (
                           <div className="flex items-center gap-2 text-red-600">
-                            <svg width="18" height="19" viewBox="0 0 28 29" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <svg
+                              width="18"
+                              height="19"
+                              viewBox="0 0 28 29"
+                              fill="none"
+                              xmlns="http://www.w3.org/2000/svg"
+                            >
                               {/* SVG existant */}
                             </svg>
                             Expiré
@@ -221,29 +240,51 @@ export default function Candidature() {
                         )}
                       </td>
                       <td className="py-6 px-6 flex space-x-2">
-                        {candidature.subscription?.isTrial && candidature.subscription?.isActive && (
-                          <button
-                            onClick={() => handleMarkAsPaid(candidature._id.toString())}
-                            className="bg-[#4DD5FF] flex items-center gap-1 text-white px-2 py-1 rounded-md"
-                          >
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                              {/* SVG existant */}
-                            </svg>
-                            Activer
-                          </button>
-                        )}
+                        {candidature.subscription?.isTrial &&
+                          candidature.subscription?.isActive && (
+                            <button
+                              onClick={() =>
+                                handleMarkAsPaid(candidature._id.toString())
+                              }
+                              className="bg-[#4DD5FF] flex items-center gap-1 text-white px-2 py-1 rounded-md"
+                            >
+                              <svg
+                                width="20"
+                                height="20"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                xmlns="http://www.w3.org/2000/svg"
+                              >
+                                {/* SVG existant */}
+                              </svg>
+                              Activer
+                            </button>
+                          )}
                         {!candidature.subscription?.isActive && (
                           <button
-                            onClick={() => handleRenew(candidature._id.toString())}
+                            onClick={() =>
+                              handleRenew(candidature._id.toString())
+                            }
                             className="bg-[#2A9D8F] flex items-center gap-1 text-white px-2 py-1 rounded-md"
                           >
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <svg
+                              width="20"
+                              height="20"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              xmlns="http://www.w3.org/2000/svg"
+                            >
                               {/* SVG existant */}
                             </svg>
                             Renouveler
                           </button>
                         )}
-                        <button onClick={() => deleteCandidat(candidature._id.toString())} className="bg-[#FF0000] text-white flex font-bold px-4 items-center gap-2 py-1 rounded-[5px]">
+                        <button
+                          onClick={() =>
+                            deleteCandidat(candidature._id.toString())
+                          }
+                          className="bg-[#FF0000] text-white flex font-bold px-4 items-center gap-2 py-1 rounded-[5px]"
+                        >
                           <svg
                             width="16"
                             height="16"
@@ -276,7 +317,11 @@ export default function Candidature() {
               </table>
             </div>
           )}
-          {!loading && candidatures.length === 0 && <p className="text-center text-gray-500">Aucune candidature trouvée.</p>}
+          {!loading && candidatures.length === 0 && (
+            <p className="text-center text-gray-500">
+              Aucune candidature trouvée.
+            </p>
+          )}
         </div>
       </div>
     </>

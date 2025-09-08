@@ -79,7 +79,7 @@ export const sendVerificationEmail = async (to: string, name: string, verificati
     const emailHtml =  await render(VerificationEmail({ userName: name, verificationLink }));
 
     await resend.emails.send({
-      from: 'Jsr-alternance <contact@jsr-alternance.fr>', 
+      from: 'Jsr-alternance <Contact@jsr-alternance.fr>', 
       to: to,
       subject: "Validez votre adresse e-mail pour Jsr-alternance",
       html: emailHtml, // On envoie le HTML généré par React Email

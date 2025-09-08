@@ -98,7 +98,7 @@ export default function LoginForm({ role }: Props) {
               href={`/pages/tarifs?email=${encodeURIComponent(formData.email)}`} 
               className="block bg-[#7A20DA] text-white font-bold py-2 px-4 rounded-lg mt-3 hover:bg-purple-700"
             >
-                Renouveler mon abonnement
+                Souscrire mon abonnement
             </Link>
           )}
         </div>

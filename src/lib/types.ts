@@ -78,7 +78,7 @@ export interface IPersonalityTestResult {
 export interface ISubscription {
   employerId: Types.ObjectId; // Référence directe à Employer
   email: string; // Email de l'employeur
-  plan: 'Gratuit' | 'Standard' ;
+  plan: 'Gratuit' | 'Standard' | 'Payant Annuel' ;
   startDate: Date;
   endDate?: Date;
   isTrial: boolean;
@@ -90,7 +90,7 @@ export interface ISubscription {
 // Ajout dans lib/types.ts
 export interface ICandidatSubscription {
   candidatId: Types.ObjectId;
-  plan: 'Gratuit' | 'Standard' ;
+  plan: 'Gratuit' | 'Standard' | 'Payant Annuel';
   startDate: Date;
   email:string;
   endDate?: Date;

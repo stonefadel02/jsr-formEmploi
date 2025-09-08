@@ -4,7 +4,7 @@ import { ISubscription } from '@/lib/types';
 
 const subscriptionSchema = new Schema<ISubscription>({
   employerId: { type: Schema.Types.ObjectId, ref: 'Employer', required: true },
-  plan: { type: String, enum: ['Gratuit', 'Standard', 'Premium'], required: true },
+  plan: { type: String, enum: ['Gratuit', 'Standard', 'Payant Annuel'], required: true },
   // email: { type: String, required: true },
   startDate: { type: Date, default: Date.now },
   endDate: { type: Date },

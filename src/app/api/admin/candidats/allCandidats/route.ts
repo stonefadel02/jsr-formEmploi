@@ -8,10 +8,14 @@ import { ApiResponse, ICandidat } from '@/lib/types';
 export const GET = adminMiddleware(async (): Promise<NextResponse<ApiResponse<ICandidat[]>>> => {
   try {
     await connectCandidatsDb();
-    const candidats = await Candidat.find().select('-password');
+    const CandidatModel = await Candidat;
+    const candidats = await CandidatModel.find().populate('subscription').select('-password');    
     return NextResponse.json({ success: true, data: candidats }, { status: 200 });
   } catch (error) {
     console.error('Erreur récupération candidats :', error);
     return NextResponse.json({ success: false, message: 'Erreur serveur' }, { status: 500 });
   }
+
+
+
 });

@@ -6,7 +6,7 @@ import { ICandidatSubscription } from '@/lib/types';
 const candidatSubscriptionSchema = new Schema<ICandidatSubscription>(
   {
     candidatId: { type: Schema.Types.ObjectId, ref: 'Candidat', required: true },
-    plan: { type: String, enum: ['Gratuit', 'Standard', 'Premium'], required: true },
+    plan: { type: String, enum: ['Gratuit', 'Standard', 'Payant Annuel'], required: true },
     // email: { type: String, required: true },
     startDate: { type: Date, default: Date.now },
     endDate: { type: Date },
