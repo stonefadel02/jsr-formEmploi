@@ -14,7 +14,6 @@ function SuccessContent() {
 
   useEffect(() => {
     if (sessionId) {
-      console.log("Session ID trouvé, lancement de la vérification...");
       const verifySession = async () => {
         try {
           const response = await fetch(`/api/verify-session?session_id=${sessionId}`);

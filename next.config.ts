@@ -14,6 +14,12 @@ const nextConfig: NextConfig = {
   },images: {
     
   },
+   experimental: {
+    // Augmente le timeout pour les API routes
+    proxyTimeout: 600000, // 10 minutes
+    isrMemoryCacheSize: 0,
+  },
+  
 
 };
 

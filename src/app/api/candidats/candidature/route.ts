@@ -1,22 +1,120 @@
+// import jwt from "jsonwebtoken";
+// import { NextRequest, NextResponse } from "next/server";
+// import CandidatModelPromise from "@/models/Candidats";
+// import { uploadToCloudinary } from '@/lib/cloudinary';
+
+// const allowedFields = [
+//   "firstName",
+//   "lastName",
+//   "phone",
+//   "formation", // Ajouté
+//   "alternanceSearch",
+//   "rgpdConsent" 
+// ];
+
+// export async function PUT(req: NextRequest) {
+//   try {
+//     let email = "";
+
+//     const token = req.cookies.get('token')?.value;
+//     if (!token) {
+//       return NextResponse.json({ error: "Token manquant" }, { status: 401 });
+//     }
+
+//     try {
+//       const decoded = jwt.verify(token, process.env.JWT_SECRET!) as { email: string };
+//       email = decoded.email;
+//     } catch {
+//       return NextResponse.json({ error: "Token invalide" }, { status: 403 });
+//     }
+
+//     const formData = await req.formData();
+
+//     const CandidatModel = await CandidatModelPromise;
+//     const candidat = await CandidatModel.findOne({ email });
+
+//     if (!candidat) {
+//       return NextResponse.json({ error: "Candidat introuvable" }, { status: 404 });
+//     }
+
+//     let cvUrl = candidat.cvUrl;
+//     const cvFile = formData.get('cv') as File | null;
+//     if (cvFile) {
+//       const cvBuffer = Buffer.from(await cvFile.arrayBuffer());
+//       cvUrl = await uploadToCloudinary(cvBuffer, 'candidats/cvs');
+//     }
+
+//     let videoUrl = candidat.videoUrl;
+//     const videoFile = formData.get('video') as File | null;
+//     if (videoFile) {
+//       const videoBuffer = Buffer.from(await videoFile.arrayBuffer());
+//       videoUrl = await uploadToCloudinary(videoBuffer, 'candidats/videos');
+//     }
+
+//     let photoUrl = candidat.photoUrl;
+//     const photoFile = formData.get('photo') as File | null;
+//     if (photoFile) {
+//       const photoBuffer = Buffer.from(await photoFile.arrayBuffer());
+//       photoUrl = await uploadToCloudinary(photoBuffer, 'candidats/photos');
+//     }
+
+//     allowedFields.forEach((field) => {
+//       const value = formData.get(field);
+//       if (value !== null) {
+//         if (field === "alternanceSearch") {
+//           try {
+//             const parsed = JSON.parse(value.toString());
+//             if (typeof parsed === "object") {
+//               candidat.alternanceSearch = {
+//                 ...candidat.alternanceSearch,
+//                 ...parsed,
+//               };
+//             }
+//           } catch {
+//             console.warn("alternanceSearch invalide, ignoré.");
+//           }
+//         } else if (field === "rgpdConsent") {
+//           // On s'assure de stocker un booléen
+//           (candidat as any)[field] = value === 'true';
+//         } else {
+//           (candidat as any)[field] = value.toString(); // Ajout de formation et date ici
+//         }
+//       }
+//     });
+
+//     candidat.cvUrl = cvUrl;
+//     candidat.videoUrl = videoUrl;
+//     candidat.photoUrl = photoUrl;
+
+//     await candidat.save();
+
+//     return NextResponse.json({ message: "Candidature mise à jour avec succès" });
+//   } catch (err) {
+//     console.error("Erreur PUT candidature:", err);
+//     return NextResponse.json({ error: "Erreur serveur" }, { status: 500 });
+//   }
+// }
+
 import jwt from "jsonwebtoken";
 import { NextRequest, NextResponse } from "next/server";
 import CandidatModelPromise from "@/models/Candidats";
-import { uploadToCloudinary } from '@/lib/cloudinary';
 
 const allowedFields = [
   "firstName",
   "lastName",
   "phone",
-  "formation", // Ajouté
+  "formation",
   "alternanceSearch",
-  "rgpdConsent" 
+  "rgpdConsent",
+  "cvUrl",
+  "videoUrl",
+  "photoUrl",
 ];
 
 export async function PUT(req: NextRequest) {
   try {
     let email = "";
-
-    const token = req.cookies.get('token')?.value;
+    const token = req.cookies.get("token")?.value;
     if (!token) {
       return NextResponse.json({ error: "Token manquant" }, { status: 401 });
     }
@@ -29,6 +127,13 @@ export async function PUT(req: NextRequest) {
     }
 
     const formData = await req.formData();
+    
+    // Debug: Log ce qui est reçu
+    console.log("=== DEBUG PUT ===");
+    console.log("Email:", email);
+    for (const [key, value] of formData.entries()) {
+      console.log(`FormData - ${key}:`, value);
+    }
 
     const CandidatModel = await CandidatModelPromise;
     const candidat = await CandidatModel.findOne({ email });
@@ -37,30 +142,20 @@ export async function PUT(req: NextRequest) {
       return NextResponse.json({ error: "Candidat introuvable" }, { status: 404 });
     }
 
-    let cvUrl = candidat.cvUrl;
-    const cvFile = formData.get('cv') as File | null;
-    if (cvFile) {
-      const cvBuffer = Buffer.from(await cvFile.arrayBuffer());
-      cvUrl = await uploadToCloudinary(cvBuffer, 'candidats/cvs');
-    }
+    console.log("Candidat trouvé:", candidat._id);
+    console.log("Données avant mise à jour:", {
+      cvUrl: candidat.cvUrl,
+      videoUrl: candidat.videoUrl,
+      photoUrl: candidat.photoUrl
+    });
 
-    let videoUrl = candidat.videoUrl;
-    const videoFile = formData.get('video') as File | null;
-    if (videoFile) {
-      const videoBuffer = Buffer.from(await videoFile.arrayBuffer());
-      videoUrl = await uploadToCloudinary(videoBuffer, 'candidats/videos');
-    }
-
-    let photoUrl = candidat.photoUrl;
-    const photoFile = formData.get('photo') as File | null;
-    if (photoFile) {
-      const photoBuffer = Buffer.from(await photoFile.arrayBuffer());
-      photoUrl = await uploadToCloudinary(photoBuffer, 'candidats/photos');
-    }
+    let hasChanges = false;
 
     allowedFields.forEach((field) => {
       const value = formData.get(field);
-      if (value !== null) {
+      if (value !== null && value !== "") {
+        console.log(`Mise à jour du champ ${field}:`, value.toString());
+        
         if (field === "alternanceSearch") {
           try {
             const parsed = JSON.parse(value.toString());
@@ -69,26 +164,48 @@ export async function PUT(req: NextRequest) {
                 ...candidat.alternanceSearch,
                 ...parsed,
               };
+              hasChanges = true;
             }
-          } catch {
-            console.warn("alternanceSearch invalide, ignoré.");
+          } catch (error) {
+            console.warn("alternanceSearch invalide, ignoré:", error);
           }
         } else if (field === "rgpdConsent") {
-          // On s'assure de stocker un booléen
-          (candidat as any)[field] = value === 'true';
+          candidat[field] = value === "true";
+          hasChanges = true;
         } else {
-          (candidat as any)[field] = value.toString(); // Ajout de formation et date ici
+          const newValue = value.toString();
+          if (candidat[field] !== newValue) {
+            candidat[field] = newValue;
+            hasChanges = true;
+            console.log(`${field} mis à jour de "${candidat[field]}" vers "${newValue}"`);
+          }
         }
       }
     });
 
-    candidat.cvUrl = cvUrl;
-    candidat.videoUrl = videoUrl;
-    candidat.photoUrl = photoUrl;
+    if (!hasChanges) {
+      console.log("Aucun changement détecté");
+      return NextResponse.json({ message: "Aucune modification détectée" });
+    }
+
+    console.log("Données après mise à jour:", {
+      cvUrl: candidat.cvUrl,
+      videoUrl: candidat.videoUrl,
+      photoUrl: candidat.photoUrl
+    });
 
     await candidat.save();
+    console.log("Sauvegarde réussie");
 
-    return NextResponse.json({ message: "Candidature mise à jour avec succès" });
+    // Retourner les données mises à jour pour vérification
+    return NextResponse.json({ 
+      message: "Candidature mise à jour avec succès",
+      updatedFields: {
+        cvUrl: candidat.cvUrl,
+        videoUrl: candidat.videoUrl,
+        photoUrl: candidat.photoUrl
+      }
+    });
   } catch (err) {
     console.error("Erreur PUT candidature:", err);
     return NextResponse.json({ error: "Erreur serveur" }, { status: 500 });

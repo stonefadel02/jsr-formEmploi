@@ -136,7 +136,6 @@ export default function PersonalityTest() {
         // Stocker le résultat pour l'afficher dans le popup
         setResult(data.result);
         setShowPopup(true);
-        console.log(answers, answersArray);
       } catch (err) {
         console.error("Erreur lors de la soumission :", err);
         setError(err.message || "Une erreur est survenue. Veuillez réessayer.");

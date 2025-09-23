@@ -6,7 +6,7 @@ import Cookies from "js-cookie";
 import Link from "next/link";
 import Image from "next/image";
 import Navbar from "@/app/components/Navbar";
-
+import { signIn } from "next-auth/react";
 export default function Register() {
   const [formData, setFormData] = useState({
     email: "",
@@ -17,6 +17,8 @@ export default function Register() {
   const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false); // Nouvel état pour le loader
   const [showPassword, setShowPassword] = useState(false);
+  const [loadingForm, setLoadingForm] = useState(false); 
+  const [loadingGoogle, setLoadingGoogle] = useState(false);
   
   const router = useRouter();
 
@@ -28,6 +30,7 @@ export default function Register() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setLoadingForm(true);
     setLoading(true);
 
     if (formData.password !== formData.confirmPassword) {
@@ -74,9 +77,29 @@ export default function Register() {
     } catch (err: any) {
       setError(err.message);
     } finally {
+       setLoadingForm(false);
       setLoading(false);
     }
   };
+
+  const handleGoogleSignIn = async () => {
+    setLoadingGoogle(true); // Active le chargement pour le bouton Google
+    setError("");
+    setSuccess("");
+    try {
+      // Pour les candidats, nous passons "candidat" comme userType via `state`
+      await signIn("google", {
+        callbackUrl: "/candidat/profile", // Redirection après connexion/inscription réussie
+        state: "candidat", // Indique au backend que c'est un candidat
+      });
+    } catch (error) {
+      console.error("Erreur lors de la connexion Google pour candidat:", error);
+      setError("Échec de la connexion avec Google.");
+    } finally {
+      setLoadingGoogle(false); // Désactive le chargement
+    }
+  };
+
 
   return (
     <>
@@ -237,21 +260,29 @@ export default function Register() {
             <div className="mt-4 text-center">
               <button
                 type="button"
-                onClick={() => router.push("/auth/redirect?userType=candidat")}
+                onClick={handleGoogleSignIn}
                 className="w-full bg-white border cursor-pointer border-[#C4C4C4] text-gray-700 sm:py-3 py-2 px-4 rounded-lg hover:bg-gray-50 flex items-center justify-center gap-4"
+                disabled={loadingGoogle} // Utilisez loadingGoogle
               >
-                <Image
-                  src="/Google.svg"
-                  alt="Google logo"
-                  width={24}
-                  height={24}
-                  className="h-5 w-5"
-                />
-                <span className="font-extrabold sm:text-[18px]">
-                  Se connecter avec Google
-                </span>
+                {loadingGoogle ? (
+                  <div className="w-6 h-6 border-4 border-t-[#7A20DA]  rounded-full animate-spin mx-auto"></div>
+                ) : (
+                  <>
+                    <Image
+                      src="/Google.svg"
+                      alt="Google logo"
+                      width={24}
+                      height={24}
+                      className="h-5 w-5"
+                    />
+                    <span className="font-extrabold sm:text-[18px]">
+                      Se connecter avec Google
+                    </span>
+                  </>
+                )}
               </button>
             </div>
+
             <p className="mt-4 text-[15px] text-gray-600 font-sans text-left">
               Vos données seront traitées en conformité avec les{" "}
               <Link

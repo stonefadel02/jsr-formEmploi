@@ -1,11 +1,19 @@
+
+
 "use client";
 
 import { searchDepartment, searchCity } from "france-cities-js";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useCallback } from "react"; // Ajoutez useCallback
 import Navbar from "@/app/components/Navbar";
 import { useRouter } from "next/navigation";
 import { Country, State } from "country-state-city";
 import Cookies from "js-cookie";
+
+declare global {
+  interface Window {
+    cloudinary: any;
+  }
+}
 
 export default function Candidature() {
   const [step, setStep] = useState(1);
@@ -18,23 +26,23 @@ export default function Candidature() {
     phone: "",
     adresse: "",
     sector: "",
-    otherSector: "", // Champ pour "Autres"
+    otherSector: "",
     department: "",
     city: "",
-     posteSouhaite: "", // NOUVEAU
-    dateDebut: "",      // NOUVEAU
-    dateFin: "",        // NOUVEAU
-    rgpdConsent: false, // NOUVEAU
+    posteSouhaite: "",
+    dateDebut: "",
+    dateFin: "",
+    rgpdConsent: false,
     level: "",
     contracttype: "",
-    cvFile: null as File | null,
-    videoFile: null as File | null,
+    cvUrl: "",
+    videoUrl: "",
   });
   const [loading, setLoading] = useState(false);
   const [fileMessage, setFileMessage] = useState<string | null>(null);
   const [videoUploading, setVideoUploading] = useState(false);
-  const [showOtherInput, setShowOtherInput] = useState(false); // Contrôle l'affichage de l'input "Autres"
-const [submitError, setSubmitError] = useState<string | null>(null);
+  const [showOtherInput, setShowOtherInput] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
   const country = Country.getCountryByCode("FR");
   const departments = State.getStatesOfCountry(country?.isoCode ?? "FR").map(
     (state) => ({
@@ -43,32 +51,124 @@ const [submitError, setSubmitError] = useState<string | null>(null);
     })
   );
 
-  const listDepartements = searchDepartment
-    .byName("", 200)
-    .map((d) => ({
-      code: d.code,
-      name: d.name,
-    }));
+  const listDepartements = searchDepartment.byName("", 200).map((d) => ({
+    code: d.code,
+    name: d.name,
+  }));
   const [cities, setCities] = useState<string[]>([]);
 
+  const cloudinaryRef = useRef<any>();
+  const widgetRef = useRef<any>();
+  // Pas besoin de currentUploadPreset comme state s'il ne change jamais.
+  // Définissez-le comme une constante.
+  const UPLOAD_PRESET = "unsigned_upload_candidats"; 
+
+  // Ce `useEffect` s'occupera uniquement du chargement du script Cloudinary
+  // et de l'initialisation du widget UNE SEULE FOIS.
   useEffect(() => {
-    if (formData.department) {
-      const cities = searchCity
-        .byDepartmentCode(formData.department, 1000)
-        .map((c) => c.name);
-      console.log("Villes trouvées pour", formData.department, ":", cities);
-      setCities(cities);
-      setFormData((prev) => ({ ...prev, city: "" }));
-    } else {
-      setCities([]);
+    // Vérifier si le script Cloudinary est déjà là
+    if (document.getElementById("cloudinary-script")) {
+      cloudinaryRef.current = window.cloudinary;
+      // Si le script est déjà chargé et que le widget n'est pas créé
+      if (cloudinaryRef.current && !widgetRef.current) {
+         createWidgetInstance();
+      }
+      return;
     }
-  }, [formData.department]);
 
-  
+    const script = document.createElement("script");
+    script.id = "cloudinary-script";
+    script.src = "https://widget.cloudinary.com/v2.0/global/all.js";
+    script.async = true;
 
- const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    script.onload = () => {
+      cloudinaryRef.current = window.cloudinary;
+      console.log("Cloudinary script loaded. window.cloudinary:", window.cloudinary);
+      // Créer le widget une fois le script chargé
+      createWidgetInstance();
+    };
+
+    script.onerror = (e) => {
+      console.error("Failed to load Cloudinary script", e);
+      setSubmitError("Erreur lors du chargement du module d'upload.");
+    };
+
+    document.body.appendChild(script);
+
+    return () => {
+      // Nettoyage : retirer le script et détruire le widget si le composant est démonté
+      if (document.getElementById("cloudinary-script")) {
+        document.body.removeChild(script);
+      }
+      if (widgetRef.current) {
+        widgetRef.current.destroy();
+      }
+    };
+  }, []); // Dépendances vides pour s'exécuter une seule fois au montage
+
+
+  // Utilisez useCallback pour mémoriser cette fonction
+  const createWidgetInstance = useCallback(() => {
+    if (cloudinaryRef.current && !widgetRef.current) { // Créez le widget seulement s'il n'existe pas encore
+      widgetRef.current = cloudinaryRef.current.createUploadWidget(
+        {
+          cloudName: process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME,
+          uploadPreset: UPLOAD_PRESET, // Utilisez la constante
+          sources: ["local", "url", "camera"],
+          multiple: false,
+          maxFileSize: 500000000,
+          folder: "candidats",
+          clientAllowedFormats: ["jpg", "png", "mp4", "webm", "pdf"],
+          chunkSize: 6000000,
+        },
+        async (error: any, result: any) => {
+          if (!error && result && result.event === "success") {
+            const { secure_url, resource_type, format, original_filename } = result.info;
+
+            console.log("--- CLOUDINARY UPLOAD DEBUG INFO ---");
+            console.log("secure_url:", secure_url);
+            console.log("resource_type:", resource_type);
+            console.log("format:", format);
+            console.log("original_filename:", original_filename);
+            console.log("------------------------------------");
+
+            let updatedField: "cvUrl" | "videoUrl" | null = null;
+
+            if (resource_type === "video") {
+              updatedField = "videoUrl";
+              setFileMessage("Vidéo sélectionnée avec succès !");
+            } else if (resource_type === "raw" || format === "pdf") {
+              updatedField = "cvUrl";
+              setFileMessage("CV sélectionné avec succès !");
+            } else {
+              setSubmitError("Type de fichier non reconnu ou mauvaise classification Cloudinary. Seuls les fichiers PDF (CV) et les vidéos (MP4/WebM) sont acceptés.");
+              return;
+            }
+
+            if (updatedField) {
+              setFormData((prev) => ({
+                ...prev,
+                [updatedField]: secure_url,
+              }));
+              setTimeout(() => setFileMessage(null), 3000);
+            }
+          }
+          if (error) {
+            setSubmitError(`Erreur lors de l'upload: ${error.message}`);
+          }
+          setVideoUploading(false);
+        }
+      );
+    } else if (widgetRef.current) {
+        console.log("Cloudinary widget already created.");
+    }
+  }, [formData.cvUrl, formData.videoUrl]); 
+
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
     const { name, value, type } = e.target;
-    const isCheckbox = type === 'checkbox';
+    const isCheckbox = type === "checkbox";
     const checked = (e.target as HTMLInputElement).checked;
 
     if (name === "sector" && value === "Autres") {
@@ -85,123 +185,141 @@ const [submitError, setSubmitError] = useState<string | null>(null);
     }
   };
 
-  const handleFileChange = (
-    e: React.ChangeEvent<HTMLInputElement>,
-    type: "cv" | "video"
-  ) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-   
-
-    const allowedTypes =
-      type === "cv"
-        ? ["application/pdf"]
-        : ["video/mp4", "video/quicktime", "video/x-matroska"];
-
-    if (!allowedTypes.includes(file.type)) {
-      alert(
-        type === "cv"
-          ? "Veuillez sélectionner un fichier PDF pour le CV."
-          : "Veuillez sélectionner un fichier vidéo valide (mp4, mov, mkv)."
-      );
-      return;
+ const openCloudinaryWidget = (type: "cv" | "video") => {
+    // Si le widget n'est pas encore créé, on tente de le créer
+    if (!widgetRef.current) {
+        createWidgetInstance();
+        // Le widget ne sera peut-être pas prêt immédiatement,
+        // donc un petit délai ou un autre mécanisme pourrait être nécessaire
+        // si cela pose problème. Pour l'instant, testons comme ça.
     }
 
-    if (type === "video") {
-      setVideoUploading(true);
-      setTimeout(() => {
-        setFormData((prev) => ({
-          ...prev,
-          [type === "cv" ? "cvFile" : "videoFile"]: file,
-        }));
-        setFileMessage(
-          `${type === "cv" ? "CV" : "Vidéo"} sélectionné avec succès !`
-        );
-        setVideoUploading(false);
-        setTimeout(() => setFileMessage(null), 3000);
-      }, 1000);
+    if (widgetRef.current) {
+      setVideoUploading(type === "video");
+      widgetRef.current.open();
     } else {
-      setFormData((prev) => ({
-        ...prev,
-        [type === "cv" ? "cvFile" : "videoFile"]: file,
-      }));
-      setFileMessage(
-        `${type === "cv" ? "CV" : "Vidéo"} sélectionné avec succès !`
-      );
-      setTimeout(() => setFileMessage(null), 3000);
+      setSubmitError("Le module d'upload n'est pas prêt. Veuillez réessayer.");
+      console.warn("widgetRef.current is not available when trying to open.");
     }
   };
+
 
   const handleNext = (e: React.FormEvent) => {
     e.preventDefault();
     setStep(step + 1);
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setSubmitError(null);
+  // Candidature.tsx - REMPLACEZ VOTRE FONCTION handleSubmit PAR CELLE-CI
 
-    if (!formData.rgpdConsent) {
-      const errorMessage = "Vous devez accepter les conditions pour soumettre votre candidature.";
-      setSubmitError(errorMessage);
-      alert(errorMessage);
-      return;
-    }
-    if (!formData.cvFile || !formData.videoFile) {
-      const errorMessage = "Veuillez télécharger votre CV et votre vidéo de présentation.";
-      setSubmitError(errorMessage);
-      alert(errorMessage);
-      return;
-    }
+const handleSubmit = async (e: React.FormEvent) => {
+  e.preventDefault();
+  setSubmitError(null);
 
-    setLoading(true);
-    const data = new FormData();
-    data.append("firstName", formData.firstName);
-    data.append("lastName", formData.lastName);
-    data.append("formation", formData.formation);
-    data.append("phone", formData.phone);
-    data.append("rgpdConsent", String(formData.rgpdConsent)); // On envoie le consentement
+  // Validation RGPD
+  if (!formData.rgpdConsent) {
+    const errorMessage =
+      "Vous devez accepter les conditions pour soumettre votre candidature.";
+    setSubmitError(errorMessage);
+    alert(errorMessage);
+    return;
+  }
+  
+  // Validation des URLs (CV et Vidéo)
+  if (!formData.cvUrl || !formData.videoUrl) {
+    const errorMessage =
+      "Veuillez télécharger votre CV et votre vidéo de présentation.";
+    setSubmitError(errorMessage);
+    alert(errorMessage);
+    return;
+  }
 
-    const sectorValue = formData.sector === "Autres" ? formData.otherSector : formData.sector;
-    
-    const alternanceSearch = {
-      location: `${formData.department} - ${formData.city}`,
-      contracttype: formData.contracttype,
-      sector: sectorValue,
-      level: formData.level,
-      date: formData.date, // Date de naissance
-      posteSouhaite: formData.posteSouhaite, // NOUVEAU
-      dateDebut: formData.dateDebut,          // NOUVEAU
-      dateFin: formData.dateFin,              // NOUVEAU
-    };
+  setLoading(true);
 
-    data.append("alternanceSearch", JSON.stringify(alternanceSearch));
+  // Créez un objet FormData pour l'envoi
+  const dataToSend = new FormData();
 
-    if (formData.cvFile) data.append("cv", formData.cvFile);
-    if (formData.videoFile) data.append("video", formData.videoFile);
+  // Ajoutez tous les champs du formulaire à FormData
+  dataToSend.append("firstName", formData.firstName);
+  dataToSend.append("lastName", formData.lastName);
+  dataToSend.append("formation", formData.formation);
+  dataToSend.append("date", formData.date); // Date de naissance
+  dataToSend.append("phone", formData.phone);
+  dataToSend.append("rgpdConsent", String(formData.rgpdConsent)); // Convertir le booléen en chaîne "true" ou "false"
+  dataToSend.append("cvUrl", formData.cvUrl); // L'URL Cloudinary du CV
+  dataToSend.append("videoUrl", formData.videoUrl); // L'URL Cloudinary de la vidéo
 
-    try {
-      const token = Cookies.get("token"); // Recommandé d'utiliser js-cookie
-      const res = await fetch("/api/candidats/candidature", {
-        method: "PUT",
-        body: data,
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      const result = await res.json();
-      if (res.ok) {
-        alert("Candidature soumise avec succès !");
-        router.push("/candidat/test-de-personnalite");
-      } else {
-        alert(`Erreur: ${result.error}`);
-      }
-    } catch (error) {
-      console.error("Erreur lors de la soumission :", error);
-      alert("Une erreur est survenue.");
-    } finally {
-      setLoading(false);
-    }
+  // Traitez l'objet `alternanceSearch` en le stringifiant en JSON
+  // car FormData ne gère pas les objets imbriqués directement
+  const alternanceSearchData = {
+    location: `${formData.department} - ${formData.city}`,
+    contracttype: formData.contracttype,
+    sector:
+      formData.sector === "Autres" ? formData.otherSector : formData.sector,
+    level: formData.level,
+    date: formData.date, // Assurez-vous que c'est la bonne date ici (date de début d'alternance ou de naissance?)
+    posteSouhaite: formData.posteSouhaite,
+    dateDebut: formData.dateDebut,
+    dateFin: formData.dateFin,
   };
+  dataToSend.append("alternanceSearch", JSON.stringify(alternanceSearchData));
+
+  try {
+    const token = Cookies.get("token");
+    if (!token) {
+        setSubmitError("Vous n'êtes pas connecté. Veuillez vous reconnecter.");
+        router.push("/login"); // Rediriger vers la page de connexion si le token est manquant
+        return;
+    }
+
+    const res = await fetch("/api/candidats/candidature", {
+      method: "PUT",
+      // Lorsque vous envoyez un objet FormData,
+      // le navigateur définit AUTOMATIQUEMENT l'en-tête Content-Type
+      // avec la valeur "multipart/form-data" et la boundary appropriée.
+      // Il est CRUCIAL de NE PAS définir manuellement "Content-Type" ici.
+      body: dataToSend,
+      headers: {
+        Authorization: `Bearer ${token}`,
+        // "Content-Type": "application/json", <-- COMMENTEZ OU SUPPRIMEZ CETTE LIGNE
+      },
+    });
+
+    const result = await res.json();
+
+    if (res.ok) {
+      alert("Candidature soumise avec succès !");
+      router.push("/candidat/test-de-personnalite");
+    } else {
+      // Afficher l'erreur spécifique du serveur si disponible
+      const errorMessage = result.error || "Une erreur est survenue lors de la soumission.";
+      setSubmitError(errorMessage);
+      alert(`Erreur: ${errorMessage}`);
+      console.error("Server Error:", result);
+    }
+  } catch (error) {
+    console.error("Erreur lors de la soumission du formulaire :", error);
+    setSubmitError("Une erreur réseau est survenue. Veuillez réessayer.");
+    alert("Une erreur est survenue.");
+  } finally {
+    setLoading(false);
+  }
+};
+
+  useEffect(() => {
+    if (formData.department) {
+      const foundCities = searchCity
+        .byDepartmentCode(formData.department)
+        .map((city) => city.name);
+      setCities(foundCities);
+      // Réinitialiser la ville si le département change et que l'ancienne ville n'est plus valide
+      if (!foundCities.includes(formData.city)) {
+        setFormData((prev) => ({ ...prev, city: "" }));
+      }
+    } else {
+      setCities([]);
+      setFormData((prev) => ({ ...prev, city: "" }));
+    }
+  }, [formData.department]);
 
   return (
     <>
@@ -259,7 +377,8 @@ const [submitError, setSubmitError] = useState<string | null>(null);
                       className="text-[#4C4C4C] text-sm sm:text-base md:text-[16px]"
                       htmlFor="date"
                     >
-                      Date de naissance <span className="text-[#FF0000]"> *</span>
+                      Date de naissance{" "}
+                      <span className="text-[#FF0000]"> *</span>
                     </label>
                     <input
                       type="date"
@@ -299,9 +418,7 @@ const [submitError, setSubmitError] = useState<string | null>(null);
                     Recherche d’alternance
                   </h2>
                   <div>
-                    <label
-                      className="text-[#4C4C4C] text-sm sm:text-base md:text-[16px]"
-                    >
+                    <label className="text-[#4C4C4C] text-sm sm:text-base md:text-[16px]">
                       Nom de votre école ou organisme de formation{" "}
                       <span className="text-[#FF0000]"> *</span>
                     </label>
@@ -339,8 +456,12 @@ const [submitError, setSubmitError] = useState<string | null>(null);
                       <option value="Industrie et Construction">
                         Industrie et Construction
                       </option>
-                      <option value="Commerce et Vente">Commerce et Vente</option>
-                      <option value="Finance et Assurance">Finance et Assurance</option>
+                      <option value="Commerce et Vente">
+                        Commerce et Vente
+                      </option>
+                      <option value="Finance et Assurance">
+                        Finance et Assurance
+                      </option>
                       <option value="Éducation et Formation">
                         Éducation et Formation
                       </option>
@@ -399,7 +520,7 @@ const [submitError, setSubmitError] = useState<string | null>(null);
                     </select>
                   </div>
 
-<div>
+                  <div>
                     <label className="text-[#4C4C4C]" htmlFor="posteSouhaite">
                       Poste souhaité <span className="text-[#FF0000]"> *</span>
                     </label>
@@ -417,7 +538,8 @@ const [submitError, setSubmitError] = useState<string | null>(null);
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                       <label className="text-[#4C4C4C]" htmlFor="dateDebut">
-                        Début de l'alternance <span className="text-[#FF0000]"> *</span>
+                        Début de l'alternance{" "}
+                        <span className="text-[#FF0000]"> *</span>
                       </label>
                       <input
                         type="date"
@@ -431,7 +553,8 @@ const [submitError, setSubmitError] = useState<string | null>(null);
                     </div>
                     <div>
                       <label className="text-[#4C4C4C]" htmlFor="dateFin">
-                        Fin de l'alternance <span className="text-[#FF0000]"> *</span>
+                        Fin de l'alternance{" "}
+                        <span className="text-[#FF0000]"> *</span>
                       </label>
                       <input
                         type="date"
@@ -444,8 +567,6 @@ const [submitError, setSubmitError] = useState<string | null>(null);
                       />
                     </div>
                   </div>
-
-
 
                   <div>
                     <label
@@ -524,9 +645,6 @@ const [submitError, setSubmitError] = useState<string | null>(null);
                       <option value="L3">L3</option>
                       <option value="M1">M1</option>
                       <option value="M2">M2</option>
-
-
-
                     </select>
                   </div>
                 </>
@@ -545,6 +663,7 @@ const [submitError, setSubmitError] = useState<string | null>(null);
                     <label
                       htmlFor="cv"
                       className="flex gap-4 sm:gap-6 items-center justify-center w-full h-24 sm:h-32 border-2 border-[#7A20DA] rounded-[15px] text-center text-[#616161] hover:bg-gray-100 cursor-pointer"
+                      onClick={() => openCloudinaryWidget("cv")}
                     >
                       <svg
                         width="50"
@@ -566,7 +685,7 @@ const [submitError, setSubmitError] = useState<string | null>(null);
                       <span className="text-sm sm:text-[16px] w-40 sm:w-64 text-left text-[#7A20DA]">
                         Mettre mon CV en ligne ou déposer des fichiers
                       </span>
-                      <input
+                      {/* <input
                         type="file"
                         name="cv"
                         id="cv"
@@ -574,10 +693,9 @@ const [submitError, setSubmitError] = useState<string | null>(null);
                         onChange={(e) => handleFileChange(e, "cv")}
                         className="hidden"
                         required
-                      />
+                      /> */}
                     </label>
                   </div>
-
 
                   {fileMessage && (
                     <p className="text-green-600 text-center text-xs sm:text-sm mt-2">
@@ -604,6 +722,7 @@ const [submitError, setSubmitError] = useState<string | null>(null);
                     <label
                       htmlFor="video"
                       className="flex gap-4 sm:gap-6 items-center justify-center w-full h-24 sm:h-32 border-2 border-[#7A20DA] rounded-[15px] text-center text-[#616161] hover:bg-gray-100 cursor-pointer"
+                      onClick={() => openCloudinaryWidget("video")}
                     >
                       <svg
                         width="50"
@@ -625,7 +744,7 @@ const [submitError, setSubmitError] = useState<string | null>(null);
                       <span className="text-sm sm:text-[16px] w-40 sm:w-64 text-left text-[#7A20DA]">
                         Déposez votre vidéo ou cliquez pour importer un fichier
                       </span>
-                      <input
+                      {/* <input
                         type="file"
                         name="video"
                         id="video"
@@ -634,10 +753,9 @@ const [submitError, setSubmitError] = useState<string | null>(null);
                         className="hidden"
                         required
                         disabled={videoUploading}
-                      />
+                      /> */}
                     </label>
                   </div>
-
 
                   <div className="mt-6 p-4 border-t border-gray-200">
                     <label className="flex items-start cursor-pointer">
@@ -650,12 +768,16 @@ const [submitError, setSubmitError] = useState<string | null>(null);
                         required
                       />
                       <span className="ml-3 text-sm text-gray-600">
-                        J’autorise la consultation de mon profil par les employeurs inscrits à la plateforme. <span className="text-[#FF0000]">*</span>
+                        J’autorise la consultation de mon profil par les
+                        employeurs inscrits à la plateforme.{" "}
+                        <span className="text-[#FF0000]">*</span>
                       </span>
                     </label>
                   </div>
                   {submitError && (
-                    <p className="text-red-600 text-center text-sm mt-4">{submitError}</p>
+                    <p className="text-red-600 text-center text-sm mt-4">
+                      {submitError}
+                    </p>
                   )}
 
                   {videoUploading && (
@@ -690,7 +812,10 @@ const [submitError, setSubmitError] = useState<string | null>(null);
                   className={`${
                     step === 1 || step === 4 ? "w-full" : "w-full"
                   } bg-[#7A20DA] text-white font-medium py-2 px-3 sm:px-4 rounded-lg cursor-pointer hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 transition duration-200 disabled:opacity-50`}
-                 disabled={loading || (step === 4 && (!formData.cvFile || !formData.videoFile))}
+                  disabled={
+                    loading ||
+                    (step === 4 && (!formData.cvUrl || !formData.videoUrl))
+                  }
                 >
                   {loading ? (
                     <div className="w-6 h-6 border-4 border-t-[#7A20DA] border-t-transparent rounded-full animate-spin mx-auto"></div>

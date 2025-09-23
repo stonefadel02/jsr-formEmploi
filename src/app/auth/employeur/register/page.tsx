@@ -5,7 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import Navbar from "@/app/components/Navbar";
 import { useRouter } from "next/navigation";
-
+import { signIn } from "next-auth/react";
 export default function Login() {
   const [formData, setFormData] = useState({
     companyName: "",
@@ -14,6 +14,8 @@ export default function Login() {
     confirmPassword: "", // NOUVEAU
     acceptTerms: false,
   });
+  const [loadingForm, setLoadingForm] = useState(false); 
+  const [loadingGoogle, setLoadingGoogle] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false); // Nouvel état pour le loader
   const [showPassword, setShowPassword] = useState(false);
@@ -31,6 +33,7 @@ export default function Login() {
 
   // Dans votre composant d'inscription Candidat
   const handleSubmit = async (e: React.FormEvent) => {
+    setLoadingForm(true);
     e.preventDefault();
     setLoading(true);
 
@@ -101,7 +104,26 @@ export default function Login() {
     } catch (err: any) {
       setError(err.message);
     } finally {
+      setLoadingForm(false);
       setLoading(false);
+    }
+  };
+
+  const handleGoogleSignIn = async () => {
+    setLoadingGoogle(true); // Active le chargement pour le bouton Google
+    setError("");
+    setSuccess("");
+    try {
+      // Pour les employeurs, nous passons "employeur" comme userType via `state`
+      await signIn("google", {
+        callbackUrl: "/employeur/candidats", // Redirection après connexion/inscription réussie
+        state: "employeur", // Indique au backend que c'est un employeur
+      });
+    } catch (error) {
+      console.error("Erreur lors de la connexion Google pour employeur:", error);
+      setError("Échec de la connexion avec Google.");
+    } finally {
+      setLoadingGoogle(false); // Désactive le chargement
     }
   };
 
@@ -303,20 +325,27 @@ export default function Login() {
             )}
             <div className="mt-4 text-center">
               <button
+              disabled={loadingGoogle}
                 type="button"
-                onClick={() => router.push("/auth/redirect?userType=employeur")}
+               onClick={handleGoogleSignIn}
                 className="w-full bg-white border cursor-pointer border-gray-300 text-gray-700 py-3 px-4 rounded-lg hover:bg-gray-50 flex items-center justify-center space-x-2"
               >
-                <Image
-                  src="/Google.svg"
-                  alt="Google logo"
-                  width={24}
-                  height={24}
-                  className="h-5 w-5"
-                />
-                <span className="font-extrabold sm:text-[18px]">
-                  Se connecter avec Google
-                </span>
+                {loadingGoogle ? (
+                  <div className="w-6 h-6 border-4 border-t-[#7A20DA]  rounded-full animate-spin mx-auto"></div>
+                ) : (
+                  <>
+                    <Image
+                      src="/Google.svg"
+                      alt="Google logo"
+                      width={24}
+                      height={24}
+                      className="h-5 w-5"
+                    />
+                    <span className="font-extrabold sm:text-[18px]">
+                      Se connecter avec Google
+                    </span>
+                  </>
+                )}
               </button>
             </div>
             <p className="mt-4 text-[15px] text-gray-600 font-sans text-left">

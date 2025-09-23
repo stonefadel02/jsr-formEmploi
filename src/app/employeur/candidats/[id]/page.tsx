@@ -46,7 +46,6 @@ export default function CandidateProfile() {
         const response = await axios.get(`/api/candidats/${id}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
-        console.log("Réponse API:", response.data);
         if (response.data.success && response.data.data) {
           setCandidat(response.data.data);
         } else {

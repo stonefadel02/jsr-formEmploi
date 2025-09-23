@@ -98,7 +98,7 @@ export const sendContactFormEmail = async (formData: { senderName: string, sende
   try {
     await resend.emails.send({
       from: 'Contact Jsr-Alternance <contact@jsr-alternance.fr>', // Une adresse de votre domaine vérifié
-      to: 'Contact@jsr-alternance.fr', // 👈 L'email où VOUS recevez les messages
+      to: 'contact@jsr-alternance.fr', // 👈 L'email où VOUS recevez les messages
       subject: `Nouveau message de ${senderName} via le site`,
       replyTo: senderEmail, 
       html: `

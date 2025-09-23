@@ -12,19 +12,35 @@ export default function Login() {
   const roles = ["Je suis candidat", "Je suis employeur"];
   const [selected, setSelected] = useState("Je suis candidat");
   const [loading, setLoading] = useState(false); // Nouvel état pour le loader
+const [loadingGoogle, setLoadingGoogle] = useState(false);
 
   // Convertit le label en valeur utilisable
-  const role = selected === "Je suis candidat" ? "candidat" : "employeur";
-
+  const userType = selected === "Je suis candidat" ? "candidat" : "employeur";
   // Gérer la connexion avec Google
+  // const handleGoogleSignIn = async () => {
+  //   setLoadingGoogle(true);
+  //   try {
+  //     await signIn("google", { callbackUrl: "/profile",  }); // Redirige vers le profil après connexion
+  //   } catch (error) {
+  //     console.error("Erreur lors de la connexion avec Google :", error);
+  //   } finally {
+  //     setLoading(false); // Désactive le loader, même en cas d'erreur
+  //   }
+  // };
+
   const handleGoogleSignIn = async () => {
-    setLoading(true); // Active le loader
+    setLoadingGoogle(true); // Active le chargement pour le bouton Google
     try {
-      await signIn("google", { callbackUrl: "/profile" }); // Redirige vers le profil après connexion
+      
+      await signIn("google", {
+        callbackUrl: userType === "candidat" ? "/candidat/profile" : "/employeur/candidats",
+        state: userType, 
+      });
     } catch (error) {
       console.error("Erreur lors de la connexion avec Google :", error);
+      // Gérer l'erreur, afficher un message à l'utilisateur si nécessaire
     } finally {
-      setLoading(false); // Désactive le loader, même en cas d'erreur
+      setLoadingGoogle(false); // Désactive le chargement
     }
   };
 
@@ -56,7 +72,7 @@ export default function Login() {
             </div>
 
             {/* Formulaire dynamique */}
-            <LoginForm role={role} />
+            <LoginForm role={userType} />
 
             {/* Séparateur */}
             <div className="my-6 flex items-center gap-5 justify-between">
@@ -70,9 +86,9 @@ export default function Login() {
               <button
                 onClick={handleGoogleSignIn}
                 className="w-full bg-white border border-gray-300 text-gray-700 py-3 px-4 rounded-lg flex items-center justify-center gap-4 hover:bg-gray-50 disabled:opacity-50"
-                disabled={loading} // Désactive le bouton pendant le chargement
+                disabled={loadingGoogle}  // Désactive le bouton pendant le chargement
               >
-                {loading ? (
+                {loadingGoogle ? (
                   <div className="w-6 h-6 border-4 border-t-[#7A20DA] border-t-transparent rounded-full animate-spin"></div>
                 ) : (
                   <>
