@@ -39,33 +39,31 @@ import { useEffect } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { PulseLoader } from 'react-spinners'; // Exemple de loader, vous pouvez utiliser le vôtre
+import { Suspense } from "react"; // Assurez-vous d'importer Suspense
 
-export default function AuthRedirectPage() {
+// Déplacez la logique de redirection dans un composant interne ou une fonction de rendu
+// qui sera enveloppée par Suspense.
+function AuthRedirectContent() {
   const { data: session, status } = useSession();
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const error = searchParams.get('error'); // Pour capturer les erreurs de NextAuth.js
+  const searchParams = useSearchParams(); // <-- useSearchParams est ici
+  const error = searchParams.get('error');
 
   useEffect(() => {
     if (status === "authenticated") {
-      // L'utilisateur est connecté. Rediriger en fonction de son userType
       const userType = session.user.userType;
       if (userType === "employeur") {
         router.push("/employeur/candidats");
       } else if (userType === "candidat") {
         router.push("/candidat/profile");
       } else {
-        // Cas par défaut ou gestion d'erreur si userType est inconnu
-        router.push("/"); // Page d'accueil par exemple
+        router.push("/");
       }
     } else if (status === "unauthenticated") {
-      // L'utilisateur n'a pas pu se connecter (ex: erreur, annulation)
       if (error) {
-        // Vous pouvez afficher un message d'erreur spécifique
         console.error("Erreur d'authentification:", error);
-        router.push(`/auth/login?error=${error}`); // Rediriger vers la page de login avec l'erreur
+        router.push(`/auth/login?error=${error}`);
       } else {
-        // Pas d'erreur spécifique, juste déconnecté (ex: annulation)
         router.push("/auth/login");
       }
     }
@@ -81,6 +79,27 @@ export default function AuthRedirectPage() {
     );
   }
 
-  // Fallback si rien ne se passe (ne devrait pas être atteint longtemps)
-  return null;
+  // Ne devrait pas être atteint longtemps, ou affiche un message de chargement générique.
+  return (
+    <div className="flex flex-col items-center justify-center min-h-screen bg-[#F6F6F6] text-[#7A20DA]">
+      <PulseLoader color="#7A20DA" size={15} />
+      <p className="mt-4 text-lg">Redirection en cours...</p>
+    </div>
+  );
+}
+
+// Le composant exporté par défaut qui enveloppe la logique dans Suspense
+export default function AuthRedirectPageWrapper() {
+  return (
+    <Suspense fallback={
+      // Ce fallback s'affiche TRES tôt, avant même que les hooks NextAuth.js ne soient prêts
+      // C'est le fallback pour le rendu initial de useSearchParams
+      <div className="flex flex-col items-center justify-center min-h-screen bg-[#F6F6F6] text-[#7A20DA]">
+        <PulseLoader color="#7A20DA" size={15} />
+        <p className="mt-4 text-lg">Initialisation de la redirection...</p>
+      </div>
+    }>
+      <AuthRedirectContent />
+    </Suspense>
+  );
 }
