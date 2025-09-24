@@ -128,11 +128,8 @@ export async function PUT(req: NextRequest) {
 
     const formData = await req.formData();
     
-    // Debug: Log ce qui est reçu
-    console.log("=== DEBUG PUT ===");
-    console.log("Email:", email);
+  
     for (const [key, value] of formData.entries()) {
-      console.log(`FormData - ${key}:`, value);
     }
 
     const CandidatModel = await CandidatModelPromise;
@@ -142,19 +139,13 @@ export async function PUT(req: NextRequest) {
       return NextResponse.json({ error: "Candidat introuvable" }, { status: 404 });
     }
 
-    console.log("Candidat trouvé:", candidat._id);
-    console.log("Données avant mise à jour:", {
-      cvUrl: candidat.cvUrl,
-      videoUrl: candidat.videoUrl,
-      photoUrl: candidat.photoUrl
-    });
+   
 
     let hasChanges = false;
 
     allowedFields.forEach((field) => {
       const value = formData.get(field);
       if (value !== null && value !== "") {
-        console.log(`Mise à jour du champ ${field}:`, value.toString());
         
         if (field === "alternanceSearch") {
           try {
@@ -177,25 +168,18 @@ export async function PUT(req: NextRequest) {
           if (candidat[field] !== newValue) {
             candidat[field] = newValue;
             hasChanges = true;
-            console.log(`${field} mis à jour de "${candidat[field]}" vers "${newValue}"`);
           }
         }
       }
     });
 
     if (!hasChanges) {
-      console.log("Aucun changement détecté");
       return NextResponse.json({ message: "Aucune modification détectée" });
     }
 
-    console.log("Données après mise à jour:", {
-      cvUrl: candidat.cvUrl,
-      videoUrl: candidat.videoUrl,
-      photoUrl: candidat.photoUrl
-    });
+   
 
     await candidat.save();
-    console.log("Sauvegarde réussie");
 
     // Retourner les données mises à jour pour vérification
     return NextResponse.json({ 

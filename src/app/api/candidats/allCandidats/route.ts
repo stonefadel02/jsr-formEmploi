@@ -30,7 +30,7 @@ interface QueryParams {
 }
 
 interface MatchQuery {
-  status: "Validé";
+  // status: "Validé";
   firstName?: { $regex: string; $options: string };
   lastName?: { $regex: string; $options: string };
   email?: { $regex: string; $options: string };

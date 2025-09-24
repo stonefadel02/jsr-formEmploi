@@ -193,9 +193,9 @@ export default function Candidature() {
                         {new Date(candidature.createdAt).toLocaleDateString()}
                       </td>
                       <td className="py-6 px-6 text-[#2A9D8F]">
-                        {candidature.subscription &&
+                        {candidature.subscription && candidature.status === "Validé"  &&
                         candidature.subscription.isActive &&
-                        new Date(candidature.subscription.endDate) >=
+                        new Date(candidature.subscription.endDate) >= 
                           new Date() ? (
                           // Si l'abonnement est actif ET que la date de fin n'est pas passée
                           <div className="flex items-center gap-2 text-green-600">

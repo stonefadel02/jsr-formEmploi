@@ -83,7 +83,6 @@ export default function Candidature() {
 
     script.onload = () => {
       cloudinaryRef.current = window.cloudinary;
-      console.log("Cloudinary script loaded. window.cloudinary:", window.cloudinary);
       // Créer le widget une fois le script chargé
       createWidgetInstance();
     };
@@ -125,12 +124,7 @@ export default function Candidature() {
           if (!error && result && result.event === "success") {
             const { secure_url, resource_type, format, original_filename } = result.info;
 
-            console.log("--- CLOUDINARY UPLOAD DEBUG INFO ---");
-            console.log("secure_url:", secure_url);
-            console.log("resource_type:", resource_type);
-            console.log("format:", format);
-            console.log("original_filename:", original_filename);
-            console.log("------------------------------------");
+         
 
             let updatedField: "cvUrl" | "videoUrl" | null = null;
 

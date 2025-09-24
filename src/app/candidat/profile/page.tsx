@@ -1157,7 +1157,6 @@ script.onload = () => {
       if (!error && result && result.event === "success") {
         const { secure_url, resource_type, format } = result.info; // Ajoutez 'format' pour une meilleure détection
 
-        console.log("Cloudinary Upload Success:", { secure_url, resource_type, format }); // DEBUG
         
         let sectionToUpdate: "cv" | "video" | "photo" | null = null;
         let newFormData = { ...formData }; // Créer une copie pour la mise à jour conditionnelle
@@ -1412,7 +1411,6 @@ script.onload = () => {
 
   // Si aucun changement n'a été détecté pour les champs textuels, on ne fait pas l'appel API
   if (!changesDetected && formDataToSend.entries().next().done) {
-      console.log("Aucun changement textuel détecté à sauvegarder.");
       setIsLoading((prev) => ({ ...prev, [section]: false }));
       setIsEditing((prev) => ({ ...prev, [section]: false }));
       setSuccessMessage("Aucune modification à sauvegarder.");
