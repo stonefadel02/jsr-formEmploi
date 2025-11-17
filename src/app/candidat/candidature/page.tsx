@@ -1,5 +1,3 @@
-
-
 "use client";
 
 import { searchDepartment, searchCity } from "france-cities-js";
@@ -38,6 +36,8 @@ export default function Candidature() {
     cvUrl: "",
     videoUrl: "",
   });
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [uploadType, setUploadType] = useState<"cv" | "video" | null>(null);
   const [loading, setLoading] = useState(false);
   const [fileMessage, setFileMessage] = useState<string | null>(null);
   const [videoUploading, setVideoUploading] = useState(false);
@@ -57,11 +57,11 @@ export default function Candidature() {
   }));
   const [cities, setCities] = useState<string[]>([]);
 
-  const cloudinaryRef = useRef<any>();
-  const widgetRef = useRef<any>();
+  const cloudinaryRef = useRef<any>(null);
+  const widgetRef = useRef<any>(null);
   // Pas besoin de currentUploadPreset comme state s'il ne change jamais.
   // Définissez-le comme une constante.
-  const UPLOAD_PRESET = "unsigned_upload_candidats"; 
+  const UPLOAD_PRESET = "unsigned_upload_candidats";
 
   // Ce `useEffect` s'occupera uniquement du chargement du script Cloudinary
   // et de l'initialisation du widget UNE SEULE FOIS.
@@ -71,7 +71,7 @@ export default function Candidature() {
       cloudinaryRef.current = window.cloudinary;
       // Si le script est déjà chargé et que le widget n'est pas créé
       if (cloudinaryRef.current && !widgetRef.current) {
-         createWidgetInstance();
+        createWidgetInstance();
       }
       return;
     }
@@ -105,10 +105,80 @@ export default function Candidature() {
     };
   }, []); // Dépendances vides pour s'exécuter une seule fois au montage
 
+  // C'est la fonction qui gère TOUT l'upload vers DO Spaces
+  const handleFileSelected = async (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const file = event.target.files?.[0];
+    if (!file || !uploadType) return;
+
+    const isCv = uploadType === "cv";
+
+    setLoading(true); // Utiliser votre état `loading`
+    setVideoUploading(isCv ? false : true); // Spécifique si c'est une vidéo
+    setSubmitError(null);
+    setFileMessage("Téléversement en cours...");
+
+    try {
+      // 1. Demander l'URL pré-signée à NOTRE backend
+      const res = await fetch("/api/upload-url", {
+        // C'est la NOUVELLE API
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: file.name, type: file.type }),
+      });
+
+      if (!res.ok) {
+        const err = await res.json();
+        throw new Error(
+          err.message || "Erreur serveur lors de la création de l'URL"
+        );
+      }
+
+      const { uploadUrl, publicUrl } = await res.json();
+
+      const uploadRes = await fetch(uploadUrl, {
+        method: "PUT",
+        headers: {
+          "Content-Type": file.type,
+          "x-amz-acl": "public-read", // Important pour la visibilité
+        },
+        body: file,
+      });
+
+      if (!uploadRes.ok) {
+        throw new Error("Échec du téléversement vers DigitalOcean");
+      }
+
+      // 3. SUCCÈS ! Mettre à jour l'état du formulaire (comme avant)
+      const updatedField = isCv ? "cvUrl" : "videoUrl";
+      setFormData((prev) => ({ ...prev, [updatedField]: publicUrl }));
+
+      setFileMessage(
+        isCv ? "CV téléversé avec succès !" : "Vidéo téléversée avec succès !"
+      );
+      setTimeout(() => setFileMessage(null), 3000);
+    } catch (err: any) {
+      console.error(err);
+      setSubmitError(err.message || "Une erreur est survenue.");
+    } finally {
+      setLoading(false);
+      setVideoUploading(false);
+      // Réinitialiser l'input pour permettre de re-uploader le même fichier
+      if (fileInputRef.current) fileInputRef.current.value = "";
+    }
+  };
+
+  // Cette fonction simple remplace `openCloudinaryWidget`
+  const triggerFileUpload = (type: "cv" | "video") => {
+    setUploadType(type); // Mémoriser ce qu'on upload (cv ou video)
+    fileInputRef.current?.click(); // Cliquer sur l'input caché
+  };
 
   // Utilisez useCallback pour mémoriser cette fonction
   const createWidgetInstance = useCallback(() => {
-    if (cloudinaryRef.current && !widgetRef.current) { // Créez le widget seulement s'il n'existe pas encore
+    if (cloudinaryRef.current && !widgetRef.current) {
+      // Créez le widget seulement s'il n'existe pas encore
       widgetRef.current = cloudinaryRef.current.createUploadWidget(
         {
           cloudName: process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME,
@@ -122,9 +192,8 @@ export default function Candidature() {
         },
         async (error: any, result: any) => {
           if (!error && result && result.event === "success") {
-            const { secure_url, resource_type, format, original_filename } = result.info;
-
-         
+            const { secure_url, resource_type, format, original_filename } =
+              result.info;
 
             let updatedField: "cvUrl" | "videoUrl" | null = null;
 
@@ -135,7 +204,9 @@ export default function Candidature() {
               updatedField = "cvUrl";
               setFileMessage("CV sélectionné avec succès !");
             } else {
-              setSubmitError("Type de fichier non reconnu ou mauvaise classification Cloudinary. Seuls les fichiers PDF (CV) et les vidéos (MP4/WebM) sont acceptés.");
+              setSubmitError(
+                "Type de fichier non reconnu ou mauvaise classification Cloudinary. Seuls les fichiers PDF (CV) et les vidéos (MP4/WebM) sont acceptés."
+              );
               return;
             }
 
@@ -154,9 +225,9 @@ export default function Candidature() {
         }
       );
     } else if (widgetRef.current) {
-        console.log("Cloudinary widget already created.");
+      console.log("Cloudinary widget already created.");
     }
-  }, [formData.cvUrl, formData.videoUrl]); 
+  }, [formData.cvUrl, formData.videoUrl]);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
@@ -179,13 +250,13 @@ export default function Candidature() {
     }
   };
 
- const openCloudinaryWidget = (type: "cv" | "video") => {
+  const openCloudinaryWidget = (type: "cv" | "video") => {
     // Si le widget n'est pas encore créé, on tente de le créer
     if (!widgetRef.current) {
-        createWidgetInstance();
-        // Le widget ne sera peut-être pas prêt immédiatement,
-        // donc un petit délai ou un autre mécanisme pourrait être nécessaire
-        // si cela pose problème. Pour l'instant, testons comme ça.
+      createWidgetInstance();
+      // Le widget ne sera peut-être pas prêt immédiatement,
+      // donc un petit délai ou un autre mécanisme pourrait être nécessaire
+      // si cela pose problème. Pour l'instant, testons comme ça.
     }
 
     if (widgetRef.current) {
@@ -197,7 +268,6 @@ export default function Candidature() {
     }
   };
 
-
   const handleNext = (e: React.FormEvent) => {
     e.preventDefault();
     setStep(step + 1);
@@ -205,99 +275,100 @@ export default function Candidature() {
 
   // Candidature.tsx - REMPLACEZ VOTRE FONCTION handleSubmit PAR CELLE-CI
 
-const handleSubmit = async (e: React.FormEvent) => {
-  e.preventDefault();
-  setSubmitError(null);
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSubmitError(null);
 
-  // Validation RGPD
-  if (!formData.rgpdConsent) {
-    const errorMessage =
-      "Vous devez accepter les conditions pour soumettre votre candidature.";
-    setSubmitError(errorMessage);
-    alert(errorMessage);
-    return;
-  }
-  
-  // Validation des URLs (CV et Vidéo)
-  if (!formData.cvUrl || !formData.videoUrl) {
-    const errorMessage =
-      "Veuillez télécharger votre CV et votre vidéo de présentation.";
-    setSubmitError(errorMessage);
-    alert(errorMessage);
-    return;
-  }
+    // Validation RGPD
+    if (!formData.rgpdConsent) {
+      const errorMessage =
+        "Vous devez accepter les conditions pour soumettre votre candidature.";
+      setSubmitError(errorMessage);
+      alert(errorMessage);
+      return;
+    }
 
-  setLoading(true);
+    // Validation des URLs (CV et Vidéo)
+    if (!formData.cvUrl || !formData.videoUrl) {
+      const errorMessage =
+        "Veuillez télécharger votre CV et votre vidéo de présentation.";
+      setSubmitError(errorMessage);
+      alert(errorMessage);
+      return;
+    }
 
-  // Créez un objet FormData pour l'envoi
-  const dataToSend = new FormData();
+    setLoading(true);
 
-  // Ajoutez tous les champs du formulaire à FormData
-  dataToSend.append("firstName", formData.firstName);
-  dataToSend.append("lastName", formData.lastName);
-  dataToSend.append("formation", formData.formation);
-  dataToSend.append("date", formData.date); // Date de naissance
-  dataToSend.append("phone", formData.phone);
-  dataToSend.append("rgpdConsent", String(formData.rgpdConsent)); // Convertir le booléen en chaîne "true" ou "false"
-  dataToSend.append("cvUrl", formData.cvUrl); // L'URL Cloudinary du CV
-  dataToSend.append("videoUrl", formData.videoUrl); // L'URL Cloudinary de la vidéo
+    // Créez un objet FormData pour l'envoi
+    const dataToSend = new FormData();
 
-  // Traitez l'objet `alternanceSearch` en le stringifiant en JSON
-  // car FormData ne gère pas les objets imbriqués directement
-  const alternanceSearchData = {
-    location: `${formData.department} - ${formData.city}`,
-    contracttype: formData.contracttype,
-    sector:
-      formData.sector === "Autres" ? formData.otherSector : formData.sector,
-    level: formData.level,
-    date: formData.date, // Assurez-vous que c'est la bonne date ici (date de début d'alternance ou de naissance?)
-    posteSouhaite: formData.posteSouhaite,
-    dateDebut: formData.dateDebut,
-    dateFin: formData.dateFin,
-  };
-  dataToSend.append("alternanceSearch", JSON.stringify(alternanceSearchData));
+    // Ajoutez tous les champs du formulaire à FormData
+    dataToSend.append("firstName", formData.firstName);
+    dataToSend.append("lastName", formData.lastName);
+    dataToSend.append("formation", formData.formation);
+    dataToSend.append("date", formData.date); // Date de naissance
+    dataToSend.append("phone", formData.phone);
+    dataToSend.append("rgpdConsent", String(formData.rgpdConsent)); // Convertir le booléen en chaîne "true" ou "false"
+    dataToSend.append("cvUrl", formData.cvUrl); // L'URL Cloudinary du CV
+    dataToSend.append("videoUrl", formData.videoUrl); // L'URL Cloudinary de la vidéo
 
-  try {
-    const token = Cookies.get("token");
-    if (!token) {
+    // Traitez l'objet `alternanceSearch` en le stringifiant en JSON
+    // car FormData ne gère pas les objets imbriqués directement
+    const alternanceSearchData = {
+      location: `${formData.department} - ${formData.city}`,
+      contracttype: formData.contracttype,
+      sector:
+        formData.sector === "Autres" ? formData.otherSector : formData.sector,
+      level: formData.level,
+      date: formData.date, // Assurez-vous que c'est la bonne date ici (date de début d'alternance ou de naissance?)
+      posteSouhaite: formData.posteSouhaite,
+      dateDebut: formData.dateDebut,
+      dateFin: formData.dateFin,
+    };
+    dataToSend.append("alternanceSearch", JSON.stringify(alternanceSearchData));
+
+    try {
+      const token = Cookies.get("token");
+      if (!token) {
         setSubmitError("Vous n'êtes pas connecté. Veuillez vous reconnecter.");
         router.push("/login"); // Rediriger vers la page de connexion si le token est manquant
         return;
+      }
+
+      const res = await fetch("/api/candidats/candidature", {
+        method: "PUT",
+        // Lorsque vous envoyez un objet FormData,
+        // le navigateur définit AUTOMATIQUEMENT l'en-tête Content-Type
+        // avec la valeur "multipart/form-data" et la boundary appropriée.
+        // Il est CRUCIAL de NE PAS définir manuellement "Content-Type" ici.
+        body: dataToSend,
+        headers: {
+          Authorization: `Bearer ${token}`,
+          // "Content-Type": "application/json", <-- COMMENTEZ OU SUPPRIMEZ CETTE LIGNE
+        },
+      });
+
+      const result = await res.json();
+
+      if (res.ok) {
+        alert("Candidature soumise avec succès !");
+        router.push("/candidat/test-de-personnalite");
+      } else {
+        // Afficher l'erreur spécifique du serveur si disponible
+        const errorMessage =
+          result.error || "Une erreur est survenue lors de la soumission.";
+        setSubmitError(errorMessage);
+        alert(`Erreur: ${errorMessage}`);
+        console.error("Server Error:", result);
+      }
+    } catch (error) {
+      console.error("Erreur lors de la soumission du formulaire :", error);
+      setSubmitError("Une erreur réseau est survenue. Veuillez réessayer.");
+      alert("Une erreur est survenue.");
+    } finally {
+      setLoading(false);
     }
-
-    const res = await fetch("/api/candidats/candidature", {
-      method: "PUT",
-      // Lorsque vous envoyez un objet FormData,
-      // le navigateur définit AUTOMATIQUEMENT l'en-tête Content-Type
-      // avec la valeur "multipart/form-data" et la boundary appropriée.
-      // Il est CRUCIAL de NE PAS définir manuellement "Content-Type" ici.
-      body: dataToSend,
-      headers: {
-        Authorization: `Bearer ${token}`,
-        // "Content-Type": "application/json", <-- COMMENTEZ OU SUPPRIMEZ CETTE LIGNE
-      },
-    });
-
-    const result = await res.json();
-
-    if (res.ok) {
-      alert("Candidature soumise avec succès !");
-      router.push("/candidat/test-de-personnalite");
-    } else {
-      // Afficher l'erreur spécifique du serveur si disponible
-      const errorMessage = result.error || "Une erreur est survenue lors de la soumission.";
-      setSubmitError(errorMessage);
-      alert(`Erreur: ${errorMessage}`);
-      console.error("Server Error:", result);
-    }
-  } catch (error) {
-    console.error("Erreur lors de la soumission du formulaire :", error);
-    setSubmitError("Une erreur réseau est survenue. Veuillez réessayer.");
-    alert("Une erreur est survenue.");
-  } finally {
-    setLoading(false);
-  }
-};
+  };
 
   useEffect(() => {
     if (formData.department) {
@@ -325,6 +396,13 @@ const handleSubmit = async (e: React.FormEvent) => {
               onSubmit={step === 4 ? handleSubmit : handleNext}
               className="flex flex-col gap-2 sm:gap-3"
             >
+              <input
+                type="file"
+                ref={fileInputRef}
+                onChange={handleFileSelected}
+                style={{ display: "none" }}
+                accept={uploadType === "cv" ? ".pdf" : "video/*"} // Accepte dynamiquement
+              />
               {step === 1 && (
                 <>
                   <h2 className="text-[20px] sm:text-[17px] md:text-[20px] font-bold text-left text-black mb-2 sm:mb-4">
@@ -532,7 +610,7 @@ const handleSubmit = async (e: React.FormEvent) => {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                       <label className="text-[#4C4C4C]" htmlFor="dateDebut">
-                        Début de l'alternance{" "}
+                        Début de l`alternance{" "}
                         <span className="text-[#FF0000]"> *</span>
                       </label>
                       <input
@@ -547,7 +625,7 @@ const handleSubmit = async (e: React.FormEvent) => {
                     </div>
                     <div>
                       <label className="text-[#4C4C4C]" htmlFor="dateFin">
-                        Fin de l'alternance{" "}
+                        Fin de l`alternance{" "}
                         <span className="text-[#FF0000]"> *</span>
                       </label>
                       <input
@@ -657,7 +735,8 @@ const handleSubmit = async (e: React.FormEvent) => {
                     <label
                       htmlFor="cv"
                       className="flex gap-4 sm:gap-6 items-center justify-center w-full h-24 sm:h-32 border-2 border-[#7A20DA] rounded-[15px] text-center text-[#616161] hover:bg-gray-100 cursor-pointer"
-                      onClick={() => openCloudinaryWidget("cv")}
+                      // onClick={() => openCloudinaryWidget("cv")}
+                      onClick={() => triggerFileUpload("cv")}
                     >
                       <svg
                         width="50"
@@ -698,7 +777,7 @@ const handleSubmit = async (e: React.FormEvent) => {
                   )}
                   <p className="text-[#616161] text-center text-xs sm:text-[14px] mt-1 sm:mt-2">
                     Les types de fichiers pris en charge sont uniquement pdf
-                    (Taille max. : 5 MB)
+                    
                   </p>
                 </>
               )}
@@ -716,7 +795,8 @@ const handleSubmit = async (e: React.FormEvent) => {
                     <label
                       htmlFor="video"
                       className="flex gap-4 sm:gap-6 items-center justify-center w-full h-24 sm:h-32 border-2 border-[#7A20DA] rounded-[15px] text-center text-[#616161] hover:bg-gray-100 cursor-pointer"
-                      onClick={() => openCloudinaryWidget("video")}
+                      // onClick={() => openCloudinaryWidget("video")}
+                      onClick={() => triggerFileUpload("video")}
                     >
                       <svg
                         width="50"
@@ -786,7 +866,7 @@ const handleSubmit = async (e: React.FormEvent) => {
                   )}
                   <p className="text-[#616161] text-center text-xs sm:text-[14px] mt-1 sm:mt-2">
                     Les types de fichiers pris en charge sont uniquement
-                    MP4/WebM (Taille max. : 5 MB)
+                    MP4/WebM 
                   </p>
                 </>
               )}
