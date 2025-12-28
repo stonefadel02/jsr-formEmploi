@@ -45,12 +45,19 @@ export async function POST(req: NextRequest) {
     user.isEmailVerified = true;
     user.emailVerificationToken = undefined;
     user.emailVerificationExpires = undefined;
+    if (role === 'candidat') {
+      user.isActive = true; 
+      user.status = 'Validé'; // Assurez-vous que ce status correspond à votre logique
+    }
     await user.save();
 
     // On renvoie l'email et le rôle pour que le front-end puisse rediriger vers le paiement
+    const responseMessage = role === 'candidat' 
+      ? 'Email validé avec succès !' 
+      : 'Email validé avec succès ! Préparation du paiement...';
     return NextResponse.json({ 
       success: true, 
-      message: 'Email validé avec succès ! Vous allez être redirigé vers le paiement.',
+      message: responseMessage,
       email: user.email,
       role: role
     });

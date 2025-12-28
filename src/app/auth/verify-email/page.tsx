@@ -9,11 +9,79 @@ function VerifyEmailContent() {
   const token = searchParams.get('token');
   const [message, setMessage] = useState('Vérification de votre e-mail en cours...');
 
+  // useEffect(() => {
+  //   if (token) {
+  //     const verifyToken = async () => {
+  //       try {
+  //         // --- Étape 1 : Valider le token ---
+  //         const verifyResponse = await fetch('/api/auth/verify-email', {
+  //           method: 'POST',
+  //           headers: { 'Content-Type': 'application/json' },
+  //           body: JSON.stringify({ token }),
+  //         });
+
+  //         const verifyData = await verifyResponse.json();
+
+  //         if (!verifyResponse.ok) {
+  //           throw new Error(verifyData.message || "Le lien de vérification est invalide ou a expiré.");
+  //         }
+
+  //         setMessage('Email validé ! Préparation du paiement...');
+
+  //         // --- Étape 2 : Créer la session de paiement ---
+  //         const { email, role } = verifyData;
+
+  //         if (!role) {
+  //           throw new Error("Impossible de déterminer le rôle de l'utilisateur.");
+  //         }
+
+  //         // On choisit le bon Price ID en fonction du rôle
+  //         const priceId = role === 'candidat'
+  //           ? process.env.NEXT_PUBLIC_STRIPE_CANDIDATE_PRICE_ID
+  //           : process.env.NEXT_PUBLIC_STRIPE_EMPLOYER_PRICE_ID;
+
+  //         if (!priceId) {
+  //           throw new Error("ID de produit non configuré.");
+  //         }
+
+  //         const checkoutResponse = await fetch('/api/create-checkout-session', {
+  //           method: 'POST',
+  //           headers: { 'Content-Type': 'application/json' },
+  //           body: JSON.stringify({
+  //             priceId: priceId,
+  //             customer_email: email,
+  //             role: role
+  //           }),
+  //         });
+
+  //         const checkoutData = await checkoutResponse.json();
+
+  //         if (!checkoutResponse.ok || !checkoutData.url) {
+  //           throw new Error(checkoutData.error || "Erreur lors de la création de la session de paiement.");
+  //         }
+
+  //         // --- Étape 3 : Rediriger vers Stripe ---
+  //         window.location.href = checkoutData.url;
+
+  //       } catch (error: any) {
+  //         setMessage(error.message);
+  //       }
+  //     };
+
+  //     verifyToken();
+  //   } else {
+  //     setMessage("Aucun token de vérification fourni.");
+  //   }
+  // }, [token, router]);
+
+
+  // ... (imports restants identiques)
+
   useEffect(() => {
     if (token) {
       const verifyToken = async () => {
         try {
-          // --- Étape 1 : Valider le token ---
+          // --- Étape 1 : Valider le token (Backend) ---
           const verifyResponse = await fetch('/api/auth/verify-email', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -23,45 +91,46 @@ function VerifyEmailContent() {
           const verifyData = await verifyResponse.json();
 
           if (!verifyResponse.ok) {
-            throw new Error(verifyData.message || "Le lien de vérification est invalide ou a expiré.");
+            throw new Error(verifyData.message || "Le lien de vérification est invalide.");
           }
 
-          setMessage('Email validé ! Préparation du paiement...');
-
-          // --- Étape 2 : Créer la session de paiement ---
           const { email, role } = verifyData;
 
-          if (!role) {
-            throw new Error("Impossible de déterminer le rôle de l'utilisateur.");
+          // --- Étape 2 : Logique de redirection différenciée ---
+          
+          if (role === 'candidat') {
+            // SI C'EST UN CANDIDAT : On l'envoie direct au profil
+            setMessage('Compte validé ! Redirection vers votre profil...');
+            
+            // Petit délai pour que l'utilisateur lise le message
+            setTimeout(() => {
+              router.push('/candidat/profile');
+            }, 1500);
+
+          } else if (role === 'employeur') {
+            // SI C'EST UN EMPLOYEUR : On continue vers Stripe
+            setMessage('Email validé ! Préparation du paiement...');
+
+            const priceId = process.env.NEXT_PUBLIC_STRIPE_EMPLOYER_PRICE_ID;
+
+            const checkoutResponse = await fetch('/api/create-checkout-session', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                priceId: priceId,
+                customer_email: email,
+                role: role
+              }),
+            });
+
+            const checkoutData = await checkoutResponse.json();
+
+            if (!checkoutResponse.ok || !checkoutData.url) {
+              throw new Error(checkoutData.error || "Erreur lors de la création du paiement.");
+            }
+
+            window.location.href = checkoutData.url;
           }
-
-          // On choisit le bon Price ID en fonction du rôle
-          const priceId = role === 'candidat'
-            ? process.env.NEXT_PUBLIC_STRIPE_CANDIDATE_PRICE_ID
-            : process.env.NEXT_PUBLIC_STRIPE_EMPLOYER_PRICE_ID;
-
-          if (!priceId) {
-            throw new Error("ID de produit non configuré.");
-          }
-
-          const checkoutResponse = await fetch('/api/create-checkout-session', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              priceId: priceId,
-              customer_email: email,
-              role: role
-            }),
-          });
-
-          const checkoutData = await checkoutResponse.json();
-
-          if (!checkoutResponse.ok || !checkoutData.url) {
-            throw new Error(checkoutData.error || "Erreur lors de la création de la session de paiement.");
-          }
-
-          // --- Étape 3 : Rediriger vers Stripe ---
-          window.location.href = checkoutData.url;
 
         } catch (error: any) {
           setMessage(error.message);
@@ -69,8 +138,6 @@ function VerifyEmailContent() {
       };
 
       verifyToken();
-    } else {
-      setMessage("Aucun token de vérification fourni.");
     }
   }, [token, router]);
 
