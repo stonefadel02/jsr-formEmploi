@@ -3,6 +3,8 @@ import jwt from "jsonwebtoken";
 
 const publicRoutes = [
   "/",
+  "/auth/candidat/candidature",
+
   "/pages/paiement",
   "/pages/inscription",
   "/pages/contact",
@@ -20,7 +22,6 @@ const publicRoutes = [
    "/sitemap.xml", // ✅ AJOUTER CETTE LIGNE
   "/robots.txt", 
    "/auth/verify-email",
-   "/auth/candidat/candidature",
 ];
 
 export function middleware(req: NextRequest) {
@@ -120,6 +121,11 @@ export function middleware(req: NextRequest) {
   return NextResponse.next();
 }
 
+// export const config = {
+//   matcher: ["/((?!_next/image|_next/static|_next|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif)$|api/).*)"],
+// };
+
 export const config = {
-  matcher: ["/((?!_next/image|_next/static|_next|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif)$|api/).*)"],
+  // Ajoutez |candidat/candidature dans l'exclusion ci-dessous
+  matcher: ["/((?!_next/image|_next/static|_next|favicon.ico|auth/candidat/candidature|.*\\.(?:svg|png|jpg|jpeg|gif)$|api/).*)"],
 };
