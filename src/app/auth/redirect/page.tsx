@@ -55,7 +55,7 @@ function AuthRedirectContent() {
       if (userType === "employeur") {
         router.push("/employeur/candidats");
       } else if (userType === "candidat") {
-        router.push("/candidat/profile");
+        router.push("/candidat/candidature");
       } else {
         router.push("/");
       }
