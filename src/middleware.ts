@@ -20,6 +20,7 @@ const publicRoutes = [
    "/sitemap.xml", // ✅ AJOUTER CETTE LIGNE
   "/robots.txt", 
    "/auth/verify-email",
+   "/auth/candidat/candidature",
 ];
 
 export function middleware(req: NextRequest) {
@@ -110,11 +111,11 @@ export function middleware(req: NextRequest) {
   }
 
   // ✅ Vérification de l'état de l'abonnement pour les candidats
-  if (role === "candidat" && isActive === false && isTrial === false) {
-    if (url === "/candidat/profile" || url.startsWith("/candidat/profile/")) {
-      return NextResponse.redirect(new URL("/pages/tarifs", req.url));
-    }
-  }
+  // if (role === "candidat" && isActive === false && isTrial === false) {
+  //   if (url === "/candidat/profile" || url.startsWith("/candidat/profile/")) {
+  //     return NextResponse.redirect(new URL("/pages/tarifs", req.url));
+  //   }
+  // }
 
   return NextResponse.next();
 }
