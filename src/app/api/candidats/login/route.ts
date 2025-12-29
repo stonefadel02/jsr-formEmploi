@@ -2,7 +2,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import CandidatModelPromise from '@/models/Candidats';
-import CandidatSubscriptionModelPromise from '@/models/CandidatSubscription';
+// import CandidatSubscriptionModelPromise from '@/models/CandidatSubscription';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import { ICandidat } from '@/lib/types';
@@ -17,7 +17,7 @@ export async function POST(req: NextRequest) {
     }
 
     const CandidatModel = await CandidatModelPromise;
-    const CandidatSubscriptionModel = await CandidatSubscriptionModelPromise;
+    // const CandidatSubscriptionModel = await CandidatSubscriptionModelPromise;
 
     const candidat = await CandidatModel.findOne({ email }) as ICandidat;
     if (!candidat) {
@@ -32,16 +32,16 @@ export async function POST(req: NextRequest) {
     }
 
     // --- NOUVELLE VÉRIFICATION D'ABONNEMENT (SIMPLIFIÉE) ---
-    const subscription = await CandidatSubscriptionModel.findOne({ candidatId: candidat._id });
+    // const subscription = await CandidatSubscriptionModel.findOne({ candidatId: candidat._id });
     
-    if (!subscription || !subscription.isActive) {
-      return NextResponse.json({ message: 'Votre compte n\'est pas actif. Veuillez souscrire à un abonnement.' }, { status: 403 });
-    }
+    // if (!subscription || !subscription.isActive) {
+    //   return NextResponse.json({ message: 'Votre compte n\'est pas actif. Veuillez souscrire à un abonnement.' }, { status: 403 });
+    // }
 
-    const now = new Date();
-    if (subscription.endDate! < now) {
-      return NextResponse.json({ message: 'Votre abonnement a expiré. Veuillez le renouveler.' }, { status: 403 });
-    }
+    // const now = new Date();
+    // if (subscription.endDate! < now) {
+    //   return NextResponse.json({ message: 'Votre abonnement a expiré. Veuillez le renouveler.' }, { status: 403 });
+    // }
     // --- FIN DE LA VÉRIFICATION ---
 
 
@@ -50,7 +50,7 @@ export async function POST(req: NextRequest) {
         id: candidat._id, 
         email: candidat.email, 
         role: candidat.role,
-        isActive: subscription.isActive, // On garde cette info utile
+        isActive: true, // On garde cette info utile
       },
       process.env.JWT_SECRET!,
       { expiresIn: '7d' }
@@ -62,7 +62,7 @@ export async function POST(req: NextRequest) {
       candidat: {
         id: candidat._id,
         email: candidat.email,
-        isActive: subscription.isActive,
+        isActive: true,
       },
     }, { status: 200 });
   } catch (error) {
