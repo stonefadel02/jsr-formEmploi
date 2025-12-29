@@ -104,7 +104,7 @@ function VerifyEmailContent() {
             
             // Petit délai pour que l'utilisateur lise le message
             setTimeout(() => {
-              router.push('/auth/candidat/candidature');
+              router.push('/candidat/candidature');
             }, 1500);
 
           } else if (role === 'employeur') {
