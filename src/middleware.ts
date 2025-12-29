@@ -121,11 +121,7 @@ export function middleware(req: NextRequest) {
   return NextResponse.next();
 }
 
-// export const config = {
-//   matcher: ["/((?!_next/image|_next/static|_next|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif)$|api/).*)"],
-// };
-
 export const config = {
-  // Ajoutez |candidat/candidature dans l'exclusion ci-dessous
-  matcher: ["/((?!_next/image|_next/static|_next|favicon.ico|auth/candidat/candidature|.*\\.(?:svg|png|jpg|jpeg|gif)$|api/).*)"],
+  matcher: ["/((?!_next/image|_next/static|_next|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif)$|api/).*)"],
 };
+
