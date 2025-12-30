@@ -78,6 +78,7 @@ import jwt from 'jsonwebtoken'; // 1. Importer JWT
 import { connectCandidatsDb } from '@/lib/mongodb';
 import CandidatModelPromise from '@/models/Candidats';
 import EmployerModelPromise from '@/models/Employer';
+// ... (imports restants identiques)
 
 export async function POST(req: NextRequest) {
   try {
@@ -111,10 +112,9 @@ export async function POST(req: NextRequest) {
     }
 
     if (!user) {
-      return NextResponse.json({ success: false, message: 'Le lien de vérification est invalide ou a expiré.' }, { status: 400 });
+      return NextResponse.json({ success: false, message: 'Lien invalide ou expiré.' }, { status: 400 });
     }
 
-    // Mise à jour de l'utilisateur
     user.isEmailVerified = true;
     user.emailVerificationToken = undefined;
     user.emailVerificationExpires = undefined;
@@ -126,43 +126,32 @@ export async function POST(req: NextRequest) {
     
     await user.save();
 
-    // 2. CRÉATION DU TOKEN DE SESSION
+    // CRÉATION DU TOKEN
     const sessionToken = jwt.sign(
-      { 
-        id: user._id, 
-        email: user.email, 
-        role: role, 
-        isActive: user.isActive || false 
-      },
+      { id: user._id, email: user.email, role: role, isActive: user.isActive || false },
       process.env.JWT_SECRET!,
       { expiresIn: '7d' }
     );
 
-    const responseMessage = role === 'candidat' 
-      ? 'Email validé avec succès ! Connexion en cours...' 
-      : 'Email validé avec succès ! Préparation du paiement...';
-
-    // 3. PRÉPARATION DE LA RÉPONSE AVEC LE COOKIE
     const response = NextResponse.json({ 
       success: true, 
-      message: responseMessage,
-      email: user.email,
-      role: role
+      token: sessionToken, // ✅ On renvoie AUSSI le token dans le JSON par sécurité
+      role: role,
+      email: user.email
     });
 
-    // 4. INSTALLATION DU COOKIE "token"
+    // INSTALLATION DU COOKIE
     response.cookies.set("token", sessionToken, {
-      httpOnly: true, // Sécurité : empêche le JS de lire le cookie
+      httpOnly: false, // ✅ Mettre à false pour que js-cookie puisse éventuellement le lire
       secure: process.env.NODE_ENV === "production",
       sameSite: "lax",
       path: "/",
-      maxAge: 60 * 60 * 24 * 7, // 7 jours
+      maxAge: 60 * 60 * 24 * 7,
     });
 
     return response;
 
   } catch (error) {
-    console.error('Erreur vérification email :', error);
     return NextResponse.json({ success: false, message: 'Erreur serveur.' }, { status: 500 });
   }
 }

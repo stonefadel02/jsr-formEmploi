@@ -160,11 +160,11 @@
 //         </div>
 //     )
 // }
-
 "use client";
 
 import { useEffect, useState, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
+import Cookies from 'js-cookie';
 
 function VerifyEmailContent() {
   const router = useRouter();
@@ -181,7 +181,6 @@ function VerifyEmailContent() {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ token }),
-            credentials: 'include', // ✅ IMPORTANT : Inclure les cookies
           });
 
           const verifyData = await verifyResponse.json();
@@ -190,31 +189,34 @@ function VerifyEmailContent() {
             throw new Error(verifyData.message || "Le lien de vérification est invalide.");
           }
 
+          // ✅ ÉTAPE CRUCIALE : Enregistrement manuel du cookie de session
+          // On imite ici la logique du succès de paiement employeur
+          if (verifyData.token) {
+            Cookies.set("token", verifyData.token, { 
+              expires: 7, 
+              secure: process.env.NODE_ENV === "production", 
+              sameSite: "Lax",
+              path: "/"
+            });
+          }
+
           const { email, role } = verifyData;
 
-          // --- Étape 2 : Logique de redirection différenciée ---
-          
+          // --- Étape 2 : Logique de redirection ---
           if (role === 'candidat') {
-            // SI C'EST UN CANDIDAT : On l'envoie direct au profil
-            setMessage('✅ Compte validé avec succès ! Vous êtes maintenant connecté.');
+            setMessage('✅ Compte validé ! Connexion en cours...');
             
-            // ✅ Attendre un peu plus longtemps pour que le cookie soit bien enregistré
-            // puis faire une redirection complète (pas router.push)
+            // On laisse 1.5s pour que le cookie soit bien inscrit par le navigateur
             setTimeout(() => {
-              // ✅ Utiliser window.location.href pour forcer un rechargement complet
-              // Cela garantit que le middleware verra le nouveau cookie
+              // ✅ Redirection complète pour forcer le Middleware à relire les cookies
               window.location.href = '/candidat/candidature';
-            }, 2000);
+            }, 1500);
 
           } else if (role === 'employeur') {
-            // SI C'EST UN EMPLOYEUR : On continue vers Stripe
             setMessage('Email validé ! Préparation du paiement...');
 
             const priceId = process.env.NEXT_PUBLIC_STRIPE_EMPLOYER_PRICE_ID;
-
-            if (!priceId) {
-              throw new Error("Configuration de paiement manquante.");
-            }
+            if (!priceId) throw new Error("Configuration de paiement manquante.");
 
             const checkoutResponse = await fetch('/api/create-checkout-session', {
               method: 'POST',
@@ -224,16 +226,13 @@ function VerifyEmailContent() {
                 customer_email: email,
                 role: role
               }),
-              credentials: 'include', // ✅ Inclure les cookies
             });
 
             const checkoutData = await checkoutResponse.json();
-
             if (!checkoutResponse.ok || !checkoutData.url) {
-              throw new Error(checkoutData.error || "Erreur lors de la création du paiement.");
+              throw new Error(checkoutData.error || "Erreur Stripe.");
             }
 
-            // Redirection vers Stripe
             window.location.href = checkoutData.url;
           }
 
@@ -246,26 +245,28 @@ function VerifyEmailContent() {
     } else {
       setMessage("❌ Aucun token de vérification fourni.");
     }
-  }, [token, router]);
+  }, [token]);
 
   return (
     <div className="text-center bg-white p-10 rounded-lg shadow-lg max-w-md">
       <h1 className="text-2xl font-bold mb-4 text-gray-800">
         Finalisation de votre inscription
       </h1>
-      <p className="text-gray-600 mb-6">{message}</p>
+      <p className="text-gray-600 mb-6 font-medium">{message}</p>
       
-      {/* Spinner */}
-      {message.includes('en cours') || message.includes('Préparation') ? (
-        <div className="w-12 h-12 border-4 border-t-purple-600 border-transparent rounded-full animate-spin mx-auto"></div>
+      {/* Spinner ou icône de succès */}
+      {(message.includes('en cours') || message.includes('Préparation')) ? (
+        <div className="w-12 h-12 border-4 border-t-[#7A20DA] border-transparent rounded-full animate-spin mx-auto"></div>
       ) : message.includes('✅') ? (
-        <div className="text-5xl">✅</div>
-      ) : message.includes('❌') ? (
+        <div className="text-5xl animate-bounce">✅</div>
+      ) : (
         <div className="text-5xl">❌</div>
-      ) : null}
+      )}
     </div>
   );
 }
+
+// ... (VerifyEmailPage reste identique)
 
 export default function VerifyEmailPage() {
   return (
