@@ -49,9 +49,9 @@ export default function Acceuil() {
           <div className="grid grid-cols-1 md:grid-cols-2 mx-auto max-w-2xl gap-6 mb-12">
             <div className="bg-white backdrop-blur-md p-6 rounded-lg text-white text-center">
               <h2 className="text-2xl text-[#7A20DA] font-bold mb-4">
-                Plan Payant - Candidat
+                Plan Gratuit - Candidat
               </h2>
-              <p className="text-xl text-[#252525] font-bold mb-4">10€ / an</p>
+              <p className="text-xl text-[#252525] font-bold mb-4">0€ / an</p>
               <ul className="text-left text-[#616161] mb-6 space-y-2">
                 <li>✔ Accès à sa candidature</li>
                 <li>✔ CV et profil visible aux recruteurs</li>
@@ -66,7 +66,7 @@ export default function Acceuil() {
                 </button>
               </Link>
 
-              <button
+              {/* <button
                 onClick={() =>
                   handleSubscribe(
                     "price_1RxTklLv0b9ozmcy7h0DMsrl",'candidat',
@@ -78,7 +78,7 @@ export default function Acceuil() {
                 disabled={loadingCandidat}
               >
                 {loadingCandidat ? "Chargement..." : "Renouveler"}
-              </button>
+              </button> */}
             </div>
             <div className="bg-white backdrop-blur-md p-6 rounded-lg text-white text-center">
               <h2 className="text-2xl text-[#7A20DA] font-bold mb-4">

@@ -213,7 +213,7 @@ export default function CandidateProfile() {
                     </p>
                   </div>
                   <div className="grid grid-cols-[150px_1fr] gap-4 items-center">
-                    <h3 className="text-[#4E4E4E] text-[16px] sm:text-[18px]">Coordonnées</h3>
+                    <h3 className="text-[#4E4E4E] text-[16px] sm:text-[18px]">Secteur d'activité</h3>
                     <p className="text-[#4C4C4C] py-1 sm:py-2">
                       {candidat.alternanceSearch?.sector || "Non spécifié"}
                     </p>

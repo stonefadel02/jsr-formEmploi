@@ -150,14 +150,14 @@ export async function GET(
     // Utiliser l'agrégation MongoDB pour joindre les abonnements
     const pipeline: any[] = [
       { $match: matchQuery },
-      {
-        $lookup: {
-          from: "candidatsubscriptions",
-          localField: "_id",
-          foreignField: "candidatId",
-          as: "subscription",
-        },
-      },
+      // {
+      //   $lookup: {
+      //     from: "candidatsubscriptions",
+      //     localField: "_id",
+      //     foreignField: "candidatId",
+      //     as: "subscription",
+      //   },
+      // },
       {
         $lookup: {
           from: "employercandidateinteractions", // Nom de la nouvelle collection
@@ -184,21 +184,21 @@ export async function GET(
       },
       {
         $addFields: {
-          subscription: { $arrayElemAt: ["$subscription", 0] },
+          // subscription: { $arrayElemAt: ["$subscription", 0] },
           statusForEmployer: {
             $ifNull: [{ $arrayElemAt: ["$interaction.status", 0] }, "viewed"],
           },
         },
       },
-      // ✅ NOUVEAU : On ajoute un filtre pour ne garder que les abonnés actifs
-      {
-        $match: {
-          "subscription.isActive": true,
-          "subscription.endDate": { $gte: new Date() }, // La date de fin doit être supérieure ou égale à aujourd'hui
-        },
+      // // ✅ NOUVEAU : On ajoute un filtre pour ne garder que les abonnés actifs
+      // {
+      //   $match: {
+      //     "subscription.isActive": true,
+      //     "subscription.endDate": { $gte: new Date() }, // La date de fin doit être supérieure ou égale à aujourd'hui
+      //   },
 
        
-      },
+      // },
     ];
      if (statusFilter) {
       pipeline.push({ $match: { statusForEmployer: statusFilter } });
